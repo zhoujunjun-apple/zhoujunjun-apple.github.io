@@ -93,7 +93,7 @@
 <meta property="og:url" content="http://yoursite.com/2017/04/03/SVM模型的由来及SMO算法的python实现/index.html">
 <meta property="og:site_name" content="二颗苹果">
 <meta property="og:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍SMO算法的主要步骤，最后给出Python实现。">
-<meta property="og:updated_time" content="2017-04-03T17:32:42.774Z">
+<meta property="og:updated_time" content="2017-04-03T17:37:42.602Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SVM模型的由来及SMO算法的python实现">
 <meta name="twitter:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍SMO算法的主要步骤，最后给出Python实现。">
@@ -372,7 +372,7 @@ y_i w_{t+1}^T x_i \leftarrow y_i w_t^T x_i + \eta (y_i x_i)^2; \\
 y_i b_{t+1} \leftarrow y_i b_t + \eta y_i^2</script><p>因为$(y_i x_i)^2 \ge 0$,$y_i^2 = 1$以及$0 \lt \eta \le 1$,所以会得到：</p>
 <script type="math/tex; mode=display">
 y_i w_{t+1}^T x_i \ge y_i w_t^T x_i \\
-y_i b_{t+1} \gt y_i b_t</script><p>综合起来看就是$y<em>i w</em>{t+1} x<em>i + y_i b</em>{t+1} \gt y_i w_t^T x_i + y_i b_t$,这个不等式告诉我们的是：<strong>误分类点$(x_i,y_i)$是朝着使损失函数减小的方向改变$w,b$的</strong></p>
+y_i b_{t+1} \gt y_i b_t</script><p>综合起来看就是${y_i w_{t+1} x_i + y_i b_{t+1}} \gt {y_i w_t^T x_i + y_i b_t}$, 这个不等式告诉我们一件事情：<strong>误分类点$(x_i,y_i)$是朝着使损失函数减小的方向改变$w,b$的</strong></p>
 <p>另外可以从核心迭代式得到的结果[2]是最后学习到的参数可以分别表示为：</p>
 <script type="math/tex; mode=display">
 w = \sum_{i=1}^N \alpha_i y_i x_i; \quad
