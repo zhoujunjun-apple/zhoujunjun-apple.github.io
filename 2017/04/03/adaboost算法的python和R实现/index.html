@@ -93,7 +93,7 @@
 <meta property="og:url" content="http://yoursite.com/2017/04/03/adaboost算法的python和R实现/index.html">
 <meta property="og:site_name" content="二颗苹果">
 <meta property="og:description" content="本文对Adaptive Boosting算法进行简单介绍，并分别利用Python和R语言进行了实现，只适用于数值类单特征的二分类问题。">
-<meta property="og:updated_time" content="2017-04-03T13:39:47.078Z">
+<meta property="og:updated_time" content="2017-04-03T14:07:17.130Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="adaboost算法的python和R实现">
 <meta name="twitter:description" content="本文对Adaptive Boosting算法进行简单介绍，并分别利用Python和R语言进行了实现，只适用于数值类单特征的二分类问题。">
@@ -363,7 +363,7 @@
 <h1 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h1><h3 id="样本初始化"><a href="#样本初始化" class="headerlink" title="样本初始化"></a>样本初始化</h3><p>如果训练样本的类标签是大致均匀的话，则一般采用算法中默认的初始化方法；但类别不平衡时，需要不同的初始化方法。例如：$A,B,C$类样本数量分别为1000,200,100,则可以采用如下方法：<br>
 $$
 sample weight = \left\{
-\begin{aligned}
+\begin{array}{rcl}
 A class & {{1 \over 3} \times {1 \over 1000} }\\
 B class & {{1 \over 3} \times {1 \over 200} }\\
 C class & {{1 \over 3} \times {1 \over 100} }
