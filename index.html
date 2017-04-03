@@ -361,23 +361,23 @@ $$ L(w,b) = -\sum{y_i(wx_i + b)} , x_i \in M$$
 <li>选取初值$w_0, b_0$;</li>
 <li>从训练集中选择样本$(x_i, y_i)$;</li>
 <li>如果$y_i(wx_i + b) \le 0$:<script type="math/tex; mode=display">
-w \leftarrow w + \eta y_i x_i;
+w \leftarrow w + \eta y_i x_i;\quad
 b \leftarrow b + \eta y_i;</script></li>
 <li>转到步骤2,直到训练集中没有误分类点。</li>
 </ol>
 <p>分析一下最核心的迭代公式：</p>
 <script type="math/tex; mode=display">
-w_{t+1} \leftarrow w_t + \eta y_i x_i
+w_{t+1} \leftarrow w_t + \eta y_i x_i; \quad
 b_{t+1} \leftarrow b_t + \eta y_i</script><p>如果对上述迭代式均左乘$y_i$并右乘$x_i$[1],则得到：</p>
 <script type="math/tex; mode=display">
-y_i w_{t+1}^T x_i \leftarrow y_i w_t^T x_i + \eta (y_i x_i)^2
+y_i w_{t+1}^T x_i \leftarrow y_i w_t^T x_i + \eta (y_i x_i)^2; \\
 y_i b_{t+1} \leftarrow y_i b_t + \eta y_i^2</script><p>因为$(y_i x_i)^2 \be 0$,$y_i^2 = 1$以及$0 \lt \eta \le 1$,所以会得到：</p>
 <script type="math/tex; mode=display">
-y_i w_{t+1}^T x_i \ge y_i w_t^T x_i
+y_i w_{t+1}^T x_i \ge y_i w_t^T x_i \\
 y_i b_{t+1} \gt y_i b_t</script><p>综合起来看就是$(y<em>i w</em>{t+1} x<em>i + y_i b</em>{t+1}) \gt (y_i w_t^T x_i + y_i b_t)$,这个不等式告诉我们的是：<strong>误分类点$(x_i,y_i)$是朝着使损失函数减小的方向改变$w,b$的</strong></p>
 <p>另外可以从核心迭代式得到的结果[2]是最后学习到的参数可以分别表示为：</p>
 <script type="math/tex; mode=display">
-w = \sum_{i=1}^N \alpha_i y_i x_i
+w = \sum_{i=1}^N \alpha_i y_i x_i; \quad
 b = \sum_{i=1}^N \alpha_i y_i</script><p>上式中的$\alpha_i = n_i \eta$,$n_i$表示$(x_i,y_i)$作为误分类样本参与修改$w,b$的次数，$n_i$越大，表明$(x_i,y_i)$距离分离超平面越近，对感知机的学习影响越大。</p>
 <h1 id="支持向量机"><a href="#支持向量机" class="headerlink" title="支持向量机"></a>支持向量机</h1><h1 id="SMO算法"><a href="#SMO算法" class="headerlink" title="SMO算法"></a>SMO算法</h1><h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
 <li>林轩田 机器学习基石</li>
