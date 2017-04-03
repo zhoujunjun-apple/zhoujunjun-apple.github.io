@@ -93,7 +93,7 @@
 <meta property="og:url" content="http://yoursite.com/2017/04/03/adaboost算法的python和R实现/index.html">
 <meta property="og:site_name" content="二颗苹果">
 <meta property="og:description" content="本文对Adaptive Boosting算法进行简单介绍，并分别利用Python和R语言进行了实现，只适用于数值类单特征的二分类问题。">
-<meta property="og:updated_time" content="2017-04-03T09:58:46.538Z">
+<meta property="og:updated_time" content="2017-04-03T10:13:50.426Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="adaboost算法的python和R实现">
 <meta name="twitter:description" content="本文对Adaptive Boosting算法进行简单介绍，并分别利用Python和R语言进行了实现，只适用于数值类单特征的二分类问题。">
@@ -349,10 +349,10 @@
       
         <h1 id="adaboost算法"><a href="#adaboost算法" class="headerlink" title="adaboost算法"></a>adaboost算法</h1><ol>
 <li>初始化样本的权值分布$ D = (w<em>{11}, \ldots, w</em>{1i}, \ldots, w<em>{1N}), w</em>{1i} = {1 \over N}, i=1, 2, \ldots, N, N $表示样本个数;</li>
-<li>计算候选的切分点序列( S=(S_1, S<em>2, \ldots, S</em>{N-1}) )，默认是取特征的相邻两个值的平均值;</li>
+<li>计算候选的切分点序列 $ S=(S_1, S<em>2, \ldots, S</em>{N-1}) $，默认是取特征的相邻两个值的平均值;</li>
 <li>采用树桩作为基本的弱分类器，从$S$中选择使得在训练数据集上分类误差率最小的切分点建立基本分类器$G_j(x):x \rightarrow {-1, 1}$,同时记录其分类误差率$e_j$;</li>
 <li>计算基本分类器$G_j(x)$的权重系数$ \alpha = {1 \over 2} log ({{1 - e_j} \over e_j})$ ;</li>
-<li>更新训练样本的权值分布: (w<em>{2i} = { w</em>{1i} \over Z } exp(-\alpha y_i G_j(x_i))),其中$Z$是一个归一化因子;</li>
+<li>更新训练样本的权值分布: $ w<em>{2i} = { w</em>{1i} \over Z } exp(-\alpha y_i G_j(x_i)) $,其中$Z$是一个归一化因子;</li>
 <li>构建最终分类器$G_{final}(x) = sign (\sum{\alpha G_j(x)})$</li>
 <li>判断是否满足精度要求或者达到最大迭代次数。如果是，则返回第3步;否则，输出最终分类器$G_{final}(x)$</li>
 </ol>
