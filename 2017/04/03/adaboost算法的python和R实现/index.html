@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next muse use-motion" lang="zh-CN">
+<html class="theme-next muse use-motion" lang="zh-Hans">
 <head>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -93,7 +93,7 @@
 <meta property="og:url" content="http://yoursite.com/2017/04/03/adaboost算法的python和R实现/index.html">
 <meta property="og:site_name" content="二颗苹果">
 <meta property="og:description" content="本文对Adaptive Boosting算法进行简单介绍，并分别利用Python和R语言进行了实现，只适用于数值类单特征的二分类问题。">
-<meta property="og:updated_time" content="2017-04-03T09:23:12.466Z">
+<meta property="og:updated_time" content="2017-04-03T09:48:30.770Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="adaboost算法的python和R实现">
 <meta name="twitter:description" content="本文对Adaptive Boosting算法进行简单介绍，并分别利用Python和R语言进行了实现，只适用于数值类单特征的二分类问题。">
@@ -110,7 +110,7 @@
     motion: true,
     duoshuo: {
       userId: '0',
-      author: 'Author'
+      author: '博主'
     },
     algolia: {
       applicationID: '',
@@ -133,7 +133,7 @@
   <title> adaboost算法的python和R实现 | 二颗苹果 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
 
   
 
@@ -196,7 +196,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
-            Startseite
+            首页
           </a>
         </li>
       
@@ -206,7 +206,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
             
-            Archiv
+            归档
           </a>
         </li>
       
@@ -216,7 +216,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
             
-            Tags
+            标签
           </a>
         </li>
       
@@ -283,9 +283,9 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Veröffentlicht am</span>
+                <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-04-03T14:51:08+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-03T14:51:08+08:00">
                 2017-04-03
               </time>
             
@@ -304,7 +304,7 @@
                 <i class="fa fa-folder-o"></i>
               </span>
               
-                <span class="post-meta-item-text">in</span>
+                <span class="post-meta-item-text">分类于</span>
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
@@ -348,11 +348,11 @@
 
       
         <h1 id="adaboost算法"><a href="#adaboost算法" class="headerlink" title="adaboost算法"></a>adaboost算法</h1><ol>
-<li>初始化样本的权值分布$ D = (w<em>{11}, \ldot, w</em>{1i}, \ldot, w<em>{1N}), w</em>{1i} = {1 \over N}, i=1, 2, \ldot, N, N $表示样本个数;</li>
-<li>计算候选的切分点序列$ S=(S_1, S<em>2, \ldot, S</em>{N-1}) $，默认是取特征的相邻两个值的平均值;</li>
+<li>初始化样本的权值分布$ D = (w<em>{11}, \ldots, w</em>{1i}, \ldots, w<em>{1N}), w</em>{1i} = {1 \over N}, i=1, 2, \ldots, N, N $表示样本个数;</li>
+<li>计算候选的切分点序列$ S=(S_1, S<em>2, \ldots, S</em>{N-1}) $，默认是取特征的相邻两个值的平均值;</li>
 <li>采用树桩作为基本的弱分类器，从$S$中选择使得在训练数据集上分类误差率最小的切分点建立基本分类器$G_j(x):x \rightarrow {-1, 1}$,同时记录其分类误差率$e_j$;</li>
 <li>计算基本分类器$G_j(x)$的权重系数$ \alpha = {1 \over 2} log ({{1 - e_j} \over e_j})$ ;</li>
-<li>更新训练样本的权值分布: $w<em>{2i} = w</em>{1i} \over Z $exp(-\alpha y_i G_j(x_i))$,其中$Z$是一个归一化因子;</li>
+<li>更新训练样本的权值分布: $w<em>{2i} = { w</em>{1i} \over Z } exp(-\alpha y_i G_j(x_i))$,其中$Z$是一个归一化因子;</li>
 <li>构建最终分类器$G_{final}(x) = sign (\sum{\alpha G_j(x)})$</li>
 <li>判断是否满足精度要求或者达到最大迭代次数。如果是，则返回第3步;否则，输出最终分类器$G_{final}(x)$</li>
 </ol>
@@ -444,10 +444,10 @@
       
         <ul class="sidebar-nav motion-element">
           <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            Inhaltsverzeichnis
+            文章目录
           </li>
           <li class="sidebar-nav-overview" data-target="site-overview">
-            Übersicht
+            站点概览
           </li>
         </ul>
       
@@ -468,7 +468,7 @@
             <div class="site-state-item site-state-posts">
               <a href="/archives">
                 <span class="site-state-item-count">1</span>
-                <span class="site-state-item-name">Artikel</span>
+                <span class="site-state-item-name">日志</span>
               </a>
             </div>
           
@@ -479,7 +479,7 @@
             <div class="site-state-item site-state-categories">
               
                 <span class="site-state-item-count">1</span>
-                <span class="site-state-item-name">Kategorien</span>
+                <span class="site-state-item-name">分类</span>
               
             </div>
           
@@ -490,7 +490,7 @@
             <div class="site-state-item site-state-tags">
               
                 <span class="site-state-item-count">3</span>
-                <span class="site-state-item-name">Tags</span>
+                <span class="site-state-item-name">标签</span>
               
             </div>
           
@@ -556,11 +556,11 @@
 
 
 <div class="powered-by">
-  Erstellt mit  <a class="theme-link" href="https://hexo.io">Hexo</a>
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
 </div>
 
 <div class="theme-info">
-  Theme -
+  主题 -
   <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
     NexT.Muse
   </a>
