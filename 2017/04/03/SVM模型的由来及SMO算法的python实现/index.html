@@ -93,7 +93,7 @@
 <meta property="og:url" content="http://yoursite.com/2017/04/03/SVM模型的由来及SMO算法的python实现/index.html">
 <meta property="og:site_name" content="二颗苹果">
 <meta property="og:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍SMO算法的主要步骤，最后给出Python实现。">
-<meta property="og:updated_time" content="2017-04-03T17:15:22.266Z">
+<meta property="og:updated_time" content="2017-04-03T17:32:42.774Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SVM模型的由来及SMO算法的python实现">
 <meta name="twitter:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍SMO算法的主要步骤，最后给出Python实现。">
@@ -350,7 +350,7 @@
         <h1 id="感知机学习算法"><a href="#感知机学习算法" class="headerlink" title="感知机学习算法"></a>感知机学习算法</h1><p>感知机是二类分类的线性分类模型，它假设训练数据线性可分的前提下，在特征向量空间中寻找能够将样本完全正确划分开的分离超平面。<br>为了找到这个分离超平面，同时也为了优化的便利，感知机重点关注<strong>误分类点</strong>到分离超平面的距离(损失函数如下)，并通过SGD对其进行优化。<br>
 $$ L(w,b) = -\sum{y_i(wx_i + b)} , x_i \in M$$
 </p>
-<p>算法如下[2]：</p>
+<p>感知机的学习算法如下[2]：</p>
 <ul>
 <li>输入：训练集$T = {(x_1,y_1),(x_2,y_2),\ldots,(x_N,y_N)}$,其中$x_i \in R^n, y_i \in { -1,+1}, i=1,2,\ldots,N$;学习率 $\eta(0 \lt \eta \le 1);$</li>
 <li>输出：$f(x) = sign(wx + b)$</li>
@@ -359,20 +359,20 @@ $$ L(w,b) = -\sum{y_i(wx_i + b)} , x_i \in M$$
 <li>选取初值$w_0, b_0$;</li>
 <li>从训练集中选择样本$(x_i, y_i)$;</li>
 <li>如果$y_i(wx_i + b) \le 0$:<script type="math/tex; mode=display">
-w \leftarrow w + \eta y_i x_i;\quad
+w \leftarrow w + \eta y_i x_i;\\
 b \leftarrow b + \eta y_i;</script></li>
 <li>转到步骤2,直到训练集中没有误分类点。</li>
 </ol>
 <p>分析一下最核心的迭代公式：</p>
 <script type="math/tex; mode=display">
-w_{t+1} \leftarrow w_t + \eta y_i x_i; \quad
+w_{t+1} \leftarrow w_t + \eta y_i x_i; \\
 b_{t+1} \leftarrow b_t + \eta y_i</script><p>如果对上述迭代式均左乘$y_i$并右乘$x_i$[1],则得到：</p>
 <script type="math/tex; mode=display">
 y_i w_{t+1}^T x_i \leftarrow y_i w_t^T x_i + \eta (y_i x_i)^2; \\
-y_i b_{t+1} \leftarrow y_i b_t + \eta y_i^2</script><p>因为$(y_i x_i)^2 \be 0$,$y_i^2 = 1$以及$0 \lt \eta \le 1$,所以会得到：</p>
+y_i b_{t+1} \leftarrow y_i b_t + \eta y_i^2</script><p>因为$(y_i x_i)^2 \ge 0$,$y_i^2 = 1$以及$0 \lt \eta \le 1$,所以会得到：</p>
 <script type="math/tex; mode=display">
 y_i w_{t+1}^T x_i \ge y_i w_t^T x_i \\
-y_i b_{t+1} \gt y_i b_t</script><p>综合起来看就是$(y<em>i w</em>{t+1} x<em>i + y_i b</em>{t+1}) \gt (y_i w_t^T x_i + y_i b_t)$,这个不等式告诉我们的是：<strong>误分类点$(x_i,y_i)$是朝着使损失函数减小的方向改变$w,b$的</strong></p>
+y_i b_{t+1} \gt y_i b_t</script><p>综合起来看就是$y<em>i w</em>{t+1} x<em>i + y_i b</em>{t+1} \gt y_i w_t^T x_i + y_i b_t$,这个不等式告诉我们的是：<strong>误分类点$(x_i,y_i)$是朝着使损失函数减小的方向改变$w,b$的</strong></p>
 <p>另外可以从核心迭代式得到的结果[2]是最后学习到的参数可以分别表示为：</p>
 <script type="math/tex; mode=display">
 w = \sum_{i=1}^N \alpha_i y_i x_i; \quad
