@@ -94,7 +94,7 @@
 <meta property="og:site_name" content="二颗苹果">
 <meta property="og:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍求解SVM对偶形式问题的SMO算法的主要步骤，最后给出Python实现。">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/fat_hyperplane.png">
-<meta property="og:updated_time" content="2017-04-04T14:21:29.705Z">
+<meta property="og:updated_time" content="2017-04-04T14:25:09.273Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SVM模型的由来及SMO算法的python实现">
 <meta name="twitter:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍求解SVM对偶形式问题的SMO算法的主要步骤，最后给出Python实现。">
@@ -474,11 +474,11 @@ w = \sum_{i=1}^N \alpha_i y_i x_i \quad \sum_{i=1}^N \alpha_i y_i = 0
 \tag{12}</script><p>第四步，将(12)中的第一个等式代回到拉格朗日函数(5)进行整理，并将(12)的第二个等式做为约束，得到最终形式的对偶问题：</p>
 <script type="math/tex; mode=display">
 \left\{
-\begin{array}
+\begin{array}{rcl}
 \max_{\alpha} \quad -{1 \over 2} \sum_{i=1}^N { \sum_{j=1}^N { \alpha_i \alpha_j y_i y_j (x_i \cdot x_j) } } + \sum_{i=1}^N \alpha_i \\
 s.t. \sum_{i=1}^N \alpha_i y_i = 0; \quad \alpha_i \ge 0, \quad i=1,2,\ldots,N\\
 \end{array}
-\right. \tag{13}</script><p>最后利用后一节的SMO算法找到$\alpha_j \ge 0$的样本点$(x_i,y_i)$，然后通过等式(11)就能够找出最大间隔分离超平面的位置$(w^\star,b^\star)$。</p>
+\right. \tag{13}</script><p>最后利用后一节的SMO算法找到$\alpha_j \ge 0$的样本点$(x_j,y_j)$，然后通过等式(11)就能够找出最大间隔分离超平面的位置$(w^\star,b^\star)$。</p>
 <h1 id="SMO算法"><a href="#SMO算法" class="headerlink" title="SMO算法"></a>SMO算法</h1><h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
 <li>林轩田 机器学习基石</li>
 <li>李航 统计学习方法</li>
