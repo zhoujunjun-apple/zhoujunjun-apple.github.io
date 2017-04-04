@@ -94,7 +94,7 @@
 <meta property="og:site_name" content="二颗苹果">
 <meta property="og:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍求解SVM对偶形式问题的SMO算法的主要步骤，最后给出Python实现。">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/fat_hyperplane.png">
-<meta property="og:updated_time" content="2017-04-04T09:54:14.737Z">
+<meta property="og:updated_time" content="2017-04-04T13:20:04.921Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SVM模型的由来及SMO算法的python实现">
 <meta name="twitter:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍求解SVM对偶形式问题的SMO算法的主要步骤，最后给出Python实现。">
@@ -424,7 +424,62 @@ $$
 L_1: \quad \hat w x + b = 1 \\
 L_2: \quad \hat w x + b = -1 \\
 \end{cases} \tag{4}</script><p>所有的正类样本在$L_1$的$\hat w$方向所指那一侧，所有的负类样本都在$L_2$的$\hat w$反方向所指的那一侧，间隔边界中间没有样本点</p>
-<h2 id="SVM的对偶形式"><a href="#SVM的对偶形式" class="headerlink" title="SVM的对偶形式"></a>SVM的对偶形式</h2><h1 id="SMO算法"><a href="#SMO算法" class="headerlink" title="SMO算法"></a>SMO算法</h1><h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<h2 id="SVM的对偶形式"><a href="#SVM的对偶形式" class="headerlink" title="SVM的对偶形式"></a>SVM的对偶形式</h2><p>从SVM的原始算法到对偶算法需要借助拉格朗日对偶性这座桥梁，然后借助KKT条件建立对偶问题的最优解与原始问题的最优解的数学联系，达到通过求解对偶问题的最优解来间接得到原始问题最优解的目的。下面分别从拉格朗日对偶性和KKT条件两方面对整个过程进行梳理，具体的理论推导在参考文献[2]的附录有详细的过程。</p>
+<h3 id="拉格朗日对偶性"><a href="#拉格朗日对偶性" class="headerlink" title="拉格朗日对偶性"></a>拉格朗日对偶性</h3><p>第一步，对于优化问题(3)中的每个不等式约束$1 - y<em>i(wx_i + b) \le 0$引进拉格朗日乘子$\alpha</em>{i} \ge 0,\ i=1,2,\ldots,N$，并定义拉格朗日函数：<br>
+$$
+L(w,b,\alpha) = {1 \over 2}{\| w \|}^2 - \sum_{i=1}^N{\alpha_i y_i {wx_i + b}} + \sum_{i=1}^N \alpha_i
+\tag{5}
+$$
+<br>第二步，利用拉格朗日函数$L(w,b,\alpha)$将优化问题(5)改写为<strong>等价</strong>的形式:</p>
+<script type="math/tex; mode=display">
+(5) \Leftrightarrow \min_{w,b} \max_{\alpha;\alpha_i \ge 0} L(w,b,\alpha)
+\tag{6}</script><p>第三步，写出对偶问题以及建立与优化问题(6)的关系，对偶问题如下：</p>
+<script type="math/tex; mode=display">
+\max_{\alpha;\alpha_i \ge 0} \min_{w,b} L(w,b,\alpha)
+\tag{7}</script><p>它与优化问题(6)存在如下的关系：</p>
+<script type="math/tex; mode=display">
+{\max{\alpha;\alpha_i \ge 0} \min_{w,b} L(w,b,\alpha) } \le 
+{\min_{w,b} \max_{\alpha;\alpha_i \ge 0} L(w,b,\alpha)}
+\tag{8}</script><p>上面的不等式关系可以用一句话概括：整体A不大于整体B，则A中的最大值也必不大于B中的最小值。且等号成立当且仅当$\alpha^\star$和$w^\star,b^\star$分别是对偶问题(7)和原始问题(3或5)的最优解。所以现在的关键是：满足什么样的条件我们才能够有底气说$\alpha^\star$和$w^\star,b^\star$分别是对偶问题和原始问题的最优解？</p>
+<h3 id="KKT条件"><a href="#KKT条件" class="headerlink" title="KKT条件"></a>KKT条件</h3><p>上面问题的解就是KKT条件，它向我们保证：只要你找到的$\alpha,w,b$能够满足下面的所有条件，那么恭喜你，你找到了最佳的那组解。</p>
+<script type="math/tex; mode=display">
+\left\{
+\begin{array}{rcl}
+w \partial L(w,b,\alpha)=0 \\
+b \partial L(w,b,\alpha)=0 \\
+\alpha \partial L(w,b,\alpha)=0 \\
+\alpha_i[1-y_i(wx_i + b)]=0 \\
+1 - y_i(wx_i + b) \le 0 \\
+\alpha_i \ge 0,\quad i=1,2,\ldots,N
+\end{array} \right.
+\tag{9}</script><p>第一步，将(5)中的拉格朗日函数代入KKT条件，得：</p>
+<script type="math/tex; mode=display">
+\left\{
+\begin{array}{rcl}
+w - \sum_{i=1}^N \alpha_i y_i x_i = 0 \\
+-\sum_{i=1}^N \alpha_i y_i = 0 \\
+1 - y_i(wx_i + b) = 0 \\
+\alpha_i[1 - y_i(wx_i + b)] = 0 \\
+y_i(wx_i + b) - 1 \ge 0 \\
+\alpha_i \ge 0,\quad i=1,2,\ldots,N
+\end{array} \right.
+\tag{10}</script><p>第二步，建立最优解之间的关系。通过反证法[2]可以证明必然存在某个样本点$(x_i,y_i)$的$\alpha_j \gt 0$，从而可以从(10)中的第4个等式保证第3个等式一定是成立的，同时也不违反第5个不等式，于是可以得到最优解$\alpha^\star,w^\star,b^\star$之间的关系：</p>
+<script type="math/tex; mode=display">
+\begin{cases}
+w^\star = \sum_{i=1}^N \alpha^\star y_i x_i \\
+b^\star = y_j - \sum_{i=1}^N \alpha^\star y_i (x_i \cdot  x_j) \\
+\end{cases} tag{11}</script><p>到了这里，我们只需要找出对偶问题的最优解$\alpha^\star$就能够找到那个最大间隔分离超平面$(w^\star,b^\star)$。<br>第三步，回到对偶问题(7)，可以看到需要先找出$L(w,b,\alpha)$对于$w,b$的最小值，从拉格朗日函数(5)可知$L(w,b,\alpha)$是关于$w,b$的凸函数，因此分别对$w,b$求偏导并令其等于0[2]，得到：</p>
+<script type="math/tex; mode=display">
+w = \sum_{i=1}^N \alpha_i y_i x_i \quad \sum_{i=1}^N \alpha_i y_i = 0
+\tag{12}</script><p>第四步，将(12)中的第一个等式代回到拉格朗日函数(5)进行整理，并将(12)的第二个等式做为约束，得到最终形式的对偶问题：</p>
+<script type="math/tex; mode=display">
+\left\{
+\begin{array}{rcl}
+\max_\alpha \quad -{1 \over 2} \sum_{i=1}^N { \sum_{j=1}^N { \alpha_i \alpha_j y_i y_j (x_i \cdot x_j) } } + \sum_{i=1}^N \alpha_i \\
+s.t. \sum_{i=1}^N \alpha_i y_i = 0; \quad \alpha_i \ge 0, \quad i=1,2,\ldots,N\\
+\end{array}{rcl}
+\right. \tag{13}</script><p>最后利用后一节的SMO算法找到$\alpha_j \ge 0$的样本点$(x_i,y_i)$，然后通过等式(11)就能够找出最大间隔分离超平面的位置$(w^\star,b^\star)$。</p>
+<h1 id="SMO算法"><a href="#SMO算法" class="headerlink" title="SMO算法"></a>SMO算法</h1><h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
 <li>林轩田 机器学习基石</li>
 <li>李航 统计学习方法</li>
 <li>林轩田 机器学习技法 </li>
@@ -614,7 +669,7 @@ L_2: \quad \hat w x + b = -1 \\
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#感知机学习算法"><span class="nav-number">1.</span> <span class="nav-text">感知机学习算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#支持向量机"><span class="nav-number">2.</span> <span class="nav-text">支持向量机</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#SVM原始形式"><span class="nav-number">2.1.</span> <span class="nav-text">SVM原始形式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SVM的对偶形式"><span class="nav-number">2.2.</span> <span class="nav-text">SVM的对偶形式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SMO算法"><span class="nav-number">3.</span> <span class="nav-text">SMO算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码实现"><span class="nav-number">4.</span> <span class="nav-text">代码实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#感知机学习算法"><span class="nav-number">1.</span> <span class="nav-text">感知机学习算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#支持向量机"><span class="nav-number">2.</span> <span class="nav-text">支持向量机</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#SVM原始形式"><span class="nav-number">2.1.</span> <span class="nav-text">SVM原始形式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SVM的对偶形式"><span class="nav-number">2.2.</span> <span class="nav-text">SVM的对偶形式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#拉格朗日对偶性"><span class="nav-number">2.2.1.</span> <span class="nav-text">拉格朗日对偶性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KKT条件"><span class="nav-number">2.2.2.</span> <span class="nav-text">KKT条件</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SMO算法"><span class="nav-number">3.</span> <span class="nav-text">SMO算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码实现"><span class="nav-number">4.</span> <span class="nav-text">代码实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
 
           </div>
