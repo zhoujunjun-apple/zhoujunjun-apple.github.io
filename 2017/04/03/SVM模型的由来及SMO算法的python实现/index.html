@@ -94,7 +94,7 @@
 <meta property="og:site_name" content="二颗苹果">
 <meta property="og:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍求解SVM对偶形式问题的SMO算法的主要步骤，最后给出Python实现。">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/fat_hyperplane.png">
-<meta property="og:updated_time" content="2017-04-04T14:14:56.469Z">
+<meta property="og:updated_time" content="2017-04-04T14:21:29.705Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SVM模型的由来及SMO算法的python实现">
 <meta name="twitter:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍求解SVM对偶形式问题的SMO算法的主要步骤，最后给出Python实现。">
@@ -425,7 +425,7 @@ L_1: \quad \hat w x + b = 1 \\
 L_2: \quad \hat w x + b = -1 \\
 \end{cases} \tag{4}</script><p>所有的正类样本在$L_1$的$\hat w$方向所指那一侧，所有的负类样本都在$L_2$的$\hat w$反方向所指的那一侧，间隔边界中间没有样本点</p>
 <h2 id="SVM的对偶形式"><a href="#SVM的对偶形式" class="headerlink" title="SVM的对偶形式"></a>SVM的对偶形式</h2><p>从SVM的原始算法到对偶算法需要借助拉格朗日对偶性这座桥梁，然后借助KKT条件建立对偶问题的最优解与原始问题的最优解的数学联系，达到通过求解对偶问题的最优解来间接得到原始问题最优解的目的。下面分别从拉格朗日对偶性和KKT条件两方面对整个过程进行梳理，具体的理论推导在参考文献[2]的附录有详细的过程。</p>
-<h3 id="拉格朗日对偶性"><a href="#拉格朗日对偶性" class="headerlink" title="拉格朗日对偶性"></a>拉格朗日对偶性</h3><p>第一步，对于优化问题(3)中的每个不等式约束${1 - y<em>i(wx_i + b)} \le 0$引进拉格朗日乘子${\alpha</em>{i} \ge 0}, i=1,2,\ldots,N$，并定义拉格朗日函数：<br>
+<h3 id="拉格朗日对偶性"><a href="#拉格朗日对偶性" class="headerlink" title="拉格朗日对偶性"></a>拉格朗日对偶性</h3><p>第一步，对于优化问题(3)中的每个不等式约束${1 - y_i(wx_i + b)} \le 0$引进拉格朗日乘子${\alpha_{i} \ge 0}, i=1,2,\ldots,N$，并定义拉格朗日函数：<br>
 $$
 L(w,b,\alpha) = {1 \over 2}{\| w \|}^2 - \sum_{i=1}^N{\alpha_i y_i {wx_i + b}} + \sum_{i=1}^N \alpha_i
 \tag{5}
@@ -475,7 +475,7 @@ w = \sum_{i=1}^N \alpha_i y_i x_i \quad \sum_{i=1}^N \alpha_i y_i = 0
 <script type="math/tex; mode=display">
 \left\{
 \begin{array}
-\max_\alpha \quad -{1 \over 2} \sum_{i=1}^N { \sum_{j=1}^N { \alpha_i \alpha_j y_i y_j (x_i \cdot x_j) } } + \sum_{i=1}^N \alpha_i \\
+\max_{\alpha} \quad -{1 \over 2} \sum_{i=1}^N { \sum_{j=1}^N { \alpha_i \alpha_j y_i y_j (x_i \cdot x_j) } } + \sum_{i=1}^N \alpha_i \\
 s.t. \sum_{i=1}^N \alpha_i y_i = 0; \quad \alpha_i \ge 0, \quad i=1,2,\ldots,N\\
 \end{array}
 \right. \tag{13}</script><p>最后利用后一节的SMO算法找到$\alpha_j \ge 0$的样本点$(x_i,y_i)$，然后通过等式(11)就能够找出最大间隔分离超平面的位置$(w^\star,b^\star)$。</p>
