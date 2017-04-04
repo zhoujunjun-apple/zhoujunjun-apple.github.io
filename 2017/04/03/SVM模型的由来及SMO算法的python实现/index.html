@@ -93,10 +93,12 @@
 <meta property="og:url" content="http://yoursite.com/2017/04/03/SVM模型的由来及SMO算法的python实现/index.html">
 <meta property="og:site_name" content="二颗苹果">
 <meta property="og:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍求解SVM对偶形式问题的SMO算法的主要步骤，最后给出Python实现。">
-<meta property="og:updated_time" content="2017-04-04T06:09:13.481Z">
+<meta property="og:image" content="http://onvlhdoeg.bkt.clouddn.com/fat hyperplane.png">
+<meta property="og:updated_time" content="2017-04-04T09:24:04.097Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SVM模型的由来及SMO算法的python实现">
 <meta name="twitter:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍求解SVM对偶形式问题的SMO算法的主要步骤，最后给出Python实现。">
+<meta name="twitter:image" content="http://onvlhdoeg.bkt.clouddn.com/fat hyperplane.png">
 
 
 
@@ -385,7 +387,7 @@ $$<br>上式中的$\alpha_i = n_i \eta$,其中$n_i$表示$(x_i,y_i)$作为误分
 $$
 \gamma = \min_{i=1,\ldots,N} \quad y_i ({wx_i \over \begin{Vmatrix} w \end{Vmatrix}} + {b \over \begin{Vmatrix} b \end{Vmatrix}})
 $$
-<br>它选择了超平面关于<strong>样本点</strong>$(x_i,y_i)$的几何间隔(即上式去掉min函数后剩下的部分)的最小值，之所以选择几何间隔来度量样本点到分离超平面的距离是因为它不会随$w,b$成比例的改变而改变[2]。支持向量机希望所找到的最佳分离超平面能够使$\gamma$最大，是因为此时的分离超平面的<strong>鲁棒性</strong>最好，如下图所示:</p>
+<br>它选择了超平面关于<strong>样本点</strong>$(x_i,y_i)$的几何间隔(即上式去掉min函数后剩下的部分)的最小值，之所以选择几何间隔来度量样本点到分离超平面的距离是因为它不会随$w,b$成比例的改变而改变[2]。支持向量机希望所找到的最佳分离超平面能够使$\gamma$最大，是因为此时的分离超平面的<strong>鲁棒性</strong>最好，如下图所示:<br><img src="http://onvlhdoeg.bkt.clouddn.com/fat hyperplane.png" alt=""></p>
 <p>总的来说，SVM希望在能够完全正确的将样本分类的前提下，寻找到最佳的分离超平面$(w,b)$，利用数学语言来描述SVM的诉求便得到下面的最优化问题：<br>
 $$
 \begin{cases}
@@ -415,14 +417,13 @@ s.t. \quad y_i(wx_i + b) \ge 1
 \end{cases}
 \tag{3}
 $$
-<br>注意上式用到了等式：${ \max_{w,b} \quad {1 \over {\| w \|}^2} } = { \min_{w,b} {1 \over 2}{\| w \|}^2} $ <br>至此，我们终于得到了大家喜闻乐见的SVM优化问题的原始形式，我这里的思路是按照李航老师《统计学习方法》[2]的第七章进行的，更加直观易懂的推导过程强烈建议大家阅读参考文献[4]的第一部分。</p>
-<p>SVM原始的优化问题清晰之后，咱们再回到之前所说的最佳分离超平面。如果我们得到了优化问题(3)的最优解$(\hat w,\hat b)$，也就确定来最佳分离超平面的方程$L_0:\quad \hat w x + \hat b = 0$，同时在$L_0$两侧距离${1 \over {| w |}^2}$处确定了两个平行于$L_0$的间隔边界：</p>
+<br>注意上式用到了等式：${ \max_{w,b} \quad {1 \over {\| w \|}^2} } \Leftrightarrow { \min_{w,b} {1 \over 2}{\| w \|}^2} $ <br>至此，我们终于得到了大家喜闻乐见的SVM优化问题的原始形式，我这里的思路是按照李航老师《统计学习方法》[2]的第七章进行的，更加直观易懂的推导过程强烈建议大家阅读参考文献[4]的第一部分。</p>
+<p>SVM原始的优化问题清晰之后，咱们再回到之前所说的最佳分离超平面。如果我们得到了优化问题(3)的最优解$(\hat w,\hat b)$，也就确定来最佳分离超平面的方程$L_0:\quad \hat w x + \hat b = 0$，同时在$L_0$两侧距离${1 \over {| w |}}$处确定了两个平行于$L_0$的间隔边界：</p>
 <script type="math/tex; mode=display">
 \begin{cases}
 L_1: \quad \hat w x + b = 1 \\
 L_2: \quad \hat w x + b = -1 \\
-\end{cases} \tag{4}
-$</script><p>所有的正类样本在$L_1$的$\hat w$方向所指那一侧，所有的负类样本都在$L_2$的$\hat w$反方向所指的那一侧，间隔边界中间没有样本点</p>
+\end{cases} \tag{4}</script><p>所有的正类样本在$L_1$的$\hat w$方向所指那一侧，所有的负类样本都在$L_2$的$\hat w$反方向所指的那一侧，间隔边界中间没有样本点</p>
 <h2 id="SVM的对偶形式"><a href="#SVM的对偶形式" class="headerlink" title="SVM的对偶形式"></a>SVM的对偶形式</h2><h1 id="SMO算法"><a href="#SMO算法" class="headerlink" title="SMO算法"></a>SMO算法</h1><h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
 <li>林轩田 机器学习基石</li>
 <li>李航 统计学习方法</li>
