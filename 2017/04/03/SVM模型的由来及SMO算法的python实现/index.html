@@ -93,7 +93,7 @@
 <meta property="og:url" content="http://yoursite.com/2017/04/03/SVM模型的由来及SMO算法的python实现/index.html">
 <meta property="og:site_name" content="二颗苹果">
 <meta property="og:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍求解SVM对偶形式问题的SMO算法的主要步骤，最后给出Python实现。">
-<meta property="og:updated_time" content="2017-04-04T05:18:30.821Z">
+<meta property="og:updated_time" content="2017-04-04T06:05:53.097Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SVM模型的由来及SMO算法的python实现">
 <meta name="twitter:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍求解SVM对偶形式问题的SMO算法的主要步骤，最后给出Python实现。">
@@ -381,16 +381,18 @@ b = \sum_{i=1}^N \alpha_i y_i
 $$<br>上式中的$\alpha_i = n_i \eta$,其中$n_i$表示$(x_i,y_i)$作为误分类样本参与修改$w,b$的次数，$n_i$越大，表明$(x_i,y_i)$距离分离超平面越近，对感知机的学习影响越大。</p>
 <p>总的来说，感知机模型简单易于解释，也有Novikoff定理[2]保证在数据集线性可分时模型一定是收敛的，但是PLA会由于初值$w_0,b_0$的选择以及误分类点选择顺序的不同而产生不同的模型[2]，而且误分类的离群点会对其产生较大的影响，加之只能够适用于线性可分的二分类问题，因此单个的感知机在实际中应用比较少。</p>
 <p>针对PLA解的不确定性，一种解决办法是采用Aggregation[3]，即建立多个感知机模型(采用不同的初始值和样本顺序)后采用多数投票的方式综合预测，但是仍然容易受到离群点的影响;另一种解决办法是增加分离超平面的约束条件，这就是SVM的出发点。</p>
-<h1 id="支持向量机"><a href="#支持向量机" class="headerlink" title="支持向量机"></a>支持向量机</h1><p>支持向量机在PLA的基础上增加寻找最佳分离超平面的约束条件：<strong>间隔最大化</strong>，这里的“间隔”是指超平面$(w,b)$关于<strong>训练数据集</strong> $T$的几何间隔，定义为：<br>
+<h1 id="支持向量机"><a href="#支持向量机" class="headerlink" title="支持向量机"></a>支持向量机</h1><h2 id="SVM原始形式"><a href="#SVM原始形式" class="headerlink" title="SVM原始形式"></a>SVM原始形式</h2><p>支持向量机在PLA的基础上增加寻找最佳分离超平面的约束条件：<strong>间隔最大化</strong>，这里的“间隔”是指超平面$(w,b)$关于<strong>训练数据集</strong> $T$的几何间隔，定义为：<br>
 $$
 \gamma = \min_{i=1,\ldots,N} \quad y_i ({wx_i \over \begin{Vmatrix} w \end{Vmatrix}} + {b \over \begin{Vmatrix} b \end{Vmatrix}})
 $$
-<br>它选择了超平面关于<strong>样本点</strong>$(x_i,y_i)$的几何间隔(即上式去掉min函数后剩下的部分)的最小值，之所以选择几何间隔来度量样本点到分离超平面的距离是因为它不会随$w,b$成比例的改变而改变[2]。</p>
-<p>支持向量机希望所找到的最佳分离超平面能够使$\gamma$最大，是因为此时的分离超平面的<strong>鲁棒性</strong>最好，如下图所示:</p>
-<p>由上所述，SVM的最优化问题为：<br>
+<br>它选择了超平面关于<strong>样本点</strong>$(x_i,y_i)$的几何间隔(即上式去掉min函数后剩下的部分)的最小值，之所以选择几何间隔来度量样本点到分离超平面的距离是因为它不会随$w,b$成比例的改变而改变[2]。支持向量机希望所找到的最佳分离超平面能够使$\gamma$最大，是因为此时的分离超平面的<strong>鲁棒性</strong>最好，如下图所示:</p>
+<p>总的来说，SVM希望在能够完全正确的将样本分类的前提下，寻找到最佳的分离超平面$(w,b)$，利用数学语言来描述SVM的诉求便得到下面的最优化问题：<br>
 $$
+\begin{cases}
 \max_{w,b} \quad \gamma \\
-s.t. \quad y_i ({wx_i \over \begin{Vmatrix} w \end{Vmatrix}} + {b \over \begin{Vmatrix} b \end{Vmatrix}}) \ge \gamma, \quad i=1,2,\ldots,N
+s.t. \quad y_i ({wx_i \over \begin{Vmatrix} w \end{Vmatrix}} + {b \over \begin{Vmatrix} b \end{Vmatrix}}) \ge \gamma, \quad i=1,2,\ldots,N \\
+\end{cases}
+\tag{0}
 $$
 </p>
 <p>令$\gamma = {{\hat \gamma} \over \begin{Vmatrix} w \end{Vmatrix}}$ ，即：<br>
@@ -407,11 +409,21 @@ s.t. \quad y_i (wx_i + b) \gt \hat \gamma, \quad i=1,2,\ldots,N \\
 $$
 <br>在优化问题(2)里面，如果将$w,b$缩放为$\lambda w,\lambda b$，则根据式子(1)$\hat \gamma$会变为$\lambda {\hat \gamma}$，因此优化问题(2)的不等式约束不变; 又因为目标函数中的$| w |$同样变为$\lambda {| w |}$，因此优化问题(2)的目标函数也不变。因此为了求解的方便，我们总可以找到这样一个$\lambda$使得$\lambda {\hat \gamma} = 1$，从而优化问题(2)可以改写为：<br>
 $$
+\begin{cases}
 \min_{w,b} \quad {1 \over 2}{\| w \|}^2 \\
 s.t. \quad y_i(wx_i + b) \ge 1
+\end{cases}
+\tags{3}
 $$
-<br>注意上式用到了等式：${ \max_{w,b} \quad 1 \over {\| w \|}^2 } = { \min_{w,b} {1 \over 2}{\| w \|}^2} $ <br>至此，我们终于得到了大家喜闻乐见的SVM优化问题的原始形式，我这里的思路是按照李航老师《统计学习方法》[2]的第七章进行的，更加直观易懂的推导过程强烈建议大家阅读参考文献[4]的第一部分。</p>
-<h1 id="SMO算法"><a href="#SMO算法" class="headerlink" title="SMO算法"></a>SMO算法</h1><h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<br>注意上式用到了等式：${ \max_{w,b} \quad {1 \over {\| w \|}^2} } = { \min_{w,b} {1 \over 2}{\| w \|}^2} $ <br>至此，我们终于得到了大家喜闻乐见的SVM优化问题的原始形式，我这里的思路是按照李航老师《统计学习方法》[2]的第七章进行的，更加直观易懂的推导过程强烈建议大家阅读参考文献[4]的第一部分。</p>
+<p>SVM原始的优化问题清晰之后，咱们再回到之前所说的最佳分离超平面。如果我们得到了优化问题(3)的最优解$(\hat w,\hat b)$，也就确定来最佳分离超平面的方程$L_0:\quad \hat w x + \hat b = 0$，同时在$L_0$两侧距离${1 \over {| w |}^2}$处确定了两个平行于$L_0$的间隔边界：</p>
+<script type="math/tex; mode=display">
+\begin{cases}
+L_1: \quad \hat w x + b = 1 \\
+L_2: \quad \hat w x + b = -1 \\
+\end{cases} \tags{4}
+$</script><p>所有的正类样本在$L_1$的$\hat w$方向所指那一侧，所有的负类样本都在$L_2$的$\hat w$反方向所指的那一侧，间隔边界中间没有样本点</p>
+<h2 id="SVM的对偶形式"><a href="#SVM的对偶形式" class="headerlink" title="SVM的对偶形式"></a>SVM的对偶形式</h2><h1 id="SMO算法"><a href="#SMO算法" class="headerlink" title="SMO算法"></a>SMO算法</h1><h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
 <li>林轩田 机器学习基石</li>
 <li>李航 统计学习方法</li>
 <li>林轩田 机器学习技法 </li>
@@ -536,7 +548,7 @@ $$
                alt="周君君" />
           <p class="site-author-name" itemprop="name">周君君</p>
            
-              <p class="site-description motion-element" itemprop="description">思考感悟 知识管理</p>
+              <p class="site-description motion-element" itemprop="description">越努力越幸运</p>
           
         </div>
         <nav class="site-state motion-element">
@@ -601,7 +613,7 @@ $$
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#感知机学习算法"><span class="nav-number">1.</span> <span class="nav-text">感知机学习算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#支持向量机"><span class="nav-number">2.</span> <span class="nav-text">支持向量机</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SMO算法"><span class="nav-number">3.</span> <span class="nav-text">SMO算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码实现"><span class="nav-number">4.</span> <span class="nav-text">代码实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#感知机学习算法"><span class="nav-number">1.</span> <span class="nav-text">感知机学习算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#支持向量机"><span class="nav-number">2.</span> <span class="nav-text">支持向量机</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#SVM原始形式"><span class="nav-number">2.1.</span> <span class="nav-text">SVM原始形式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SVM的对偶形式"><span class="nav-number">2.2.</span> <span class="nav-text">SVM的对偶形式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SMO算法"><span class="nav-number">3.</span> <span class="nav-text">SMO算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码实现"><span class="nav-number">4.</span> <span class="nav-text">代码实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
             
 
           </div>
