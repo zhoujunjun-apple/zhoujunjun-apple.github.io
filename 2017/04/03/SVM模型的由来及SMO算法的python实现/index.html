@@ -95,7 +95,7 @@
 <meta property="og:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍求解SVM对偶形式问题的SMO算法的主要步骤，最后给出Python实现。">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/fat_hyperplane.png">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/cut_optimal_solution.png">
-<meta property="og:updated_time" content="2017-04-05T01:18:29.621Z">
+<meta property="og:updated_time" content="2017-04-05T03:42:24.500Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SVM模型的由来及SMO算法的python实现">
 <meta name="twitter:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍求解SVM对偶形式问题的SMO算法的主要步骤，最后给出Python实现。">
@@ -431,9 +431,9 @@ $$
 L(w,b,\alpha) = {1 \over 2}{\| w \|}^2 - \sum_{i=1}^N{\alpha_i y_i {wx_i + b}} + \sum_{i=1}^N \alpha_i
 \tag{5}
 $$
-<br>第二步，利用拉格朗日函数$L(w,b,\alpha)$将优化问题(5)改写为<strong>等价</strong>的形式:</p>
+<br>第二步，利用拉格朗日函数$L(w,b,\alpha)$将原始的优化问题(3)改写为<strong>等价</strong>的形式:</p>
 <script type="math/tex; mode=display">
-(5) \Leftrightarrow \min_{w,b} \max_{\alpha;\alpha_i \ge 0} L(w,b,\alpha)
+(3) \Leftrightarrow \min_{w,b} \max_{\alpha;\alpha_i \ge 0} L(w,b,\alpha)
 \tag{6}</script><p>第三步，写出对偶问题以及建立与优化问题(6)的关系，对偶问题如下：</p>
 <script type="math/tex; mode=display">
 \max_{\alpha;\alpha_i \ge 0} \min_{w,b} L(w,b,\alpha)
@@ -442,7 +442,7 @@ $$
 {\max_{\alpha;\alpha_i \ge 0} \min_{w,b} L(w,b,\alpha) } \le 
 {\min_{w,b} \max_{\alpha;\alpha_i \ge 0} L(w,b,\alpha)}
 \tag{8}</script><p>上面的不等式关系可以用一句话概括：整体A不大于整体B，则A中的最大值也必不大于B中的最小值。且等号成立当且仅当$\alpha^\star$和$w^\star,b^\star$分别是对偶问题(7)和原始问题(3或5)的最优解。所以现在的关键是：满足什么样的条件我们才能够有底气说$\alpha^\star$和$w^\star,b^\star$分别是对偶问题和原始问题的最优解？</p>
-<h3 id="KKT条件"><a href="#KKT条件" class="headerlink" title="KKT条件"></a>KKT条件</h3><p>上面问题的解就是KKT条件，它向我们保证：只要你找到的$\alpha,w,b$能够满足下面的所有条件，那么恭喜你，你找到了最佳的那组解。</p>
+<h3 id="KKT条件"><a href="#KKT条件" class="headerlink" title="KKT条件"></a>KKT条件</h3><p>上面问题的答案就是KKT条件，它向我们保证：只要你找到的$\alpha,w,b$能够满足下面的所有条件，那么恭喜你，你找到了最佳的那组解。</p>
 <script type="math/tex; mode=display">
 \left\{
 \begin{array}{rcl}
@@ -480,7 +480,7 @@ w = \sum_{i=1}^N \alpha_i y_i x_i \quad \sum_{i=1}^N \alpha_i y_i = 0
 s.t. \sum_{i=1}^N \alpha_i y_i = 0; \quad \alpha_i \ge 0, \quad i=1,2,\ldots,N\\
 \end{array}
 \right. \tag{13}</script><p>最后利用后一节的SMO算法找到$\alpha_j \ge 0$的样本点$(x_j,y_j)$，然后通过等式(11)就能够找出最大间隔分离超平面的位置$(w^\star,b^\star)$。其中$\alpha_j \gt 0$对应的样本$(x_j,y_j)$称为支撑向量，这些样本点满足$y_j(wx_j + b) = 1$，说明它们正好落在间隔边界上，但是在间隔边界上的样本点不一定都是支撑向量，因为它们可能有$\alpha_i = 0$。</p>
-<h1 id="线性支持向量机"><a href="#线性支持向量机" class="headerlink" title="线性支持向量机"></a>线性支持向量机</h1><p>线性可分支持向量机只适用于数据集线性可分的情况，对于非线性可分的数据集，我们仍然希望找到这样一个分离<strong>超平面</strong>既能够使分类间隔${2 \over {| w |}}$尽量大，同时使的样本点违反约束条件的程度尽可能低，为了衡量样本违反约束条件的程度，对每个样本点引进一个松弛变量$\xi_i \ge 0$,这个值越大，代表该样本违反约束条件的程度越高（实际上，当$\xi_i \gt 1$时表示样本$(x_i,y_i)产生来误分类$）。此时对应的原始凸二次规划问题为：</p>
+<h1 id="线性支持向量机"><a href="#线性支持向量机" class="headerlink" title="线性支持向量机"></a>线性支持向量机</h1><p>线性可分支持向量机只适用于数据集线性可分的情况，对于非线性可分的数据集，我们仍然希望找到这样一个分离<strong>超平面</strong>既能够使分类间隔${2 \over {| w |}}$尽量大，同时使的样本点违反约束条件的程度尽可能低，为了衡量样本违反约束条件的程度，对每个样本点引进一个松弛变量$\xi_i \ge 0$,这个值越大，代表该样本违反约束条件的程度越高（实际上，当$\xi_i \gt 1$时表示样本$(x_i,y_i)$产生来误分类）。此时对应的原始凸二次规划问题为：</p>
 <script type="math/tex; mode=display">
 \left\{
 \begin{array}{rcl}
@@ -498,13 +498,24 @@ s.t. \sum_{i=1}^N {\alpha_i y_i} = 0 ;\quad
 \end{array} \right.
 \tag{14}
 $$
-<br>SMO算法主要的思路是：初始化所有的变量$\alpha_i,i=1,2,\ldots,N$，从中选择两个变量计为$\alpha_1^{old} = \alpha_1,\alpha_2^{old} = \alpha_2$，保持其他变量$\alpha_3,\ldots,\alpha_N$不变;通过(14)中的第一个等式约束可以将$\alpha_1$用$\alpha_2$表示出来，再将$\alpha_1$代回到(14)的目标函数中得到关于$\alpha_2$的二次函数，令其偏导等于零可以得到$\alpha_2$的一个更新值，计为$\alpha_2^{new,uncut}$; 注意到$\alpha_2^{new,uncut}$可能不满足(14)中的不等式约束，因此需要对其进行一次剪辑操作，剪辑的示意图如下：<br><img src="http://onvolufm1.bkt.clouddn.com/cut_optimal_solution.png" alt=""><br>剪辑后的值计为$\alpha_2^{new,cutted}$，然后根据这个剪辑后的值计算$\alpha_1^{new}$，此时不再需要对$\alpha_1^{new}$进行剪辑操作。此时，我们已经完成来一轮对$\alpha_1,\alpha_2$的优化更新，因为分离超平面$(w,b)$参与了每一轮的变量优化更新，因此需要在每一轮变量的优化更新之后对$w,b$进行更新，而$w=\sum_{i=1}^N \alpha_i y_i x_i$即$w$隐式的通过$\alpha_i$的更新完成了更新，而$b$的更新则需要从中选择一个满足$0 \lt \alpha_j \lt C$的$\alpha_j$来进行更新，剪辑之后的$\alpha_2^{new,cutted}, \alpha_1^{new}$总是满足$0 \le \alpha_i \le C$，因此根据$\alpha_2^{new,cutted},\alpha_1^{new}$来对$b$进行更新，以便参与下一轮的变量优化更新过程。</p>
-<h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<br>SMO算法主要的思路是：初始化所有的变量$\alpha_i,i=1,2,\ldots,N$，从中选择两个变量计为$\alpha_1^{old} = \alpha_1,\alpha_2^{old} = \alpha_2$，保持其他变量$\alpha_3,\ldots,\alpha_N$不变;通过(14)中的第一个等式约束可以将$\alpha_1$用$\alpha_2$表示出来，再将$\alpha_1$代回到(14)的目标函数中得到关于$\alpha_2$的二次函数，令其偏导等于零可以得到$\alpha_2$的一个更新值，计为$\alpha_2^{new,uncut}$; 注意到$\alpha_2^{new,uncut}$可能不满足(14)中的不等式约束，因此需要对其进行一次剪辑操作，剪辑的示意图如下：<br><img src="http://onvolufm1.bkt.clouddn.com/cut_optimal_solution.png" alt=""><br>剪辑后的值计为$\alpha_2^{new,cutted}$，然后根据这个剪辑后的值计算$\alpha_1^{new}$，此时不再需要对$\alpha_1^{new}$进行剪辑操作。此时，我们已经完成来一轮对$\alpha_1,\alpha_2$的优化更新，因为分离超平面$(w,b)$参与了每一轮的变量优化更新，因此需要在每一轮变量的优化更新之后对$w,b$进行更新，而$w=\sum_{i=1}^N \alpha_i y_i x_i$即$w$隐式的通过$\alpha_i$的更新完成了更新，而$b$的更新则需要从中选择一个满足$0 \lt \alpha_j \lt C$的$\alpha_j$来进行更新，而剪辑之后的$\alpha_2^{new,cutted}, \alpha_1^{new}$总是满足$0 \le \alpha_i \le C$，因此根据$\alpha_2^{new,cutted},\alpha_1^{new}$来对$b$进行更新，以便参与下一轮的变量优化更新过程。</p>
+<h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><p>SMO的python代码在<a href="https://github.com/zhoujunjun-apple/machine-learning" target="_blank" rel="external">我的github</a>，下面对其中的一些代码进行解释。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">while</span>(<span class="number">0</span> <span class="keyword">in</span> alpha) <span class="keyword">and</span> counter &lt; max_iter:</div></pre></td></tr></table></figure>
+<p>这个while循环判断参与当前迭代轮次的样本的拉格朗日乘子$\alpha$是否全部非0,如果是，说明这些样本点全部是支撑向量，结束循环;否则，保留$alpha_i \neq 0$的样本点（这一步操作在while循环体的末尾）进入下一个迭代轮次，因为这些$\alpha_i \neq 0$的样本点才是可能的支撑向量[6]</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (y[i] * E_i &lt; -tolerance <span class="keyword">and</span> alpha[i] &lt; C) <span class="keyword">or</span> (y[i] * E_i &gt; tolerance <span class="keyword">and</span> alpha[i] &gt; <span class="number">0</span>) :</div></pre></td></tr></table></figure>
+<p>这个if判断语句在第一个for循环体里面，作用是选择违反KKT条件的样本点进入内层for循环参与参数的更新，这里判断一个样本是否违反KKT条件的标准是：</p>
+<script type="math/tex; mode=display">
+(\alpha_i \lt C \&\& y_i E_i \lt 0 )\quad or
+(\alpha_i \gt 0 \&\& y_i E_i \gt 0)</script><p>上式判断标准的详细来源与解释请参考[4]的1.5部分的内容。在上面实际的代码中，我们将当前分类器对输入$x_i$的预测值与真实输出$y_i$的差(即上式的$y_i E_i$部分)放松到精度${tolerance}$范围内进行判断[2]</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> L == H:</div><div class="line">    <span class="keyword">continue</span></div></pre></td></tr></table></figure>
+<p>$\alpha_1, \alpha_2$的可行域是被$0 \le \alpha_1,\alpha_2 \le C$方形区域所截取的一段线段，当$L = H$时，表明这段线段退化到方形区域的左上角或者右下角的一个点，这两点处的$\alpha_1,\alpha_2$必有其中一个为0,另一个取值C，从而不满足支撑向量的要求$0 \lt \alpha_i \lt C$，因此放弃当前寻找到的$(x_j,y_j)$而寻找下一个。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
 <li>林轩田 机器学习基石</li>
 <li>李航 统计学习方法</li>
 <li>林轩田 机器学习技法 </li>
 <li><a href="http://web.cs.iastate.edu/~honavar/smo-svm.pdf" target="_blank" rel="external">Sequential Minimal Optimization for SVM</a></li>
 <li><a href="http://laid.delanover.com/category/svm/" target="_blank" rel="external">A Comprehensive Post about SVM Model and SMO Algorithm</a></li>
+<li><a href="http://laid.delanover.com/svm-matlab-code-implementation-smo-sequential-minimal-optimization-and-quadratic-programming-explained/" target="_blank" rel="external">Simplified SMO Algorithm</a></li>
 </ol>
 
       
