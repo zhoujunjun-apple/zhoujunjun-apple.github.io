@@ -95,7 +95,7 @@
 <meta property="og:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍求解SVM对偶形式问题的SMO算法的主要步骤，最后给出Python实现。">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/fat_hyperplane.png">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/cut_optimal_solution.png">
-<meta property="og:updated_time" content="2017-04-05T03:42:24.500Z">
+<meta property="og:updated_time" content="2017-04-05T04:25:58.432Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SVM模型的由来及SMO算法的python实现">
 <meta name="twitter:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍求解SVM对偶形式问题的SMO算法的主要步骤，最后给出Python实现。">
@@ -496,20 +496,30 @@ $$
 s.t. \sum_{i=1}^N {\alpha_i y_i} = 0 ;\quad
 0 \le \alpha_i \le C,i=1,2,\ldots,N \\
 \end{array} \right.
-\tag{14}
+\tag{15}
 $$
 <br>SMO算法主要的思路是：初始化所有的变量$\alpha_i,i=1,2,\ldots,N$，从中选择两个变量计为$\alpha_1^{old} = \alpha_1,\alpha_2^{old} = \alpha_2$，保持其他变量$\alpha_3,\ldots,\alpha_N$不变;通过(14)中的第一个等式约束可以将$\alpha_1$用$\alpha_2$表示出来，再将$\alpha_1$代回到(14)的目标函数中得到关于$\alpha_2$的二次函数，令其偏导等于零可以得到$\alpha_2$的一个更新值，计为$\alpha_2^{new,uncut}$; 注意到$\alpha_2^{new,uncut}$可能不满足(14)中的不等式约束，因此需要对其进行一次剪辑操作，剪辑的示意图如下：<br><img src="http://onvolufm1.bkt.clouddn.com/cut_optimal_solution.png" alt=""><br>剪辑后的值计为$\alpha_2^{new,cutted}$，然后根据这个剪辑后的值计算$\alpha_1^{new}$，此时不再需要对$\alpha_1^{new}$进行剪辑操作。此时，我们已经完成来一轮对$\alpha_1,\alpha_2$的优化更新，因为分离超平面$(w,b)$参与了每一轮的变量优化更新，因此需要在每一轮变量的优化更新之后对$w,b$进行更新，而$w=\sum_{i=1}^N \alpha_i y_i x_i$即$w$隐式的通过$\alpha_i$的更新完成了更新，而$b$的更新则需要从中选择一个满足$0 \lt \alpha_j \lt C$的$\alpha_j$来进行更新，而剪辑之后的$\alpha_2^{new,cutted}, \alpha_1^{new}$总是满足$0 \le \alpha_i \le C$，因此根据$\alpha_2^{new,cutted},\alpha_1^{new}$来对$b$进行更新，以便参与下一轮的变量优化更新过程。</p>
-<h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><p>SMO的python代码在<a href="https://github.com/zhoujunjun-apple/machine-learning" target="_blank" rel="external">我的github</a>，下面对其中的一些代码进行解释。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">while</span>(<span class="number">0</span> <span class="keyword">in</span> alpha) <span class="keyword">and</span> counter &lt; max_iter:</div></pre></td></tr></table></figure>
-<p>这个while循环判断参与当前迭代轮次的样本的拉格朗日乘子$\alpha$是否全部非0,如果是，说明这些样本点全部是支撑向量，结束循环;否则，保留$alpha_i \neq 0$的样本点（这一步操作在while循环体的末尾）进入下一个迭代轮次，因为这些$\alpha_i \neq 0$的样本点才是可能的支撑向量[6]</p>
+<h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><p>SMO的python代码在<a href="https://github.com/zhoujunjun-apple/machine-learning" target="_blank" rel="external">我的github</a>，代码的实现主要参考了[6]中的算法步骤，下面对代码中比较关键的部分进行解释，同时记录下代码中我觉得有疑惑的地方。</p>
+<h2 id="关键代码行解释"><a href="#关键代码行解释" class="headerlink" title="关键代码行解释"></a>关键代码行解释</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">while</span>(<span class="number">0</span> <span class="keyword">in</span> alpha) <span class="keyword">and</span> counter &lt; max_iter:</div></pre></td></tr></table></figure>
+<p>这个while循环判断参与当前迭代轮次的样本的拉格朗日乘子$\alpha$是否全部非0,如果是，说明这些样本点全部是支撑向量，结束循环;否则，保留$\alpha_i \neq 0$的样本点（这一步操作在while循环体的末尾）进入下一个迭代轮次，因为这些$\alpha_i \neq 0$的样本点才是可能的支撑向量[6]</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (y[i] * E_i &lt; -tolerance <span class="keyword">and</span> alpha[i] &lt; C) <span class="keyword">or</span> (y[i] * E_i &gt; tolerance <span class="keyword">and</span> alpha[i] &gt; <span class="number">0</span>) :</div></pre></td></tr></table></figure>
 <p>这个if判断语句在第一个for循环体里面，作用是选择违反KKT条件的样本点进入内层for循环参与参数的更新，这里判断一个样本是否违反KKT条件的标准是：</p>
 <script type="math/tex; mode=display">
-(\alpha_i \lt C \&\& y_i E_i \lt 0 )\quad or
-(\alpha_i \gt 0 \&\& y_i E_i \gt 0)</script><p>上式判断标准的详细来源与解释请参考[4]的1.5部分的内容。在上面实际的代码中，我们将当前分类器对输入$x_i$的预测值与真实输出$y_i$的差(即上式的$y_i E_i$部分)放松到精度${tolerance}$范围内进行判断[2]</p>
+(\alpha_i \lt C \&\& y_i E_i \lt 0 )\quad or \quad
+(\alpha_i \gt 0 \&\& y_i E_i \gt 0)
+\tag{16}</script><p>上式判断标准的详细来源与解释请参考[4]的1.5部分的内容。在上面实际的代码中，我们将当前分类器对输入$x_i$的预测值与真实输出$y_i$的差(即上式的$y_i E_i$部分)放松到精度${tolerance}$范围内进行判断[2]</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> L == H:</div><div class="line">    <span class="keyword">continue</span></div></pre></td></tr></table></figure>
 <p>$\alpha_1, \alpha_2$的可行域是被$0 \le \alpha_1,\alpha_2 \le C$方形区域所截取的一段线段，当$L = H$时，表明这段线段退化到方形区域的左上角或者右下角的一个点，这两点处的$\alpha_1,\alpha_2$必有其中一个为0,另一个取值C，从而不满足支撑向量的要求$0 \lt \alpha_i \lt C$，因此放弃当前寻找到的$(x_j,y_j)$而寻找下一个。</p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">phi = <span class="number">2</span> * kernel(x_data[i,:], x_data[j,:]) - kernel(x_data[i,:],x_data[i,:]) - kernel(x_data[j,:],x_data[j,:])</div><div class="line"><span class="keyword">if</span> phi &gt;= <span class="number">0</span>:</div><div class="line">    <span class="keyword">continue</span></div></pre></td></tr></table></figure>
+<p>注意${phi}$计算的是:</p>
+<script type="math/tex; mode=display">
+2K_{12}-K_{11}-K_{22}=2x_1^T x_2 -x_1^T x_1 - x_2^T x_2 = -{\| x_2 - x_1 \|}^2 
+\le 0
+\tag{17}</script><p>这一步检测的是核函数是否为正定核，SVM要求(5)中目标函数的$K(x_i,x_j)$必须是正定核，它能够保证不等式(17)是成立的。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> abs(alpha[j] - alpha[i]) &lt; tolerance:</div><div class="line">    <span class="keyword">continue</span></div></pre></td></tr></table></figure>
+<p>如果$\alpha_j$更新前后的值的差距小于精度${tolerancce}$，说明$\alpha_j$更新程度过小，同时因为后面$\alpha_i$的更新需要用到$\alpha_j^{old} - alpha_j$，因此$\alpha_i$的更新程度也会非常小，我们选择寻找下一个样本点进行更新。</p>
+<h2 id="疑惑"><a href="#疑惑" class="headerlink" title="疑惑"></a>疑惑</h2><p>代码里面关于阈值$b$的更新和最后分离超平面的绘制这两部分我参考了[5]中博主的Matlab实现，这两部分也是我目前没有想明白的地方。</p>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><ol>
 <li>林轩田 机器学习基石</li>
 <li>李航 统计学习方法</li>
 <li>林轩田 机器学习技法 </li>
@@ -700,7 +710,7 @@ $$
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#感知机学习算法"><span class="nav-number">1.</span> <span class="nav-text">感知机学习算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线性可分支持向量机"><span class="nav-number">2.</span> <span class="nav-text">线性可分支持向量机</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#SVM原始形式"><span class="nav-number">2.1.</span> <span class="nav-text">SVM原始形式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SVM的对偶形式"><span class="nav-number">2.2.</span> <span class="nav-text">SVM的对偶形式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#拉格朗日对偶性"><span class="nav-number">2.2.1.</span> <span class="nav-text">拉格朗日对偶性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KKT条件"><span class="nav-number">2.2.2.</span> <span class="nav-text">KKT条件</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线性支持向量机"><span class="nav-number">3.</span> <span class="nav-text">线性支持向量机</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SMO算法"><span class="nav-number">4.</span> <span class="nav-text">SMO算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码实现"><span class="nav-number">5.</span> <span class="nav-text">代码实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#感知机学习算法"><span class="nav-number">1.</span> <span class="nav-text">感知机学习算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线性可分支持向量机"><span class="nav-number">2.</span> <span class="nav-text">线性可分支持向量机</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#SVM原始形式"><span class="nav-number">2.1.</span> <span class="nav-text">SVM原始形式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SVM的对偶形式"><span class="nav-number">2.2.</span> <span class="nav-text">SVM的对偶形式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#拉格朗日对偶性"><span class="nav-number">2.2.1.</span> <span class="nav-text">拉格朗日对偶性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KKT条件"><span class="nav-number">2.2.2.</span> <span class="nav-text">KKT条件</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线性支持向量机"><span class="nav-number">3.</span> <span class="nav-text">线性支持向量机</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SMO算法"><span class="nav-number">4.</span> <span class="nav-text">SMO算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码实现"><span class="nav-number">5.</span> <span class="nav-text">代码实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#关键代码行解释"><span class="nav-number">5.1.</span> <span class="nav-text">关键代码行解释</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#疑惑"><span class="nav-number">5.2.</span> <span class="nav-text">疑惑</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文献"><span class="nav-number">6.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
             
 
           </div>
