@@ -94,7 +94,7 @@
 <meta property="og:site_name" content="二颗苹果">
 <meta property="og:description" content="本文介绍进行数据挖掘和机器学习之前需要对数据进行的基本预处理方法[1]，包括量纲标准化、有偏数据的检测和转换、离群点的检测和处理、降维、特征选择、缺失值处理、去除或者增加predictor，针对不同的数据挖掘任务和机器学习模型需要采用相应的预处理方法">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/PCA.png">
-<meta property="og:updated_time" content="2017-04-07T05:43:50.197Z">
+<meta property="og:updated_time" content="2017-04-07T05:55:54.353Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="数据预处理基本方法">
 <meta name="twitter:description" content="本文介绍进行数据挖掘和机器学习之前需要对数据进行的基本预处理方法[1]，包括量纲标准化、有偏数据的检测和转换、离群点的检测和处理、降维、特征选择、缺失值处理、去除或者增加predictor，针对不同的数据挖掘任务和机器学习模型需要采用相应的预处理方法">
@@ -374,7 +374,7 @@ A_{m \times n} A_{n \times m}^T,\qquad A_{n \times m}^T A_{m \times n}
 <p>那么如何从SVD联系到PCA呢？按照奇异值从大到小的顺序我们取前$r \lt min(m,n)$个奇异值和对应的奇异向量，根据式(1)有下面的等式近似成立：</p>
 <script type="math/tex; mode=display">
 A_{m \times n} \approx U_{m \times r} D_{r \times r} V_{r \times n}^T
-\tag{3}</script><p>约等式两边同时右乘%V<em>{n \times r}%，又因为$V</em>{r \times n}^T V<em>{n \times r} = I</em>{r \times r}$，因此有：</p>
+\tag{3}</script><p>约等式两边同时右乘$V_{n \times r}$，又因为$V_{r \times n}^T V_{n \times r} = I_{r \times r}$，因此有：</p>
 <script type="math/tex; mode=display">
 A_{m \times r}^{pca} = A_{m \times n} V_{n \times r} \approx U_{m \times r} D_{r \times r}
 \tag{4}</script><p>如果$A_{m \times n}$表示有m个样本n个预测特征的数据集，则通过式(4)的变换将预测特征空间的维度从n减小到r。r的选择可以通过交叉验证来实现或者通过scree plot来选择。</p>
