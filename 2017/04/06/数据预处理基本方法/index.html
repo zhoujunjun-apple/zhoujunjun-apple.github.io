@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="data preprocessing,data cleaning," />
+  <meta name="keywords" content="数据清洗,数据预处理," />
 
 
 
@@ -87,17 +87,17 @@
 
 
 
-<meta name="description" content="介绍进行数据挖掘和机器学习之前需要对数据进行的基本预处理方法[1]，包括量纲标准化、有偏数据的检测和转换、离群点的检测和处理、降维、特征选择、缺失值处理、去除或者增加predictor，针对不同的数据挖掘任务和机器学习模型采用相应的预处理方法">
+<meta name="description" content="本文介绍进行数据挖掘和机器学习之前需要对数据进行的基本预处理方法[1]，包括量纲标准化、有偏数据的检测和转换、离群点的检测和处理、降维、特征选择、缺失值处理、去除或者增加predictor，针对不同的数据挖掘任务和机器学习模型需要采用相应的预处理方法">
 <meta property="og:type" content="article">
 <meta property="og:title" content="数据预处理基本方法">
 <meta property="og:url" content="http://yoursite.com/2017/04/06/数据预处理基本方法/index.html">
 <meta property="og:site_name" content="二颗苹果">
-<meta property="og:description" content="介绍进行数据挖掘和机器学习之前需要对数据进行的基本预处理方法[1]，包括量纲标准化、有偏数据的检测和转换、离群点的检测和处理、降维、特征选择、缺失值处理、去除或者增加predictor，针对不同的数据挖掘任务和机器学习模型采用相应的预处理方法">
+<meta property="og:description" content="本文介绍进行数据挖掘和机器学习之前需要对数据进行的基本预处理方法[1]，包括量纲标准化、有偏数据的检测和转换、离群点的检测和处理、降维、特征选择、缺失值处理、去除或者增加predictor，针对不同的数据挖掘任务和机器学习模型需要采用相应的预处理方法">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/PCA.png">
-<meta property="og:updated_time" content="2017-04-07T03:29:53.037Z">
+<meta property="og:updated_time" content="2017-04-07T04:21:55.661Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="数据预处理基本方法">
-<meta name="twitter:description" content="介绍进行数据挖掘和机器学习之前需要对数据进行的基本预处理方法[1]，包括量纲标准化、有偏数据的检测和转换、离群点的检测和处理、降维、特征选择、缺失值处理、去除或者增加predictor，针对不同的数据挖掘任务和机器学习模型采用相应的预处理方法">
+<meta name="twitter:description" content="本文介绍进行数据挖掘和机器学习之前需要对数据进行的基本预处理方法[1]，包括量纲标准化、有偏数据的检测和转换、离群点的检测和处理、降维、特征选择、缺失值处理、去除或者增加predictor，针对不同的数据挖掘任务和机器学习模型需要采用相应的预处理方法">
 <meta name="twitter:image" content="http://onvolufm1.bkt.clouddn.com/PCA.png">
 
 
@@ -334,7 +334,7 @@
 
           
               <div class="post-description">
-                  介绍进行数据挖掘和机器学习之前需要对数据进行的基本预处理方法[1]，包括量纲标准化、有偏数据的检测和转换、离群点的检测和处理、降维、特征选择、缺失值处理、去除或者增加predictor，针对不同的数据挖掘任务和机器学习模型采用相应的预处理方法
+                  本文介绍进行数据挖掘和机器学习之前需要对数据进行的基本预处理方法[1]，包括量纲标准化、有偏数据的检测和转换、离群点的检测和处理、降维、特征选择、缺失值处理、去除或者增加predictor，针对不同的数据挖掘任务和机器学习模型需要采用相应的预处理方法
               </div>
           
 
@@ -356,7 +356,7 @@
 <h2 id="检测与处理方法"><a href="#检测与处理方法" class="headerlink" title="检测与处理方法"></a>检测与处理方法</h2><p>一种简单的检测有偏的方法是查看该预测特征列的直方图，可以通过调整组距来探寻数据分布更多的细节信息，但是这种方法在准确度和效率方面较差。另一种方法是采用统计上的偏度值统计量来量化偏度的程度，偏度值越接近0,分布越对称;偏度值越大于0,正偏越严重;偏度值越小于0,负偏越严重。</p>
 <p>两种处理方法：BoxCox转换，只适用于非负的预测特征列值; Yeo-Johnson方法，能够适用于一般的数值列</p>
 <h1 id="离群点的检测和处理"><a href="#离群点的检测和处理" class="headerlink" title="离群点的检测和处理"></a>离群点的检测和处理</h1><h2 id="问题描述-2"><a href="#问题描述-2" class="headerlink" title="问题描述"></a>问题描述</h2><p>离群点的非正式定义是：datas that exceptionally far from the mainstream of the data[1]。一般需要针对具体的数据和任务对其中的”exceptionally”和”mainstream”进行界定。一些很明显的scientifically unvalid的预测特征值(比如年龄为负值)可以直接删除。在一些数据样本数量不够大且总体分布本身有偏时，处于尾部的疑似离群点的样本点可能也是来自于该总体分布的tail部分，这是因为总体分布的尾部部分采集样本时被采集到的概率很小，如果采样次数太少，则有可能来自于tail部分的样本点会比较少，从而看起来像是离群点，对于这些样本不应该删除，而是减弱它们的影响同时参与模型的构建。</p>
-<h2 id="处理方法-1"><a href="#处理方法-1" class="headerlink" title="处理方法"></a>处理方法</h2><p>有一种显式的处理方法是叫spatial sign，它的思想是对于<strong>样本</strong>的每一个属性除以该样本在P-维属性空间中距离原点的欧式距离，公式如下。几何上来看，相当于把所有的样本点映射到p-维属性空间的单位球面上，缓解离群点的影响。<br>$$
+<h2 id="检测和处理方法"><a href="#检测和处理方法" class="headerlink" title="检测和处理方法"></a>检测和处理方法</h2><p>最基本的离群点侦测方法包括利用直方图、箱线图、DBSCAN聚类来定位可能的离群点。<br>显式的离群点处理方法spatial sign，它的思想是对于<strong>样本</strong>的每一个属性除以该样本在P-维属性空间中距离原点的欧式距离，公式如下。几何上来看，相当于把所有的样本点映射到p-维属性空间的单位球面上，缓解离群点的影响。<br>$$
 x_{ij}^\star = {x_{ij} \over \sqrt{\sum_{j=1}^P x_{ij}^2}}
 \tag{0}
 $$</p>
@@ -370,7 +370,7 @@ A_{m \times n} = U_{m \times m} D_{m \times n} V_{n \times n}^T
 \tag{1}</script><p>其中矩阵$U,V$的列向量分别由下面两个正定矩阵的特征向量组成：</p>
 <script type="math/tex; mode=display">
 A_{m \times n} A_{n \times m}^T,\qquad A_{n \times m}^T A_{m \times n}
-\tag{2}</script><p>这里重要的一点是这些特征向量在$U,V$中的排列顺序，它们的排列顺序取决于对应特征值的大小。对应(2)中的两个正定矩阵，分别存在一组特征值$\lambda<em>1^1,\lambda_2^1,\ldots,\lambda_m^1$和$\lambda_1^2,\lambda_2^2,\ldots,\lambda_n^2$，如果将这两组特征值从大到小排序，则前$min(m,n)$个特征值是一样的且均大于零，后面的$max(m,n)-min(m,n)$个特征值均为0,因此只需要按照其中一组特征值的大小来排列特征向量在$U,V$中的顺序。剩下的矩阵$D</em>{m \times n}$的主对角线上的值就是从大到小排列后的$min(m,n)$个特征值的平方根(称为A的奇异值)。</p>
+\tag{2}</script><p>这里重要的一点是这些特征向量在$U,V$中的排列顺序，它们的排列顺序取决于对应特征值的大小。对应(2)中的两个正定矩阵，分别存在一组特征值$\lambda_1^1,\lambda_2^1,\ldots,\lambda_m^1$和$\lambda_1^2,\lambda_2^2,\ldots,\lambda_n^2$，如果将这两组特征值从大到小排序，则前$min(m,n)$个特征值是一样的且均大于零，后面的$max(m,n)-min(m,n)$个特征值均为0,因此只需要按照其中一组特征值的大小来排列特征向量在$U,V$中的顺序。剩下的矩阵$D_{m \times n}$的主对角线上的值就是从大到小排列后的$min(m,n)$个特征值的平方根(称为A的奇异值)。</p>
 <p>那么如何从SVD联系到PCA呢？按照奇异值从大到小的顺序我们取前$r \lt min(m,n)$个奇异值和对应的奇异向量，根据式(1)有下面的等式近似成立：</p>
 <script type="math/tex; mode=display">
 A_{m \times n} \approx U_{m \times r} D_{r \times r} V_{r \times n}^T
@@ -383,8 +383,8 @@ A_{m \times r}^{pca} = A_{m \times n} V_{n \times r} \approx U_{m \times r} D_{r
 <p>从PCA降维的过程可以发现，PCA是个无监督的降维过程，也就是说它在构建这些主成分的时候并没有考虑到它们与输出变量之间的关系;另外主成分的构建标准是投影方差最大化，但是一个预测特征所包含的信息可能无法通过方差来很好的衡量，如果一个与输出变量关系不大的预测特征的方差非常大，则经过PCA降维处理后，该预测特征可能会在多个主成分中占据较大的分量(loading)，为了克服这种情况的出现，最好对有偏的预测特征进行去偏处理，并对所有的特征进行标准化处理。关于PCA更具体和详细的分析和推导参见参考文献[4].</p>
 <h4 id="PLS"><a href="#PLS" class="headerlink" title="PLS"></a>PLS</h4><p>偏最小二乘跟PCA类似的地方在于它所寻找的PLS方向同样是原来预测特征的线性组合，不同的地方在于确定PLS方向时的准则既做到尽可能的提取原来预测特征的方差信息，又做到所确定的PLS方向是与输出变量的相关性最大。同样，PLS需要对数据集(包括输出变量)进行标准化处理，具体的算法步骤参考了文献[3],下面对算法过程进行简单梳理。</p>
 <ul>
-<li>输入：数据集预测变量部分$E<em>0$,数据集输出变量部分$Y$，假设包括m个样本，n个预测变量，则矩阵$E_0$维度为$m \times n$，只考虑一个输出变量，即$Y</em>{m \times 1}$.</li>
-<li>输出：r个PLS成分$(t_1,t_2,\ldots,\t_r)$</li>
+<li>输入：数据集预测变量部分$E_0$,数据集输出变量部分$Y$，假设包括m个样本，n个预测变量，则矩阵$E_0$维度为$m \times n$，只考虑一个输出变量，即$Y_{m \times 1}$，预测特征集$X=(x_1,\ldots,x_n)$.</li>
+<li>输出：r个PLS成分$(t_1,t_2,\ldots,t_r)$</li>
 </ul>
 <ol>
 <li>求矩阵$E_0^T Y Y^T E_0$最大特征值所对应的特征向量$w_1$,求得成分$t_1 = w_1^T X$,计算成分得分向量$\hat t_1 = E_0 w_1$和残差矩阵$E_1 = E_0 - \hat {t_1} \alpha_1^T$，其中$\alpha_1 = {{E_0^T \hat t_1} \over {\| \hat t_1 \|}^2}$;</li>
@@ -392,13 +392,13 @@ A_{m \times r}^{pca} = A_{m \times n} V_{n \times r} \approx U_{m \times r} D_{r
 <li>重复上述步骤，直到通过交叉有效性确定共抽取r个成分$t_1,t_2,\ldots,t_r$为止。</li>
 </ol>
 <h4 id="Fisher’s-Discriminant-Analysis"><a href="#Fisher’s-Discriminant-Analysis" class="headerlink" title="Fisher’s Discriminant Analysis"></a>Fisher’s Discriminant Analysis</h4><p>关于费雪判别分析的内容主要参考自[5]，本文只概述其原理和梳理其主要的过程，具体的数学推导在[5]中有详细和具体的论述。最原始的费雪判别分析是专用于二类别分类问题的降维方法，它希望能够找到一根过原点的直线，使得两个类别的数据样本在这条直线上的投影尽可能的分离开，同时使同一组内的投影点之间尽可能集中。为此，费雪提出的准则为：<br>$$
-\max \quad J(w) =\max {{m_2 - m_1}^2 \over {s_1^2 + s_2^2}}
+\max J(w) =\max {{m_2 - m_1}^2 \over {s_1^2 + s_2^2}}
 $$<br>其中分子部分称为组间散布，用于衡量投影后两个类别样本之间的分离程度;分母部分称为整体组内散布，分别代表两个类别样本投影之后各类之间的集中程度，它们的定义分别为：</p>
 <script type="math/tex; mode=display">
 \begin{array}{l}
-m_j^original = {1 \over n_j} \sum_{i \in c_j} x_i, \quad j=1,2;
-m_j = w^T m_j^original, \quad j=1,2; \\
-s_j^2 = \sum_{i \in c_j}{y_i - m_j}^2 \\
+m_j^{original} = {1 \over n_j} \sum_{i \in c_j} x_i, \quad ;
+m_j = w^T m_j^{original}, \quad j=1,2; \\
+s_j^2 = \sum_{i \in c_j}{(y_i - m_j)}^2 \\
 \end{array}</script><p>将原始的$J(w)$进行改写后变为$J(w)=\frac{w^T S_B w}{w^T S_W w}$，此时最大化费雪准则等价与下列约束优化问题：</p>
 <script type="math/tex; mode=display">
 \max_{w^T S_W w = 1} w^T S_B w</script><p>通过求解这个优化问题得到唯一的最佳投影直线的方向向量为$w \propto S_W^{-1}(m_2 - m_1)$,其中：</p>
@@ -406,14 +406,14 @@ s_j^2 = \sum_{i \in c_j}{y_i - m_j}^2 \\
 S_W = \sum_{j=1,2} \sum_{i \in c_j} (x_i - m_j)(x_i - m_j)^T</script><p>上式表示整体组内散布矩阵。如果需要将费雪的判别分析引入分类功能，还需要在最佳投影直线上确定一个门槛值$w_0$来进行类别判断。在确定$w_0$时候，如果假设分类样本的条件概率$p(x | c_1),p(x | c_2)$服从正态分布并且两类别的数据点具有相同的散布形态(即具有相同的协方差矩阵)，则对应的分类方法称为线性判别分析LDA，关于门槛值$w_0$的具体求解过程在[5]中有详细的推导和说明。</p>
 <p>前面所讲的费雪判别分析限定在二分类问题上，实际上可以将其推广到多分类的问题，具体的过程在[5]中末尾处有详细的推导，多分类下的费雪判别分析算法过程如下[6]:</p>
 <ul>
-<li>输入：N个D维向量$x_1,\ldots,\x_N$，数据能够被分成d个类别;</li>
-<li>输出：投影矩阵$W = (w<em>1,\ldots,w</em>{d-1})$,其中每一个$w_i$都是D维列向量</li>
+<li>输入：N个D维向量$x_1,\ldots,x_N$，数据能够被分成d个类别;</li>
+<li>输出：投影矩阵$W = (w_1,\ldots,w_{d-1})$,其中每一个$w_i$都是D维列向量</li>
 </ul>
 <ol>
 <li>求出类内散度矩阵$S_w$和类间散度矩阵$S_b$;</li>
 <li>对$S_w = UDV^T$做奇异值分解，求得$S_w^{-1} = VD^{-1}U^T$;</li>
 <li>对矩阵$S_w^{-1} S_b$做特征值分解;</li>
-<li>取最大的前d-1个特征值对应的特征向量$w<em>1,\ldots,w</em>{d-1}$.</li>
+<li>取最大的前d-1个特征值对应的特征向量$w_1,\ldots,w_{d-1}$.</li>
 </ol>
 <p>上述算法之所以选择取前面d-1个特征向量，是因为k类别判别分析所能产生的有效线性特征总数至多为k-1[5]。利用这k-1个D维特征向量，就可以得到k-1个新的预测特征值列。注意利用费雪判别分析做降维处理时不需要对数据进行去中心化，避免去中心化后每个类的中心会重叠[6].</p>
 <h4 id="自编码器"><a href="#自编码器" class="headerlink" title="自编码器"></a>自编码器</h4><p>自编码器是一种特殊的神经网络，以单个隐藏层的自编码器为例，输出层尝试使得输出$\hat x$接近于输入$x$，从而通过隐藏层学习到输入数据的压缩表示，当给定一个数据的压缩表示，结合隐藏层和输出层之间的连接权重矩阵就可以重构出最原始未压缩的数据[7].为了学习到输入数据的压缩表示，隐藏层神经元个数要求小于输入层神经元个数，或者在隐藏层神经元个数大于输入层个数时加入稀疏性限制(稀疏自编码器)，从而学习到输入数据的低维结构。如果输入数据的维度较大或者希望找到数据维度更低的压缩表示，可以采用栈式自编码器，它以单隐藏层的自编码器为基础进行连接：前一个自编码器学习到的低维结构作为下一个自编码器的输入层。</p>
@@ -464,9 +464,9 @@ S_W = \sum_{j=1,2} \sum_{i \in c_j} (x_i - m_j)(x_i - m_j)^T</script><p>上式�
       
         <div class="post-tags">
           
-            <a href="/标签/data-preprocessing/" rel="tag"># data preprocessing</a>
+            <a href="/标签/数据清洗/" rel="tag"># 数据清洗</a>
           
-            <a href="/标签/data-cleaning/" rel="tag"># data cleaning</a>
+            <a href="/标签/数据预处理/" rel="tag"># 数据预处理</a>
           
         </div>
       
@@ -581,7 +581,7 @@ S_W = \sum_{j=1,2} \sum_{i \in c_j} (x_i - m_j)(x_i - m_j)^T</script><p>上式�
             
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>
@@ -627,7 +627,7 @@ S_W = \sum_{j=1,2} \sum_{i \in c_j} (x_i - m_j)(x_i - m_j)^T</script><p>上式�
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#量纲标准化"><span class="nav-number">1.</span> <span class="nav-text">量纲标准化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题描述"><span class="nav-number">1.1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#处理方法"><span class="nav-number">1.2.</span> <span class="nav-text">处理方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#优缺点"><span class="nav-number">1.3.</span> <span class="nav-text">优缺点</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#有偏数据的检测和处理"><span class="nav-number">2.</span> <span class="nav-text">有偏数据的检测和处理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题描述-1"><span class="nav-number">2.1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#检测与处理方法"><span class="nav-number">2.2.</span> <span class="nav-text">检测与处理方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#离群点的检测和处理"><span class="nav-number">3.</span> <span class="nav-text">离群点的检测和处理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题描述-2"><span class="nav-number">3.1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#处理方法-1"><span class="nav-number">3.2.</span> <span class="nav-text">处理方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#降维和特征选择"><span class="nav-number">4.</span> <span class="nav-text">降维和特征选择</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题描述-3"><span class="nav-number">4.1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法"><span class="nav-number">4.2.</span> <span class="nav-text">方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#PCA"><span class="nav-number">4.2.0.1.</span> <span class="nav-text">PCA</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#原理"><span class="nav-number">4.2.0.1.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#优劣势"><span class="nav-number">4.2.0.1.2.</span> <span class="nav-text">优劣势</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PLS"><span class="nav-number">4.2.0.2.</span> <span class="nav-text">PLS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Fisher’s-Discriminant-Analysis"><span class="nav-number">4.2.0.3.</span> <span class="nav-text">Fisher’s Discriminant Analysis</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自编码器"><span class="nav-number">4.2.0.4.</span> <span class="nav-text">自编码器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#其他"><span class="nav-number">4.2.0.5.</span> <span class="nav-text">其他</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#缺失值处理"><span class="nav-number">5.</span> <span class="nav-text">缺失值处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#predictor的移除或增加"><span class="nav-number">6.</span> <span class="nav-text">predictor的移除或增加</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文献"><span class="nav-number">7.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#量纲标准化"><span class="nav-number">1.</span> <span class="nav-text">量纲标准化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题描述"><span class="nav-number">1.1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#处理方法"><span class="nav-number">1.2.</span> <span class="nav-text">处理方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#优缺点"><span class="nav-number">1.3.</span> <span class="nav-text">优缺点</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#有偏数据的检测和处理"><span class="nav-number">2.</span> <span class="nav-text">有偏数据的检测和处理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题描述-1"><span class="nav-number">2.1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#检测与处理方法"><span class="nav-number">2.2.</span> <span class="nav-text">检测与处理方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#离群点的检测和处理"><span class="nav-number">3.</span> <span class="nav-text">离群点的检测和处理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题描述-2"><span class="nav-number">3.1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#检测和处理方法"><span class="nav-number">3.2.</span> <span class="nav-text">检测和处理方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#降维和特征选择"><span class="nav-number">4.</span> <span class="nav-text">降维和特征选择</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题描述-3"><span class="nav-number">4.1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法"><span class="nav-number">4.2.</span> <span class="nav-text">方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#PCA"><span class="nav-number">4.2.0.1.</span> <span class="nav-text">PCA</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#原理"><span class="nav-number">4.2.0.1.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#优劣势"><span class="nav-number">4.2.0.1.2.</span> <span class="nav-text">优劣势</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PLS"><span class="nav-number">4.2.0.2.</span> <span class="nav-text">PLS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Fisher’s-Discriminant-Analysis"><span class="nav-number">4.2.0.3.</span> <span class="nav-text">Fisher’s Discriminant Analysis</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自编码器"><span class="nav-number">4.2.0.4.</span> <span class="nav-text">自编码器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#其他"><span class="nav-number">4.2.0.5.</span> <span class="nav-text">其他</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#缺失值处理"><span class="nav-number">5.</span> <span class="nav-text">缺失值处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#predictor的移除或增加"><span class="nav-number">6.</span> <span class="nav-text">predictor的移除或增加</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文献"><span class="nav-number">7.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
             
 
           </div>
