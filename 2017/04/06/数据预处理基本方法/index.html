@@ -1,0 +1,842 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="data preprocessing,data cleaning," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="介绍进行数据挖掘和机器学习之前需要对数据进行的基本预处理方法[1]，包括量纲标准化、有偏数据的检测和转换、离群点的检测和处理、降维、特征选择、缺失值处理、去除或者增加predictor，针对不同的数据挖掘任务和机器学习模型采用相应的预处理方法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据预处理基本方法">
+<meta property="og:url" content="http://yoursite.com/2017/04/06/数据预处理基本方法/index.html">
+<meta property="og:site_name" content="二颗苹果">
+<meta property="og:description" content="介绍进行数据挖掘和机器学习之前需要对数据进行的基本预处理方法[1]，包括量纲标准化、有偏数据的检测和转换、离群点的检测和处理、降维、特征选择、缺失值处理、去除或者增加predictor，针对不同的数据挖掘任务和机器学习模型采用相应的预处理方法">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/PCA.png">
+<meta property="og:updated_time" content="2017-04-07T03:29:53.037Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="数据预处理基本方法">
+<meta name="twitter:description" content="介绍进行数据挖掘和机器学习之前需要对数据进行的基本预处理方法[1]，包括量纲标准化、有偏数据的检测和转换、离群点的检测和处理、降维、特征选择、缺失值处理、去除或者增加predictor，针对不同的数据挖掘任务和机器学习模型采用相应的预处理方法">
+<meta name="twitter:image" content="http://onvolufm1.bkt.clouddn.com/PCA.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/04/06/数据预处理基本方法/"/>
+
+
+
+
+
+  <title> 数据预处理基本方法 | 二颗苹果 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">二颗苹果</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/06/数据预处理基本方法/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周君君">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://onvolufm1.bkt.clouddn.com/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="二颗苹果">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                数据预处理基本方法
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-06T11:00:39+08:00">
+                2017-04-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/目录/数据挖掘/" itemprop="url" rel="index">
+                    <span itemprop="name">数据挖掘</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  介绍进行数据挖掘和机器学习之前需要对数据进行的基本预处理方法[1]，包括量纲标准化、有偏数据的检测和转换、离群点的检测和处理、降维、特征选择、缺失值处理、去除或者增加predictor，针对不同的数据挖掘任务和机器学习模型采用相应的预处理方法
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="量纲标准化"><a href="#量纲标准化" class="headerlink" title="量纲标准化"></a>量纲标准化</h1><h2 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h2><p>如果一个数据集中包括了工资和年龄这两个预测特征(predictor)，如果分别用”元”和”周岁”量纲来记录这两个预测特征的数据，则前者该列的数据的平均值在几千甚至几万这个水平，数据跨度可能是4000~40000;而后者的平均值一般在几十这个水平，数据跨度可能是20～100.两厢比较，在特征空间来看工资和年龄这两个维度的话，前者的平均值远远大于后者，而且前者分布的方差远远大于后者的方差，这种预测特征的平均值和方差差异可能会造成模型的性能减弱，导致模型不稳定</p>
+<h2 id="处理方法"><a href="#处理方法" class="headerlink" title="处理方法"></a>处理方法</h2><p>标准化(standardization)：centering +  scaling;<br>其中centering是指预测特征的每个值减去该预测特征列的平均值;scaling是指预测特征的每个值除以该预测特征列的方差</p>
+<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><p>能够提升计算上的数值稳定性，改善模型(比如偏线性回归)的性能，但是scale操作改变了预测特征原来的量纲，因此会让模型的可解释性变差。</p>
+<h1 id="有偏数据的检测和处理"><a href="#有偏数据的检测和处理" class="headerlink" title="有偏数据的检测和处理"></a>有偏数据的检测和处理</h1><h2 id="问题描述-1"><a href="#问题描述-1" class="headerlink" title="问题描述"></a>问题描述</h2><p>无偏的预测特征是指其取值的分布是大致对称的，一种理想的无偏分布的例子就是正态分布。与无偏相反的有偏有两种情况：大部分值集中在数值偏小的一端，只有小部分值分布在数值偏大的一端，称为正偏（右偏）;与之相反的分布称为负偏（左偏）。</p>
+<h2 id="检测与处理方法"><a href="#检测与处理方法" class="headerlink" title="检测与处理方法"></a>检测与处理方法</h2><p>一种简单的检测有偏的方法是查看该预测特征列的直方图，可以通过调整组距来探寻数据分布更多的细节信息，但是这种方法在准确度和效率方面较差。另一种方法是采用统计上的偏度值统计量来量化偏度的程度，偏度值越接近0,分布越对称;偏度值越大于0,正偏越严重;偏度值越小于0,负偏越严重。</p>
+<p>两种处理方法：BoxCox转换，只适用于非负的预测特征列值; Yeo-Johnson方法，能够适用于一般的数值列</p>
+<h1 id="离群点的检测和处理"><a href="#离群点的检测和处理" class="headerlink" title="离群点的检测和处理"></a>离群点的检测和处理</h1><h2 id="问题描述-2"><a href="#问题描述-2" class="headerlink" title="问题描述"></a>问题描述</h2><p>离群点的非正式定义是：datas that exceptionally far from the mainstream of the data[1]。一般需要针对具体的数据和任务对其中的”exceptionally”和”mainstream”进行界定。一些很明显的scientifically unvalid的预测特征值(比如年龄为负值)可以直接删除。在一些数据样本数量不够大且总体分布本身有偏时，处于尾部的疑似离群点的样本点可能也是来自于该总体分布的tail部分，这是因为总体分布的尾部部分采集样本时被采集到的概率很小，如果采样次数太少，则有可能来自于tail部分的样本点会比较少，从而看起来像是离群点，对于这些样本不应该删除，而是减弱它们的影响同时参与模型的构建。</p>
+<h2 id="处理方法-1"><a href="#处理方法-1" class="headerlink" title="处理方法"></a>处理方法</h2><p>有一种显式的处理方法是叫spatial sign，它的思想是对于<strong>样本</strong>的每一个属性除以该样本在P-维属性空间中距离原点的欧式距离，公式如下。几何上来看，相当于把所有的样本点映射到p-维属性空间的单位球面上，缓解离群点的影响。<br>$$
+x_{ij}^\star = {x_{ij} \over \sqrt{\sum_{j=1}^P x_{ij}^2}}
+\tag{0}
+$$</p>
+<p>某些模型本身具有对离群点较好的鲁棒性，包括基于回归树的模型、软间隔SVM(只选择少数的支撑向量建模)、逻辑回归模型(sigmoid非线性变换缓解离群点的影响)。</p>
+<h1 id="降维和特征选择"><a href="#降维和特征选择" class="headerlink" title="降维和特征选择"></a>降维和特征选择</h1><h2 id="问题描述-3"><a href="#问题描述-3" class="headerlink" title="问题描述"></a>问题描述</h2><p>降维和特征选择是有区别的，降维是指将p-维的特征空间减小到k-维同时尽量保留原来特征空间的某种信息，而特征选择是指去除一些无用的或者信息量太少的特征，保留具有高信息量的强特征。特征选择往往会造成降维的效果，但是降维不意味着进行了特征选择。</p>
+<h2 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h2><h4 id="PCA"><a href="#PCA" class="headerlink" title="PCA"></a>PCA</h4><h5 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h5><p>PCA是降维方法，严格来说不具有特征选择的作用，因为它的主要思想是通过原始的预测特征的线性组合构造新的预测特征(主成分)，构造的原则是找到一组两两正交的方向形成一个新的特征坐标系，然后将原始的特征向量在这个新的坐标系下进行投影，从而得到一组新的主成分，如果新的坐标系的维度小于原始的特征空间坐标系，则此时PCA具有降维的作用。关键就在于如何找到这一组两两正交的方向。</p>
+<p>PCA寻找这组方向的标准是在与已经找到的方向正交的前提下尽可能多的capture到原始预测特征中的方差(variability)，示意图[2]如下：<br><img src="http://onvolufm1.bkt.clouddn.com/PCA.png" alt=""><br>可以看到，The largest principal component is the direction that maximazes the variance of the projected data[2].为了寻找到这样一组方向，需要借助SVD分解。</p>
+<p>SVD(奇异值分解)是将一个矩阵分解为其他三个矩阵相乘的形式，核心表达式为：</p>
+<script type="math/tex; mode=display">
+A_{m \times n} = U_{m \times m} D_{m \times n} V_{n \times n}^T
+\tag{1}</script><p>其中矩阵$U,V$的列向量分别由下面两个正定矩阵的特征向量组成：</p>
+<script type="math/tex; mode=display">
+A_{m \times n} A_{n \times m}^T,\qquad A_{n \times m}^T A_{m \times n}
+\tag{2}</script><p>这里重要的一点是这些特征向量在$U,V$中的排列顺序，它们的排列顺序取决于对应特征值的大小。对应(2)中的两个正定矩阵，分别存在一组特征值$\lambda<em>1^1,\lambda_2^1,\ldots,\lambda_m^1$和$\lambda_1^2,\lambda_2^2,\ldots,\lambda_n^2$，如果将这两组特征值从大到小排序，则前$min(m,n)$个特征值是一样的且均大于零，后面的$max(m,n)-min(m,n)$个特征值均为0,因此只需要按照其中一组特征值的大小来排列特征向量在$U,V$中的顺序。剩下的矩阵$D</em>{m \times n}$的主对角线上的值就是从大到小排列后的$min(m,n)$个特征值的平方根(称为A的奇异值)。</p>
+<p>那么如何从SVD联系到PCA呢？按照奇异值从大到小的顺序我们取前$r \lt min(m,n)$个奇异值和对应的奇异向量，根据式(1)有下面的等式近似成立：</p>
+<script type="math/tex; mode=display">
+A_{m \times n} \approx U_{m \times r} D_{r \times r} V_{r \times n}^T
+\tag{3}</script><p>约等式两边同时右乘%V<em>{n \times r}%，又因为$V</em>{r \times n}^T V<em>{n \times r} = I</em>{r \times r}$，因此有：</p>
+<script type="math/tex; mode=display">
+A_{m \times r}^{pca} = A_{m \times n} V_{n \times r} \approx U_{m \times r} D_{r \times r}
+\tag{4}</script><p>如果$A_{m \times n}$表示有m个样本n个预测特征的数据集，则通过式(4)的变换将预测特征空间的维度从n减小到r。r的选择可以通过交叉验证来实现或者通过scree plot来选择。</p>
+<p>对比PCA的降维思想和SVD，可以发现，PCA所希望寻找那一组两两正交的方向就是A矩阵的一组右奇异向量，而A的右奇异值用来衡量原始数据集在对应的右奇异向量上的方差。</p>
+<h5 id="优劣势"><a href="#优劣势" class="headerlink" title="优劣势"></a>优劣势</h5><p>PCA创建的主成分特征之间是线性无关的，适合于对特征弱相关性有要求的学习模型(比如朴素贝叶斯、线性回归模型)；同时PCA也能够用于去除数据集中无关的冗余信息，在图像存储中可以用较小的存储空间来保存图片同时保留较好的图像还原度。</p>
+<p>从PCA降维的过程可以发现，PCA是个无监督的降维过程，也就是说它在构建这些主成分的时候并没有考虑到它们与输出变量之间的关系;另外主成分的构建标准是投影方差最大化，但是一个预测特征所包含的信息可能无法通过方差来很好的衡量，如果一个与输出变量关系不大的预测特征的方差非常大，则经过PCA降维处理后，该预测特征可能会在多个主成分中占据较大的分量(loading)，为了克服这种情况的出现，最好对有偏的预测特征进行去偏处理，并对所有的特征进行标准化处理。关于PCA更具体和详细的分析和推导参见参考文献[4].</p>
+<h4 id="PLS"><a href="#PLS" class="headerlink" title="PLS"></a>PLS</h4><p>偏最小二乘跟PCA类似的地方在于它所寻找的PLS方向同样是原来预测特征的线性组合，不同的地方在于确定PLS方向时的准则既做到尽可能的提取原来预测特征的方差信息，又做到所确定的PLS方向是与输出变量的相关性最大。同样，PLS需要对数据集(包括输出变量)进行标准化处理，具体的算法步骤参考了文献[3],下面对算法过程进行简单梳理。</p>
+<ul>
+<li>输入：数据集预测变量部分$E<em>0$,数据集输出变量部分$Y$，假设包括m个样本，n个预测变量，则矩阵$E_0$维度为$m \times n$，只考虑一个输出变量，即$Y</em>{m \times 1}$.</li>
+<li>输出：r个PLS成分$(t_1,t_2,\ldots,\t_r)$</li>
+</ul>
+<ol>
+<li>求矩阵$E_0^T Y Y^T E_0$最大特征值所对应的特征向量$w_1$,求得成分$t_1 = w_1^T X$,计算成分得分向量$\hat t_1 = E_0 w_1$和残差矩阵$E_1 = E_0 - \hat {t_1} \alpha_1^T$，其中$\alpha_1 = {{E_0^T \hat t_1} \over {\| \hat t_1 \|}^2}$;</li>
+<li>求矩阵$E_1^T Y Y^T E_1$最大特征值所对应到特征向量$w_2$，求得成分$t_2 = w_2^T X$，计算成分得分向量$\hat t_2 = E_1 w_2$和残差矩阵$E_2 = E_1 - \hat {t_2} \alpha_2^T$，其中$\alpha_2 = {{E_1^T \hat t_2} \over {\| \hat t_2 \|}^2}$;</li>
+<li>重复上述步骤，直到通过交叉有效性确定共抽取r个成分$t_1,t_2,\ldots,t_r$为止。</li>
+</ol>
+<h4 id="Fisher’s-Discriminant-Analysis"><a href="#Fisher’s-Discriminant-Analysis" class="headerlink" title="Fisher’s Discriminant Analysis"></a>Fisher’s Discriminant Analysis</h4><p>关于费雪判别分析的内容主要参考自[5]，本文只概述其原理和梳理其主要的过程，具体的数学推导在[5]中有详细和具体的论述。最原始的费雪判别分析是专用于二类别分类问题的降维方法，它希望能够找到一根过原点的直线，使得两个类别的数据样本在这条直线上的投影尽可能的分离开，同时使同一组内的投影点之间尽可能集中。为此，费雪提出的准则为：<br>$$
+\max \quad J(w) =\max {{m_2 - m_1}^2 \over {s_1^2 + s_2^2}}
+$$<br>其中分子部分称为组间散布，用于衡量投影后两个类别样本之间的分离程度;分母部分称为整体组内散布，分别代表两个类别样本投影之后各类之间的集中程度，它们的定义分别为：</p>
+<script type="math/tex; mode=display">
+\begin{array}{l}
+m_j^original = {1 \over n_j} \sum_{i \in c_j} x_i, \quad j=1,2;
+m_j = w^T m_j^original, \quad j=1,2; \\
+s_j^2 = \sum_{i \in c_j}{y_i - m_j}^2 \\
+\end{array}</script><p>将原始的$J(w)$进行改写后变为$J(w)=\frac{w^T S_B w}{w^T S_W w}$，此时最大化费雪准则等价与下列约束优化问题：</p>
+<script type="math/tex; mode=display">
+\max_{w^T S_W w = 1} w^T S_B w</script><p>通过求解这个优化问题得到唯一的最佳投影直线的方向向量为$w \propto S_W^{-1}(m_2 - m_1)$,其中：</p>
+<script type="math/tex; mode=display">
+S_W = \sum_{j=1,2} \sum_{i \in c_j} (x_i - m_j)(x_i - m_j)^T</script><p>上式表示整体组内散布矩阵。如果需要将费雪的判别分析引入分类功能，还需要在最佳投影直线上确定一个门槛值$w_0$来进行类别判断。在确定$w_0$时候，如果假设分类样本的条件概率$p(x | c_1),p(x | c_2)$服从正态分布并且两类别的数据点具有相同的散布形态(即具有相同的协方差矩阵)，则对应的分类方法称为线性判别分析LDA，关于门槛值$w_0$的具体求解过程在[5]中有详细的推导和说明。</p>
+<p>前面所讲的费雪判别分析限定在二分类问题上，实际上可以将其推广到多分类的问题，具体的过程在[5]中末尾处有详细的推导，多分类下的费雪判别分析算法过程如下[6]:</p>
+<ul>
+<li>输入：N个D维向量$x_1,\ldots,\x_N$，数据能够被分成d个类别;</li>
+<li>输出：投影矩阵$W = (w<em>1,\ldots,w</em>{d-1})$,其中每一个$w_i$都是D维列向量</li>
+</ul>
+<ol>
+<li>求出类内散度矩阵$S_w$和类间散度矩阵$S_b$;</li>
+<li>对$S_w = UDV^T$做奇异值分解，求得$S_w^{-1} = VD^{-1}U^T$;</li>
+<li>对矩阵$S_w^{-1} S_b$做特征值分解;</li>
+<li>取最大的前d-1个特征值对应的特征向量$w<em>1,\ldots,w</em>{d-1}$.</li>
+</ol>
+<p>上述算法之所以选择取前面d-1个特征向量，是因为k类别判别分析所能产生的有效线性特征总数至多为k-1[5]。利用这k-1个D维特征向量，就可以得到k-1个新的预测特征值列。注意利用费雪判别分析做降维处理时不需要对数据进行去中心化，避免去中心化后每个类的中心会重叠[6].</p>
+<h4 id="自编码器"><a href="#自编码器" class="headerlink" title="自编码器"></a>自编码器</h4><p>自编码器是一种特殊的神经网络，以单个隐藏层的自编码器为例，输出层尝试使得输出$\hat x$接近于输入$x$，从而通过隐藏层学习到输入数据的压缩表示，当给定一个数据的压缩表示，结合隐藏层和输出层之间的连接权重矩阵就可以重构出最原始未压缩的数据[7].为了学习到输入数据的压缩表示，隐藏层神经元个数要求小于输入层神经元个数，或者在隐藏层神经元个数大于输入层个数时加入稀疏性限制(稀疏自编码器)，从而学习到输入数据的低维结构。如果输入数据的维度较大或者希望找到数据维度更低的压缩表示，可以采用栈式自编码器，它以单隐藏层的自编码器为基础进行连接：前一个自编码器学习到的低维结构作为下一个自编码器的输入层。</p>
+<h4 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h4><p>其他的降维方法还包括多维缩放(MDS)(用于图片的降维[8])，基于流形学习的降维方法[6].</p>
+<h1 id="缺失值处理"><a href="#缺失值处理" class="headerlink" title="缺失值处理"></a>缺失值处理</h1><p>缺失值如果集中在少数样本上或者少数预测特征上时，可以考虑将这些样本或者预测特征去掉，但是预测特征的移除需要谨慎考虑。更为一般的处理方法是进行缺失值的填充(imputation)，有两种常用的填充方法：</p>
+<ol>
+<li><p>基于样本的K-近邻方法</p>
+</li>
+<li><p>基于预测特征之间的相关性方法</p>
+</li>
+</ol>
+<h1 id="predictor的移除或增加"><a href="#predictor的移除或增加" class="headerlink" title="predictor的移除或增加"></a>predictor的移除或增加</h1><h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><ol>
+<li>Max Kuhn. Applied Predictive Modeling</li>
+<li>Trevor Hastie. The Elements of Statistical Learning, Data Mining, Inference, and Prediction, second Edition</li>
+<li><a href="http://cs.ananas.chaoxing.com/download/554f2029e4b017d277eb4bf7" target="_blank" rel="external">http://cs.ananas.chaoxing.com/download/554f2029e4b017d277eb4bf7</a></li>
+<li><a href="https://ccjou.wordpress.com/2013/04/15/%E4%B8%BB%E6%88%90%E5%88%86%E5%88%86%E6%9E%90/" target="_blank" rel="external">https://ccjou.wordpress.com/2013/04/15/%E4%B8%BB%E6%88%90%E5%88%86%E5%88%86%E6%9E%90/</a></li>
+<li><a href="https://ccjou.wordpress.com/2014/03/14/%E8%B2%BB%E9%9B%AA%E7%9A%84%E5%88%A4%E5%88%A5%E5%88%86%E6%9E%90%E8%88%87%E7%B7%9A%E6%80%A7%E5%88%A4%E5%88%A5%E5%88%86%E6%9E%90/" target="_blank" rel="external">https://ccjou.wordpress.com/2014/03/14/%E8%B2%BB%E9%9B%AA%E7%9A%84%E5%88%A4%E5%88%A5%E5%88%86%E6%9E%90%E8%88%87%E7%B7%9A%E6%80%A7%E5%88%A4%E5%88%A5%E5%88%86%E6%9E%90/</a></li>
+<li><a href="http://chenrudan.github.io/blog/2016/04/01/dimensionalityreduction.html#3.3" target="_blank" rel="external">http://chenrudan.github.io/blog/2016/04/01/dimensionalityreduction.html#3.3</a></li>
+<li><a href="http://ufldl.stanford.edu/wiki/index.php/%E8%87%AA%E7%BC%96%E7%A0%81%E7%AE%97%E6%B3%95%E4%B8%8E%E7%A8%80%E7%96%8F%E6%80%A7" target="_blank" rel="external">http://ufldl.stanford.edu/wiki/index.php/%E8%87%AA%E7%BC%96%E7%A0%81%E7%AE%97%E6%B3%95%E4%B8%8E%E7%A8%80%E7%96%8F%E6%80%A7</a></li>
+<li><a href="https://ccjou.wordpress.com/2013/05/29/%E5%8F%A4%E5%85%B8%E5%A4%9A%E7%B6%AD%E6%A8%99%E5%BA%A6%E6%B3%95-mds/" target="_blank" rel="external">https://ccjou.wordpress.com/2013/05/29/%E5%8F%A4%E5%85%B8%E5%A4%9A%E7%B6%AD%E6%A8%99%E5%BA%A6%E6%B3%95-mds/</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/标签/data-preprocessing/" rel="tag"># data preprocessing</a>
+          
+            <a href="/标签/data-cleaning/" rel="tag"># data cleaning</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/03/SVM模型的由来及SMO算法的python实现/" rel="next" title="SVM模型的由来及SMO算法的python实现">
+                <i class="fa fa-chevron-left"></i> SVM模型的由来及SMO算法的python实现
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://onvolufm1.bkt.clouddn.com/avatar.jpg"
+               alt="周君君" />
+          <p class="site-author-name" itemprop="name">周君君</p>
+           
+              <p class="site-description motion-element" itemprop="description">越努力越幸运</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/zhoujunjun-apple" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#量纲标准化"><span class="nav-number">1.</span> <span class="nav-text">量纲标准化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题描述"><span class="nav-number">1.1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#处理方法"><span class="nav-number">1.2.</span> <span class="nav-text">处理方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#优缺点"><span class="nav-number">1.3.</span> <span class="nav-text">优缺点</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#有偏数据的检测和处理"><span class="nav-number">2.</span> <span class="nav-text">有偏数据的检测和处理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题描述-1"><span class="nav-number">2.1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#检测与处理方法"><span class="nav-number">2.2.</span> <span class="nav-text">检测与处理方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#离群点的检测和处理"><span class="nav-number">3.</span> <span class="nav-text">离群点的检测和处理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题描述-2"><span class="nav-number">3.1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#处理方法-1"><span class="nav-number">3.2.</span> <span class="nav-text">处理方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#降维和特征选择"><span class="nav-number">4.</span> <span class="nav-text">降维和特征选择</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题描述-3"><span class="nav-number">4.1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法"><span class="nav-number">4.2.</span> <span class="nav-text">方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#PCA"><span class="nav-number">4.2.0.1.</span> <span class="nav-text">PCA</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#原理"><span class="nav-number">4.2.0.1.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#优劣势"><span class="nav-number">4.2.0.1.2.</span> <span class="nav-text">优劣势</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PLS"><span class="nav-number">4.2.0.2.</span> <span class="nav-text">PLS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Fisher’s-Discriminant-Analysis"><span class="nav-number">4.2.0.3.</span> <span class="nav-text">Fisher’s Discriminant Analysis</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自编码器"><span class="nav-number">4.2.0.4.</span> <span class="nav-text">自编码器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#其他"><span class="nav-number">4.2.0.5.</span> <span class="nav-text">其他</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#缺失值处理"><span class="nav-number">5.</span> <span class="nav-text">缺失值处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#predictor的移除或增加"><span class="nav-number">6.</span> <span class="nav-text">predictor的移除或增加</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文献"><span class="nav-number">7.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">周君君</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="custom_mathjax_source">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+  
+
+
+  
+
+</body>
+</html>
