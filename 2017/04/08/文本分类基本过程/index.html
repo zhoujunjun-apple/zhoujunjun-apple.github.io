@@ -87,15 +87,19 @@
 
 
 
-<meta name="description" content="越努力越幸运">
-<meta property="og:type" content="website">
-<meta property="og:title" content="二颗苹果">
-<meta property="og:url" content="http://yoursite.com/index.html">
+<meta name="description" content="英文语料分类英文文本的分类语料选择公共的“20种新闻组”语料集，该资料集包括20个新闻分类总共两万篇新闻左右。为了对每篇新闻的类别进行分类，需要去掉常用停用词之后将每篇文章转换成TF-IDF词特征向量，在此基础上再对每篇文章的类别进行分类。
+将数据集下载并且解压后，因为数据集较小，可以将文本内容全部读取到内存中：1234567from sklearn.datasets import load_fi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="文本分类基本过程">
+<meta property="og:url" content="http://yoursite.com/2017/04/08/文本分类基本过程/index.html">
 <meta property="og:site_name" content="二颗苹果">
-<meta property="og:description" content="越努力越幸运">
+<meta property="og:description" content="英文语料分类英文文本的分类语料选择公共的“20种新闻组”语料集，该资料集包括20个新闻分类总共两万篇新闻左右。为了对每篇新闻的类别进行分类，需要去掉常用停用词之后将每篇文章转换成TF-IDF词特征向量，在此基础上再对每篇文章的类别进行分类。
+将数据集下载并且解压后，因为数据集较小，可以将文本内容全部读取到内存中：1234567from sklearn.datasets import load_fi">
+<meta property="og:updated_time" content="2017-04-17T13:19:15.600Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="二颗苹果">
-<meta name="twitter:description" content="越努力越幸运">
+<meta name="twitter:title" content="文本分类基本过程">
+<meta name="twitter:description" content="英文语料分类英文文本的分类语料选择公共的“20种新闻组”语料集，该资料集包括20个新闻分类总共两万篇新闻左右。为了对每篇新闻的类别进行分类，需要去掉常用停用词之后将每篇文章转换成TF-IDF词特征向量，在此基础上再对每篇文章的类别进行分类。
+将数据集下载并且解压后，因为数据集较小，可以将文本内容全部读取到内存中：1234567from sklearn.datasets import load_fi">
 
 
 
@@ -123,13 +127,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/04/08/文本分类基本过程/"/>
 
 
 
 
 
-  <title> 二颗苹果 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <title> 文本分类基本过程 | 二颗苹果 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -154,9 +158,7 @@
     
   
 
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left 
-   page-home 
- ">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -239,9 +241,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -271,10 +273,7 @@
             
             
               
-                
-                <a class="post-title-link" href="/2017/04/08/文本分类基本过程/" itemprop="url">
-                  文本分类基本过程
-                </a>
+                文本分类基本过程
               
             
           </h1>
@@ -325,9 +324,7 @@
       
 
       
-        
-          
-            <h1 id="英文语料分类"><a href="#英文语料分类" class="headerlink" title="英文语料分类"></a>英文语料分类</h1><p>英文文本的分类语料选择公共的“20种新闻组”语料集，该资料集包括20个新闻分类总共两万篇新闻左右。为了对每篇新闻的类别进行分类，需要去掉常用停用词之后将每篇文章转换成TF-IDF词特征向量，在此基础上再对每篇文章的类别进行分类。</p>
+        <h1 id="英文语料分类"><a href="#英文语料分类" class="headerlink" title="英文语料分类"></a>英文语料分类</h1><p>英文文本的分类语料选择公共的“20种新闻组”语料集，该资料集包括20个新闻分类总共两万篇新闻左右。为了对每篇新闻的类别进行分类，需要去掉常用停用词之后将每篇文章转换成TF-IDF词特征向量，在此基础上再对每篇文章的类别进行分类。</p>
 <p>将数据集下载并且解压后，因为数据集较小，可以将文本内容全部读取到内存中：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> load_files</div><div class="line">twenty_train = load_files(<span class="string">"/mnt/shared/Dataset/20news-bydate/20news-bydate-train/"</span>,</div><div class="line">                          categories=<span class="keyword">None</span>,</div><div class="line">                          load_content=<span class="keyword">True</span>, </div><div class="line">                          encoding=<span class="string">'latin1'</span>,</div><div class="line">                          decode_error=<span class="string">'strict'</span>,</div><div class="line">                          shuffle=<span class="keyword">True</span>, random_state=<span class="number">42</span>)</div></pre></td></tr></table></figure></p>
 <p>这里传给函数的第一个参数是包含各个类别新闻文本的子文件夹的上层目录;categories参数用于指定选择加载的新闻文本类别，这里赋值None表示加载指定目录下的所有子目录的文本;后面的load_content和encoding表示以’latin1’的编码格式解析新闻文本的内容并加载到内存中;因为后面的许多算法优化时用的是随机梯度下降，而SGD的假设是每个样本之间是独立同分布的，因此将文本加载到内存后进行shuffle操作，随机打乱文本的顺序。load_files()函数返回一个Bunch对象，其中的’data’保存的是所有新闻文本的纯文本内容;’target’表示整数型类别标签向量;’target_names’表示’target’中每个整数对应的字符串类别标签。</p>
 <p>然后需要计算每篇文章的词频向量构成词频矩阵，利用词频矩阵计算由TF-IDF组成的文档-词矩阵，不过在这两步之前需要对一些不具有实际意义的虚词、介词、感叹词等停用词进行过滤处理。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">count_vect = CountVectorizer(twenty_train.data, stop_words=<span class="string">'english'</span>)</div><div class="line">x_train_counts = count_vect.fit_transform(twenty_train.data)</div><div class="line"></div><div class="line">tfidf_transformer = TfidfTransformer()</div><div class="line">x_train_tfidf = tfidf_transformer.fit_transform(x_train_counts)</div></pre></td></tr></table></figure></p>
@@ -352,20 +349,27 @@ $$<br>其中$N<em>{yi} = \sum</em>{x \in T} x<em>i$表示在训练集T中特征i
 <p>从准确率、精确率、召回率以及F1值看，加入PCA处理后的效果反而变差了不少。我们可以试试带核函数的SVM分类模型，相比朴素贝叶斯模型，带核函数的SVM的训练时长较长，为了更快的选出最好的模型，我们选择前2000个样本进行训练：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> sklearn.svm <span class="keyword">import</span> SVC</div><div class="line">text_clf_pipeline = Pipeline([(<span class="string">'vect'</span>, CountVectorizer(stop_words=<span class="string">'english'</span>)),</div><div class="line">                              (<span class="string">'tfidf'</span>, TfidfTransformer()),</div><div class="line">                              (<span class="string">'clf'</span>, SVC()),</div><div class="line">                              ])</div><div class="line">parameters = &#123;<span class="string">'clf__C'</span>: (<span class="number">0.2</span>, <span class="number">0.5</span>, <span class="number">0.8</span>, <span class="number">1</span>),</div><div class="line">              <span class="string">'clf__kernel'</span>: (<span class="string">'rbf'</span>, <span class="string">'poly'</span>, <span class="string">'sigmoid'</span>),</div><div class="line">              <span class="string">'clf__shrinking'</span>: (<span class="keyword">True</span>, <span class="keyword">False</span>), &#125;</div><div class="line">gs_clf = GridSearchCV(text_clf_pipeline, parameters, cv=<span class="number">10</span>, n_jobs=<span class="number">-1</span>)</div><div class="line"><span class="comment"># print(gs_clf)</span></div><div class="line"></div><div class="line">gs_clf = gs_clf.fit(twenty_train.data[:<span class="number">2000</span>], twenty_train.target[:<span class="number">2000</span>])</div><div class="line">print(<span class="string">u"最佳准确率："</span>)</div><div class="line">print(gs_clf.best_score_)</div><div class="line"></div><div class="line"><span class="keyword">for</span> param_name <span class="keyword">in</span> sorted(parameters.keys()):</div><div class="line">    print(<span class="string">"%s: %r"</span>%(param_name, gs_clf.best_params_[param_name]))</div><div class="line">&gt;&gt;&gt;&gt;&gt;&gt;</div><div class="line">最佳准确率：</div><div class="line"><span class="number">0.113</span></div><div class="line">clf__C: <span class="number">0.2</span></div><div class="line">clf__kernel: <span class="string">'rbf'</span></div><div class="line">clf__shrinking: <span class="keyword">True</span></div></pre></td></tr></table></figure></p>
 <p>从结果来看，最好的结果都只有11.3%的准确率，效果远远差于朴素贝叶斯模型。分类模型中的Bagging、Boosting模型一般在数据集具有许多特征时仍然具有较好的分类效果，而且不需要对数据集进行过多的预处理，下面分别用Bagging和Boosting进行实验。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"></div></pre></td></tr></table></figure></p>
 <h1 id="中文语料分类"><a href="#中文语料分类" class="headerlink" title="中文语料分类"></a>中文语料分类</h1>
-          
+      
+    </div>
+
+    <div>
+      
         
+
       
     </div>
 
     <div>
       
-    </div>
+        
 
-    <div>
       
     </div>
 
     <div>
+      
+        
+
       
     </div>
 
@@ -373,462 +377,38 @@ $$<br>其中$N<em>{yi} = \sum</em>{x \in T} x<em>i$表示在训练集T中特征i
       
 
       
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/06/数据预处理基本方法/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周君君">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="http://onvolufm1.bkt.clouddn.com/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="二颗苹果">
-    </span>
-
-    
-      <header class="post-header">
-
         
-        
-          <h1 class="post-title" itemprop="name headline">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
             
+              <a href="/2017/04/06/数据预处理基本方法/" rel="next" title="数据预处理基本方法">
+                <i class="fa fa-chevron-left"></i> 数据预处理基本方法
+              </a>
             
-              
-                
-                <a class="post-title-link" href="/2017/04/06/数据预处理基本方法/" itemprop="url">
-                  数据预处理基本方法
-                </a>
-              
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
             
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-06T11:00:39+08:00">
-                2017-04-06
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/目录/数据挖掘/" itemprop="url" rel="index">
-                    <span itemprop="name">数据挖掘</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
+          </div>
         </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
       
 
       
-        
-          本文介绍进行数据挖掘和机器学习之前需要对数据进行的基本预处理方法[1]，包括量纲标准化、有偏数据的检测和转换、离群点的检测和处理、降维、特征选择、缺失值处理、去除或者增加predictor、样本类别失衡处理，针对不同的数据挖掘任务和机器学习模型需要采用相应的预处理方法。采用UCI上的adult数据集作为例子分析。
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/04/06/数据预处理基本方法/">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </article>
 
 
-    
-      
 
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/03/SVM模型的由来及SMO算法的python实现/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周君君">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="http://onvolufm1.bkt.clouddn.com/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="二颗苹果">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/04/03/SVM模型的由来及SMO算法的python实现/" itemprop="url">
-                  SVM模型的由来及SMO算法的python实现
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-03T23:37:30+08:00">
-                2017-04-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/目录/机器学习/" itemprop="url" rel="index">
-                    <span itemprop="name">机器学习</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍求解SVM对偶形式问题的SMO算法的主要步骤，最后给出Python实现。
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/04/03/SVM模型的由来及SMO算法的python实现/">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
+    <div class="post-spread">
       
     </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/03/adaboost算法的python和R实现/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="周君君">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="http://onvolufm1.bkt.clouddn.com/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="二颗苹果">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/04/03/adaboost算法的python和R实现/" itemprop="url">
-                  adaboost算法的python和R实现
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-03T14:51:08+08:00">
-                2017-04-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/目录/机器学习/" itemprop="url" rel="index">
-                    <span itemprop="name">机器学习</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          本文对Adaptive Boosting算法进行简单介绍，并分别利用Python和R语言进行了实现，只适用于数值类单特征的二分类问题。
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/04/03/adaboost算法的python和R实现/">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-  </section>
-
-  
+  </div>
 
 
           </div>
@@ -836,6 +416,10 @@ $$<br>其中$N<em>{yi} = \sum</em>{x \in T} x<em>i$表示在训练集T中特征i
 
 
           
+  <div class="comments" id="comments">
+    
+  </div>
+
 
         </div>
         
@@ -855,8 +439,17 @@ $$<br>其中$N<em>{yi} = \sum</em>{x \in T} x<em>i$表示在训练集T中特征i
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="http://onvolufm1.bkt.clouddn.com/avatar.jpg"
@@ -929,6 +522,22 @@ $$<br>其中$N<em>{yi} = \sum</em>{x \in T} x<em>i$表示在训练集T中特征i
 
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#英文语料分类"><span class="nav-number">1.</span> <span class="nav-text">英文语料分类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#中文语料分类"><span class="nav-number">2.</span> <span class="nav-text">中文语料分类</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -1036,6 +645,10 @@ $$<br>其中$N<em>{yi} = \sum</em>{x \in T} x<em>i$表示在训练集T中特征i
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
 
   
 
