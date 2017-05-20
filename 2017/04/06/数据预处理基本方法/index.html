@@ -99,7 +99,7 @@
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/PCA_rebuildgrey.png">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/PCA_ratio.png">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/histogram_capital.png">
-<meta property="og:updated_time" content="2017-05-20T11:14:02.194Z">
+<meta property="og:updated_time" content="2017-05-20T11:55:06.953Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="数据预处理基本方法">
 <meta name="twitter:description" content="本文介绍进行数据挖掘和机器学习之前需要对数据进行的基本预处理方法[1]，包括量纲标准化、有偏数据的检测和转换、离群点的检测和处理、降维、特征选择、缺失值处理、去除或者增加predictor、样本类别失衡处理，针对不同的数据挖掘任务和机器学习模型需要采用相应的预处理方法。采用UCI上的adult数据集作为例子分析。">
@@ -385,13 +385,15 @@ $$<br>其中$h(x)$是样本x在第h棵树中检索到的结点的高度，$E[\cd
 <p><img src="http://onvolufm1.bkt.clouddn.com/smsspam_iForest.png" alt=""><br>从normal score值的分布来看，iForest并没有很好的把spam类文本和ham类文本区分开来，中间存在较大的重叠部分，从而在我们增大参数contamination的值使得spam类的召回率改善时会让spam类的精确率极低，因为此时重叠部分大量的ham类样本被错分为spam类。</p>
 <h3 id="Local-Outlier-Factor"><a href="#Local-Outlier-Factor" class="headerlink" title="Local Outlier Factor"></a>Local Outlier Factor</h3><p>LOF算法是基于密度的离群点检测算法，它基于这样一个观察：The density around an outlier object is significantly different from the density around its neighbors[11]，即离群点附近的密度与其邻居的邻近密度差距很大。因此LOF计算一个数据点对它的邻居数据点的相对密度(LOF值)来作为它是否为离群点的度量方式，这个相对密度越大，说明该数据点越有可能是离群点。</p>
 <p>LOF算法描述如下：<br>输入：输入数据D，k(选择的邻居数)，距离度量方式T；<br>输出：根据LOF值从大到小排序的样本标号；<br>过程：</p>
-<pre><code>1. 根据距离度量方式T计算D中两两数据点之间的距离$dist(d_i, d_j)$;
-2. 根据设定的k值计算数据点$o$的k-distance:$dist_k (o)$，这是该数据点到其第k个最近邻居之间的距离；
-3. 计算数据点$o$的k-distance邻居$N_k (0)=\{ o^&#39; | o^&#39; in D, dist(o,o^&#39;) \le dist_k(o)\}$，即找到那些距离数据点不大于其与第k个最近邻的距离的其他数据点(可能不止k个，因为其中可能有多个数据点到o的距离相同)；
-4. 计算数据点$o$的local reachability density: $lrd_k (o)={\|N_k(o) \|} \over {\sum_{o^&#39; \in N_k(o)} reachdist_k (o^&#39; \leftarrow o)}$，其中分母部分称为从$o^&#39;$到$o$的reachability distance：$max \{dist_k(o), dist(o,o^&#39;) \}$;
-5. 计算数据点$o$的LOF值：$LOF_k(o)={{\sum_{o^' \in N_k(o) {{lrd_k(o^')} \over {lrd_k(o)}}} \over {\| N_k(o)\|}}$，可以看到数据点$o$LOF值的计算实际为它的k-distance邻居的local reachability对$o$的比值的平均值；
-6. 对于数据集D中的所有数据点重复过程2-5,然后根据LOF值从大到小对数据点进行排序输出。
-</code></pre><h2 id="处理方法-1"><a href="#处理方法-1" class="headerlink" title="处理方法"></a>处理方法</h2><p>显式的离群点处理方法spatial sign，它的思想是对于<strong>样本</strong>的每一个属性除以该样本在P-维属性空间中距离原点的欧式距离，公式如下。几何上来看，相当于把所有的样本点映射到p-维属性空间的单位球面上，缓解离群点的影响。<br>$$
+<ol>
+<li>根据距离度量方式T计算D中两两数据点之间的距离$dist(d_i, d_j)$;</li>
+<li>根据设定的k值计算数据点$o$的k-distance:$dist_k (o)$，这是该数据点到其第k个最近邻居之间的距离；</li>
+<li>计算数据点$o$的k-distance邻居$N_k (0)={ o^’ | o^’ in D, dist(o,o^’) \le dist_k(o)}$，即找到那些距离数据点不大于其与第k个最近邻的距离的其他数据点(可能不止k个，因为其中可能有多个数据点到o的距离相同)；</li>
+<li>计算数据点$o$的local reachability density: $lrd<em>k (o)={|N_k(o) |} \over {\sum</em>{o^’ \in N_k(o)} reachdist_k (o^’ \leftarrow o)}$，其中分母部分称为从$o^’$到$o$的reachability distance：$max {dist_k(o), dist(o,o^’) }$;</li>
+<li>计算数据点$o$的LOF值：$LOF_k(o)={{\sum_{o^' \in N_k(o) {{lrd_k(o^')} \over {lrd_k(o)}}} \over {\| N_k(o)\|}}$，可以看到数据点$o$LOF值的计算实际为它的k-distance邻居的local reachability对$o$的比值的平均值；</li>
+<li>对于数据集D中的所有数据点重复过程2-5,然后根据LOF值从大到小对数据点进行排序输出。</li>
+</ol>
+<h2 id="处理方法-1"><a href="#处理方法-1" class="headerlink" title="处理方法"></a>处理方法</h2><p>显式的离群点处理方法spatial sign，它的思想是对于<strong>样本</strong>的每一个属性除以该样本在P-维属性空间中距离原点的欧式距离，公式如下。几何上来看，相当于把所有的样本点映射到p-维属性空间的单位球面上，缓解离群点的影响。<br>$$
 x_{ij}^\star = {x_{ij} \over \sqrt{\sum_{j=1}^P x_{ij}^2}}
 \tag{0}
 $$</p>
