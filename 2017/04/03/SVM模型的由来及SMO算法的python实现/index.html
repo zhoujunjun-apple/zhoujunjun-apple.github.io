@@ -95,7 +95,7 @@
 <meta property="og:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍求解SVM对偶形式问题的SMO算法的主要步骤，最后给出Python实现。">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/fat_hyperplane.png">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/cut_optimal_solution.png">
-<meta property="og:updated_time" content="2017-04-05T06:41:36.076Z">
+<meta property="og:updated_time" content="2017-05-20T11:16:52.545Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SVM模型的由来及SMO算法的python实现">
 <meta name="twitter:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍求解SVM对偶形式问题的SMO算法的主要步骤，最后给出Python实现。">
@@ -498,7 +498,7 @@ s.t. \sum_{i=1}^N {\alpha_i y_i} = 0 ;\quad
 \end{array} \right.
 \tag{15}
 $$
-<br>SMO算法主要的思路是：初始化所有的变量$\alpha_i,i=1,2,\ldots,N$，从中选择两个变量计为$\alpha_1^{old} = \alpha_1,\alpha_2^{old} = \alpha_2$，保持其他变量$\alpha_3,\ldots,\alpha_N$不变;通过(14)中的第一个等式约束可以将$\alpha_1$用$\alpha_2$表示出来，再将$\alpha_1$代回到(14)的目标函数中得到关于$\alpha_2$的二次函数，令其偏导等于零可以得到$\alpha_2$的一个更新值，计为$\alpha_2^{new,uncut}$; 注意到$\alpha_2^{new,uncut}$可能不满足(14)中的不等式约束，因此需要对其进行一次剪辑操作，剪辑的示意图如下：<br><img src="http://onvolufm1.bkt.clouddn.com/cut_optimal_solution.png" alt=""><br>剪辑后的值计为$\alpha_2^{new,cutted}$，然后根据这个剪辑后的值计算$\alpha_1^{new}$，此时不再需要对$\alpha_1^{new}$进行剪辑操作。此时，我们已经完成来一轮对$\alpha_1,\alpha_2$的优化更新，因为分离超平面$(w,b)$参与了每一轮的变量优化更新，因此需要在每一轮变量的优化更新之后对$w,b$进行更新，而$w=\sum_{i=1}^N \alpha_i y_i x_i$即$w$隐式的通过$\alpha_i$的更新完成了更新，而$b$的更新则需要从中选择一个满足$0 \lt \alpha_j \lt C$的$\alpha_j$来进行更新，而剪辑之后的$\alpha_2^{new,cutted}, \alpha_1^{new}$总是满足$0 \le \alpha_i \le C$，因此根据$\alpha_2^{new,cutted},\alpha_1^{new}$来对$b$进行更新，以便参与下一轮的变量优化更新过程。</p>
+<br>SMO算法主要的思路是：初始化所有的变量$\alpha_i,i=1,2,\ldots,N$，从中选择两个变量计为$\alpha_1^{old} = \alpha_1,\alpha_2^{old} = \alpha_2$，保持其他变量$\alpha_3,\ldots,\alpha_N$不变;通过(15)中的第一个等式约束可以将$\alpha_1$用$\alpha_2$表示出来，再将$\alpha_1$代回到(15)的目标函数中得到关于$\alpha_2$的二次函数，令其偏导等于零可以得到$\alpha_2$的一个更新值，计为$\alpha_2^{new,uncut}$; 注意到$\alpha_2^{new,uncut}$可能不满足(15)中的不等式约束，因此需要对其进行一次剪辑操作，剪辑的示意图如下：<br><img src="http://onvolufm1.bkt.clouddn.com/cut_optimal_solution.png" alt=""><br>剪辑后的值计为$\alpha_2^{new,cutted}$，然后根据这个剪辑后的值计算$\alpha_1^{new}$，此时不再需要对$\alpha_1^{new}$进行剪辑操作。此时，我们已经完成来一轮对$\alpha_1,\alpha_2$的优化更新，因为分离超平面$(w,b)$参与了每一轮的变量优化更新，因此需要在每一轮变量的优化更新之后对$w,b$进行更新，而$w=\sum_{i=1}^N \alpha_i y_i x_i$即$w$隐式的通过$\alpha_i$的更新完成了更新，而$b$的更新则需要从中选择一个满足$0 \lt \alpha_j \lt C$的$\alpha_j$来进行更新，而剪辑之后的$\alpha_2^{new,cutted}, \alpha_1^{new}$总是满足$0 \le \alpha_i \le C$，因此根据$\alpha_2^{new,cutted},\alpha_1^{new}$来对$b$进行更新，以便参与下一轮的变量优化更新过程。</p>
 <h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><p>SMO的python代码在<a href="https://github.com/zhoujunjun-apple/machine-learning" target="_blank" rel="external">我的github</a>，代码的实现主要参考了[6]中的算法步骤，下面对代码中比较关键的部分进行解释，同时记录下代码中我觉得有疑惑的地方。</p>
 <h2 id="关键代码行解释"><a href="#关键代码行解释" class="headerlink" title="关键代码行解释"></a>关键代码行解释</h2><h3 id="样本点筛选"><a href="#样本点筛选" class="headerlink" title="样本点筛选"></a>样本点筛选</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">while</span>(<span class="number">0</span> <span class="keyword">in</span> alpha) <span class="keyword">and</span> counter &lt; max_iter:</div></pre></td></tr></table></figure>
 <p>这个while循环判断参与当前迭代轮次的样本的拉格朗日乘子$\alpha$是否全部非0,如果是，说明这些样本点全部是支撑向量，结束循环;否则，保留$\alpha_i \neq 0$的样本点（这一步操作在while循环体的末尾）进入下一个迭代轮次，因为这些$\alpha_i \neq 0$的样本点才是可能的支撑向量[6]</p>
