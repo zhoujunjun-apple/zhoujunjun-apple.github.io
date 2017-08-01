@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="adaboost,python实现,R实现," />
+  <meta name="keywords" content="逻辑斯蒂回归," />
 
 
 
@@ -87,16 +87,16 @@
 
 
 
-<meta name="description" content="本文对Adaptive Boosting算法进行简单介绍，并分别利用Python和R语言进行了实现，只适用于数值类单特征的二分类问题。">
+<meta name="description" content="从贝叶斯定理出发，推导出逻辑斯蒂回归模型的由来。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="adaboost算法的python和R实现">
-<meta property="og:url" content="http://yoursite.com/2017/04/03/adaboost算法的python和R实现/index.html">
+<meta property="og:title" content="逻辑斯蒂回归的前世">
+<meta property="og:url" content="http://yoursite.com/2017/04/18/逻辑斯蒂回归的前世/index.html">
 <meta property="og:site_name" content="二颗苹果">
-<meta property="og:description" content="本文对Adaptive Boosting算法进行简单介绍，并分别利用Python和R语言进行了实现，只适用于数值类单特征的二分类问题。">
-<meta property="og:updated_time" content="2017-04-03T14:17:13.906Z">
+<meta property="og:description" content="从贝叶斯定理出发，推导出逻辑斯蒂回归模型的由来。">
+<meta property="og:updated_time" content="2017-08-01T08:29:50.355Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="adaboost算法的python和R实现">
-<meta name="twitter:description" content="本文对Adaptive Boosting算法进行简单介绍，并分别利用Python和R语言进行了实现，只适用于数值类单特征的二分类问题。">
+<meta name="twitter:title" content="逻辑斯蒂回归的前世">
+<meta name="twitter:description" content="从贝叶斯定理出发，推导出逻辑斯蒂回归模型的由来。">
 
 
 
@@ -124,13 +124,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/04/03/adaboost算法的python和R实现/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/04/18/逻辑斯蒂回归的前世/"/>
 
 
 
 
 
-  <title> adaboost算法的python和R实现 | 二颗苹果 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <title> 逻辑斯蒂回归的前世 | 二颗苹果 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -249,7 +249,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/03/adaboost算法的python和R实现/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/18/逻辑斯蒂回归的前世/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="周君君">
@@ -270,7 +270,7 @@
             
             
               
-                adaboost算法的python和R实现
+                逻辑斯蒂回归的前世
               
             
           </h1>
@@ -285,8 +285,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-03T14:51:08+08:00">
-                2017-04-03
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-18T14:51:08+08:00">
+                2017-04-18
               </time>
             
 
@@ -332,7 +332,7 @@
 
           
               <div class="post-description">
-                  本文对Adaptive Boosting算法进行简单介绍，并分别利用Python和R语言进行了实现，只适用于数值类单特征的二分类问题。
+                  从贝叶斯定理出发，推导出逻辑斯蒂回归模型的由来。
               </div>
           
 
@@ -347,37 +347,148 @@
       
 
       
-        <h1 id="adaboost算法"><a href="#adaboost算法" class="headerlink" title="adaboost算法"></a>adaboost算法</h1><ul>
-<li>输入：训练数据集 $T = \{(x_1,y_1),(x_2,y_2),\ldots,(x_N,y_N), with \ x_i \in R^1, y_i \in \{-1,+1\}\}$</li>
-<li>输出：最终分类器 $G_{final}(x)$</li>
-</ul>
+        <h1 id="贝叶斯定理"><a href="#贝叶斯定理" class="headerlink" title="贝叶斯定理"></a>贝叶斯定理</h1><p>根据贝叶斯理论，给定一组数据$\chi = (x_1,x_2,\ldots,x_N)$，以及包括的类标签集合${c_1,c_2,\ldots,c_K}$，则一个样本$x$所属的类别可以建模为后验概率：</p>
+<script type="math/tex; mode=display">
+P(c_j | x) = {P(x | c_j) P(c_j)  \over  P(x)}
+\tag{1}</script><p>其中$P(c<em>j)$是不需要提供任何前提信息时类别$c_j$出现的先验概率，$P(x|c_j)$表示给定类别$c_j$的前提下，样本$x$出现的概率，称为似然概率，分母部分$P(x) = \sum</em>{i=1}^K P(x|c_i)P(c_i)$表示样本$x$的概率分布，对于所有的类别$c_j$具有相同的值。</p>
+<p>贝叶斯理论认为样本$x$应该属于具有最大后验概率的类别，考虑到分母部分对于具体的样本是常数，所以$x$的类别$c_x$必须满足：</p>
+<script type="math/tex; mode=display">
+c_x = \mathop{argmax}_{c_j} P(x|c_j)P(c_j)
+\tag{2}</script><p>生成式模型使用给定的样本集来估计条件密度函数$P(x|c)$和先验概率$P(c)$，相当于去直接学习原始的联合分布$P(x, c)$，适合于在线的增量学习。这类模型包括朴素贝叶斯、线性判别分析、隐马尔可夫模型等。<br>判别式模型不直接学习联合分布$P(x,c)$，它更加关注不同类样本之间的差异性，一般直接学习决策函数$f(x)$或者条件概率分布$P(c|x)$。包括逻辑斯蒂回归、条件随机场等。</p>
+<h1 id="线性判别分析"><a href="#线性判别分析" class="headerlink" title="线性判别分析"></a>线性判别分析</h1><p>对于二分类问题$c_j,j=0,1$，式子(1)简化为：<br>
+$$
+\begin{align}
+P(c_1 | x) &= {P(x | c_1) P(c_1)  \over  {P(x | c_1) P(c_1)+P(x | c_0) P(c_0)}} \\
+& = {1 \over {1 + { P(x | c_0) P(c_0)  \over P(x | c_1) P(c_1)}}}
+\end{align}
+\tag{3}
+$$
+<br>令$a = log { P(x | c_0) P(c_0)  \over P(x | c_1) P(c_1)} = log {P(c_0 | x)  \over P(c_1 | x) }$，称为事件：”给定样本$x$，该样本属于$c_0$类”的对数几率(log odds)，则表达式(3)可以改写为：<br>
+$$
+P(c_1 | x) =  {1 \over {1 + exp(a)}}
+\tag{4}
+$$
+<br>下面计算$a$的表达式。线性判别分析对此做了两个假设：条件概率分布$P(x|c_i),i=0,1$服从高斯分布且不同类的条件分布具有相同的协方差矩阵，即：<br>
+$$
+P(x|c_i) = {1 \over {(2 \pi)^{n/2} |\Sigma|^{1/2} } }  exp\{  -{1 \over 2} (x-\mu_i)^T  \Sigma^{-1}  (x-\mu_i) \}
+\tag{5}
+$$
+<br>其中$\mu_i$表示类别$c_i$的均值向量，$\Sigma$表示共同的协方差矩阵。将(5)带回到$a$的定义中得到：<br>
+$$
+\begin{align}
+a  &= logP(x|c_0) - logP(x|c_1) + logP(c_0) - logP(c_1) \\
+& =  -{1 \over 2} (x-\mu_0)^T  \Sigma^{-1}  (x-\mu_0) +  {1 \over 2} (x-\mu_1)^T  \Sigma^{-1}  (x-\mu_1)+ logP(c_0) - logP(c_1)  \\
+& = (\mu_0 - \mu_1)^T \Sigma^{-1} x - {1 \over 2} \mu_0^T  \Sigma^{-1} \mu_0 +{1 \over 2} \mu_1^T  \Sigma^{-1} \mu_1 + logP(c_0) - logP(c_1)  \\
+& = w^T x + b
+\end{align}
+\tag{6}
+$$
+<br>其中</p>
+<script type="math/tex; mode=display">
+\begin{align}
+& w =   \Sigma^{-1} (\mu_0 - \mu_1) \\
+& b =  - {1 \over 2} \mu_0^T  \Sigma^{-1} \mu_0 +{1 \over 2} \mu_1^T  \Sigma^{-1} \mu_1 + logP(c_0) - logP(c_1) 
+\end{align}
+\tag{7}</script><p>将式子(6)代入到式子(4)中就可以得到逻辑斯蒂回归模型的表达式形式：<br>
+$$
+P(c_1 | x) =  {1 \over {1 + exp(w^T x + b)}}
+\tag{8}
+$$
+<br>求解(7)中的$w,b$有两种方法：</p>
+<blockquote>
+<p>生成式：通过最大似然估计求解$\mu_0,\mu_1,\Sigma,P(c_i)$的值，从而得到$w,b$的估计值；<br>判别式：通过极大似然估计法直接估计$w,b$的值，这正是逻辑斯蒂回归采取的方法。</p>
+</blockquote>
+<h1 id="生成式-LDA"><a href="#生成式-LDA" class="headerlink" title="生成式(LDA)"></a>生成式(LDA)</h1><p>通过极大似然估计得到的$\hat \mu_i,\hat \Sigma,\hat P(c_i)$分别为[1]：</p>
+<script type="math/tex; mode=display">
+\begin{align}
+& \hat P(c_i) = {N_i \over N} \\
+& \hat \mu_i = {1 \over N_i}  \sum_{i \in c_i} x_i \\
+& \hat \Sigma = {N_0 \over N}S_0 + {N_1 \over N}S_1 
+\end{align}
+\tag{9}</script><p>其中$S_i = {1 \over N_i} \sum_{j \in c_i} (x_j - \hat \mu_i)(x_j - \hat \mu_i)^T, i=0,1$，$N_i$表示属于类别$c_i$的样本数目，$N$表示所有样本的数目。<br>从(9)可以看到，极大似然估计法得到的$\hat \mu_i$估计值是计算相应类下样本特征的平均值，而后面的$\hat \Sigma$需要用到$\hat \mu_i$值来计算。因为平均值对于样本异常值的鲁棒性很差，因此导致学习到的模型同样不具有对于异常样本的鲁棒性，使得模型效果较差。</p>
+<h1 id="判别式-Logistic"><a href="#判别式-Logistic" class="headerlink" title="判别式(Logistic)"></a>判别式(Logistic)</h1><h2 id="二类别"><a href="#二类别" class="headerlink" title="二类别"></a>二类别</h2><p>逻辑斯蒂模型绕过原始分布参数的学习，直接学习参数$w,b$，对于一个样本$x$，我们希望$P(c_x | x)$尽可能接近1，也就是说最优的$w,b$应该使得如下的似然函数最大：</p>
+<script type="math/tex; mode=display">
+\mathop{\Pi}_{i=1}^N [\pi(x_i)]^{y_i} [1-\pi(x_i)]^{1-y_i}
+\tag{10}</script><p>其中$\pi(x<em>i) = P(c_1 | x_i)，y_i = (c_1 == c</em>{x_i} ? 1 ： 0)$，对(10)取对数 ，并将(8)带入整理得交叉熵：</p>
+<script type="math/tex; mode=display">
+L(w,b) = \sum_{i=1}^N [(1-y_i)(w^T x_i + b) - log(1 + exp(w^T x_i + b))]
+\tag{11}</script><p>根据极大似然估计法，需要$L(w,b)$<strong>最大</strong>。分别计算它的梯度为：<br>
+$$
+\begin{cases}
+{\partial L(w,b) \over \partial w} = \sum_{i=1}^N x_i [\pi(x_i) - y_i]  = \Delta w \\
+{\partial L(w,b) \over \partial b} = \sum_{i=1}^N  [\pi(x_i) - y_i]  =  \Delta b
+\end{cases}
+\tag{12}
+$$
+<br>根据梯度下降法原理，参数$w,b$的更新方程为：</p>
+<script type="math/tex; mode=display">
+\begin{cases}
+w := w + {1 \over N} \Delta w \\
+b := b + {1 \over N}\Delta b
+\end{cases}
+\tag{13}</script><p>除了梯度下降法，还可以用牛顿法进行优化更新。另外，从(12)中$\Delta w$的表达式可以看到，如果$x_i$是异常样本，则它同样会影响到最佳$\hat w$的值。为了减小异常样本对模型学习过程的影响，一种办法是对分类超平面的法向量$w$引入$L_1,L2$惩罚项.<br>逻辑斯蒂回归引入核函数可以帮助其拟合复杂的分类界面，不过因为不像SVM中只保留少数支撑向量，引入核函数的逻辑斯蒂回归训练和预测时计算量比较大[3].</p>
+<h2 id="多类别"><a href="#多类别" class="headerlink" title="多类别"></a>多类别</h2><p>二项逻辑斯蒂回归模型可以推广至多分类问题。根据式子(4)中$a$的定义，将其推广至$K&gt;2$的情况[2]：</p>
+<script type="math/tex; mode=display">
+log{P(c_i | x) \over P(c_K | x)} = w_i^T x + b_i, i=1,2,\ldots,K-1
+\tag{14}</script><p>则有</p>
+<script type="math/tex; mode=display">
+P(c_i | x) = P(c_K | x) \cdot \text{exp}(w_i^T x  + b_i) , i=1,2,\ldots,K-1
+\tag{15}
+$$根据概率的规范性定义$\sum_{i=1}^K P(c_i | x) = 1$，结合表达式(15)，可以分别求出：
+
+$$
+\begin{align}
+& P(c_K | x) = {1 \over {1 + \sum_{i=1}^{K-1} exp(w_i^T x + b_i)}} \\
+& P(c_j | x) = {exp(w_j^T x + b_j) \over {1 + \sum_{i=1}^{K-1} exp(w_i^T x + b_i)}} , j=1,2,\ldots,K-1
+\end{align}
+\tag{16}
+$$
+
+类似式子(10)，定义模型(16)对应的似然损失函数：
+
+$$
+\mathop{\prod}_{j=1}^K \mathop{\prod}_{i=1}^{N_{c_j}} P(c_j | x_i)
+\tag{17}
+$$
+
+其中$N_{c_j}$表示属于类$c_j$的样本数。对(17)取对数，并代入(16)，得到K类问题的交叉熵损失函数：
+
+$$\begin{align}
+L(w,b)  &=
+ \sum_{j=1}^{K-1} \sum_{i=1}^{N_{c_j}} 
+log{ {exp(w_j^T x_i + b_j) \over {1 + \sum_{k=1}^{K-1} exp(w_k^T x_i + b_k)}} } 
++  log{ {1 \over {1 + \sum_{k=1}^{K-1} exp(w_k^T x_i + b_k)}}}  \\
+& =  \sum_{j=1}^{K-1} \sum_{i=1}^{N_{c_j}} (w_j^T x_i + b_j) - 
+N \text{log} ({1 + \sum_{k=1}^{K-1} exp(w_k^T x_i + b_k)})
+\tag{18}
+\end{align}
+$$
+
+需要对损失函数取最大值。损失函数(18)分别对$w_l,b_l,l=1,2,\ldots,K-1 $求偏导得到全部$N$个样本的梯度之和：
+
+$$
+\begin{cases}
+& { \partial L(w,b) \over \partial w_l } = \mathop{ \sum}_{i=1}^{N_{c_j} } x_i  - N \cdot x_i \cdot P(c_l | x_i) = \Delta w_l \\
+& { \partial L(w,b) \over \partial b_l } =  N_{c_j}  - 
+ N \cdot P(c_l | x_i)  = \Delta b_l
+\end{cases}
+\tag{19}
+$$
+
+然后按照下面的表达式进行参数更新：</script><p>\begin{cases}<br>&amp;   w_l := w_l + {1 \over N} \Delta w_l  \<br>&amp;   b_l := b_l + {1 \over N} \Delta b_l<br>\end{cases}<br>\tag{20}</p>
+<p>$$<br>计算出最优的$\hat w_l, \hat b_l,( l = 1,2,\ldots,K-1)$后，通过$P(c_i | x) = P(c_j | x)$确定类别$c_i,c_j, ( i \ne j \ne K)$之间的分隔超平面方程：<br>
+$$
+{( \hat w_j^T x + \hat b_j) \over {1 + \sum_{k=1}^{K-1} exp( \hat w_k^T x + \hat b_k)}} 
+$$
+<br>等价于：<br>
+$$
+ \hat w_i^T x +  \hat b_i =  \hat w_j^T x +  \hat b_j
+$$
+<br>即分隔超平面方程为： $ (\hat w_i^T - \hat w_j^T) x +  \hat b_i - \hat b_j =0 $</p>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p>1.<a href="https://ccjou.wordpress.com/2014/03/20/%E7%B7%9A%E6%80%A7%E5%88%A4%E5%88%A5%E5%88%86%E6%9E%90/" target="_blank" rel="external">极大似然估计法估计原始分布的参数值</a><br>2.Sergios Theodoridis. Pattern Recognition, fourth edition. Elsevier;</p>
 <ol>
-<li>初始化样本的权值分布$ D = (w_{11}, \ldots, w_{1i}, \ldots, w_{1N}), w_{1i} = {1 \over N}, i=1, 2, \ldots, N, N $表示样本个数;</li>
-<li>计算候选的切分点序列 $ S=(S_1, S_2, \ldots, S_{N-1}) $，默认是取特征的相邻两个值的平均值;</li>
-<li>采用树桩作为基本的弱分类器，从$S$中选择使得在训练数据集上分类误差率最小的切分点建立基本分类器$G_j(x):x \rightarrow \{-1, 1\}$,同时记录其分类误差率$e_j$;</li>
-<li>计算基本分类器$G_j(x)$的权重系数$ \alpha = {1 \over 2} log ({{1 - e_j} \over e_j})$ ;</li>
-<li>更新训练样本的权值分布: $ w_{2i} = { w_{1i} \over Z } exp(-\alpha y_i G_j(x_i)) $,其中$Z$是一个归一化因子;</li>
-<li>构建最终分类器$G_{final}(x) = sign (\sum{\alpha G_j(x)})$</li>
-<li>判断是否满足精度要求或者达到最大迭代次数。如果是，则返回第3步;否则，输出最终分类器$G_{final}(x)$</li>
+<li>林轩田，机器学习技法. 国立台湾大学；</li>
 </ol>
-<h1 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h1><h2 id="样本初始化"><a href="#样本初始化" class="headerlink" title="样本初始化"></a>样本初始化</h2><p>如果训练样本的类标签是大致均匀的话，则一般采用算法中默认的初始化方法；但类别不平衡时，需要不同的初始化方法。例如：$A,B,C$类样本数量分别为1000,200,100,则可以采用如下方法：<br>
-$$
-sample \ weight = \left\{
-\begin{array}{rcl}
-A \ class & {{1 \over 3} \times {1 \over 1000} }\\
-B \ class & {{1 \over 3} \times {1 \over 200} }\\
-C \ class & {{1 \over 3} \times {1 \over 100} }
-\end{array} \right.
-$$
-</p>
-<h2 id="候选的切分点序列"><a href="#候选的切分点序列" class="headerlink" title="候选的切分点序列"></a>候选的切分点序列</h2><p>这里只考虑数值型特征的切分点选择，特征的值<strong>从小到大排序</strong>后将相邻值的平均值作为候选切分点；</p>
-<h2 id="基本弱分类器的构建"><a href="#基本弱分类器的构建" class="headerlink" title="基本弱分类器的构建"></a>基本弱分类器的构建</h2><p>对于每一个切分点，对应大于该切分点取正类和小于该切分点取正类存在相应的两种弱分类器，在R实现的时候通过“UP”和“DOWN”两个字符串来区分它们。后面从存储空间上考虑，用Python实现时只用了一个逻辑位来区分这两种情况；</p>
-<h2 id="最佳基本分类器的选择"><a href="#最佳基本分类器的选择" class="headerlink" title="最佳基本分类器的选择"></a>最佳基本分类器的选择</h2><ul>
-<li>在R语言实现的版本中，每个切分点的两种弱分类器的误分类率都存储在向量(vector)中，该向量的前后半部分分别存储两个弱分类器的error rate，通过最小误分类率所在的位置来判断应该选择哪种弱分类器。</li>
-<li>在Python的版本中，因为考虑到其实同一个切分点对应的两个弱分类器的误分类率之和必为1，因此只记录其中一个分类器的误分类率，那么如何选择最佳切分点以及正确的那个弱分类器呢？</li>
-<li>假设某个切分点对应的两个弱分类器的误差率分别为$x,1-x$，则$|x - (1-x)|  = |2x-1|$最大值对应的切分点是最佳切分点，而该最佳切分点上正确的弱分类器则通过与$1 \over 2$比较来确定；</li>
-</ul>
-<h1 id="代码链接"><a href="#代码链接" class="headerlink" title="代码链接"></a>代码链接</h1><p>具体的python和R代码放在<a href="https://github.com/zhoujunjun-apple/machine-learning" target="_blank" rel="external">我的github</a>，代码的注释比较详细，欢迎大家提出建议！</p>
 
       
     </div>
@@ -407,11 +518,7 @@ $$
       
         <div class="post-tags">
           
-            <a href="/标签/adaboost/" rel="tag"># adaboost</a>
-          
-            <a href="/标签/python实现/" rel="tag"># python实现</a>
-          
-            <a href="/标签/R实现/" rel="tag"># R实现</a>
+            <a href="/标签/逻辑斯蒂回归/" rel="tag"># 逻辑斯蒂回归</a>
           
         </div>
       
@@ -424,14 +531,18 @@ $$
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/2017/04/08/一个英文文本分类例子/" rel="next" title="一个英文文本分类的例子">
+                <i class="fa fa-chevron-left"></i> 一个英文文本分类的例子
+              </a>
+            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/04/03/SVM模型的由来及SMO算法的python实现/" rel="prev" title="SVM模型的由来及SMO算法的python实现">
-                SVM模型的由来及SMO算法的python实现 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/05/03/树，Bagging树，提升树/" rel="prev" title="树，Bagging树，提升树">
+                树，Bagging树，提升树 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -572,7 +683,7 @@ $$
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#adaboost算法"><span class="nav-number">1.</span> <span class="nav-text">adaboost算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#算法实现"><span class="nav-number">2.</span> <span class="nav-text">算法实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#样本初始化"><span class="nav-number">2.1.</span> <span class="nav-text">样本初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#候选的切分点序列"><span class="nav-number">2.2.</span> <span class="nav-text">候选的切分点序列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基本弱分类器的构建"><span class="nav-number">2.3.</span> <span class="nav-text">基本弱分类器的构建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最佳基本分类器的选择"><span class="nav-number">2.4.</span> <span class="nav-text">最佳基本分类器的选择</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码链接"><span class="nav-number">3.</span> <span class="nav-text">代码链接</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#贝叶斯定理"><span class="nav-number">1.</span> <span class="nav-text">贝叶斯定理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线性判别分析"><span class="nav-number">2.</span> <span class="nav-text">线性判别分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#生成式-LDA"><span class="nav-number">3.</span> <span class="nav-text">生成式(LDA)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#判别式-Logistic"><span class="nav-number">4.</span> <span class="nav-text">判别式(Logistic)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#二类别"><span class="nav-number">4.1.</span> <span class="nav-text">二类别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多类别"><span class="nav-number">4.2.</span> <span class="nav-text">多类别</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文献"><span class="nav-number">5.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
             
 
           </div>

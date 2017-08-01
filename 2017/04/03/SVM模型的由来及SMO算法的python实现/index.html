@@ -95,7 +95,7 @@
 <meta property="og:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍求解SVM对偶形式问题的SMO算法的主要步骤，最后给出Python实现。">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/fat_hyperplane.png">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/cut_optimal_solution.png">
-<meta property="og:updated_time" content="2017-05-20T11:16:52.545Z">
+<meta property="og:updated_time" content="2017-05-21T14:01:50.465Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SVM模型的由来及SMO算法的python实现">
 <meta name="twitter:description" content="本文从感知机模型出发，分析支持向量机在此基础上希望解决的问题，从SVM的原始形式推导出对偶形式，然后介绍求解SVM对偶形式问题的SMO算法的主要步骤，最后给出Python实现。">
@@ -541,7 +541,11 @@ x_1 = -{w_0 \over w_1} x_0 - {b \over w_1}
 </blockquote>
 </li>
 </ul>
-<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><ol>
+<h1 id="多分类扩展"><a href="#多分类扩展" class="headerlink" title="多分类扩展"></a>多分类扩展</h1><h2 id="one-against-all"><a href="#one-against-all" class="headerlink" title="one-against-all"></a>one-against-all</h2><p>对于M(M&gt;2)类的多分类问题，依次将属于$M_i,i=1,2,\ldots,M$类的样本作为正类，剩余其他类别的样本全部看作负类，寻找对应的最佳分离超平面$g_i(x),i=1,2,\ldots,M$，对于$x \in M_i$中的样本，必有$g_i(x)&gt;0$成立，而对于$x \notin M_i$中的样本，则有$g_i(x) &lt; 0$成立。因此在得到M个分离超平面后，对于测试数据$x$根据下列的规则确定预测类别：</p>
+<script type="math/tex; mode=display">
+assign \quad x \quad M_i \quad if \quad i=argmax_k{g_k(x)}</script><p>One-against-all方法有两个缺陷：一是容易在特征空间产生多个$g_i(x)&gt;0$的公共区域，位于这些区域的样本类别无法区分；二是在M较大的时候，容易转换后的每个二分类问题是失衡的，即正类样本数远小于负类样本数，从而影响分类效果。</p>
+<h2 id="one-against-one"><a href="#one-against-one" class="headerlink" title="one-against-one"></a>one-against-one</h2><p>这种方法是每次从M个类别的样本里面选择2个类别的样本$M<em>i,M_j$寻找对应的分离超平面$g</em>{ij}(x)$，总共需要$C_M^2 = M(M-1)/2$个分离超平面。分类时，对于测试样本x，根据这$M(M-1)/2$个决策函数的结果进行投票决定类别标签。</p>
+<h2 id="error-correcting-output-codes"><a href="#error-correcting-output-codes" class="headerlink" title="error-correcting output codes"></a>error-correcting output codes</h2><h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><ol>
 <li>林轩田 机器学习基石</li>
 <li>李航 统计学习方法</li>
 <li>林轩田 机器学习技法 </li>
@@ -680,7 +684,7 @@ x_1 = -{w_0 \over w_1} x_0 - {b \over w_1}
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-count">8</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -702,7 +706,7 @@ x_1 = -{w_0 \over w_1} x_0 - {b \over w_1}
             
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-count">13</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>
@@ -748,7 +752,7 @@ x_1 = -{w_0 \over w_1} x_0 - {b \over w_1}
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#感知机学习算法"><span class="nav-number">1.</span> <span class="nav-text">感知机学习算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线性可分支持向量机"><span class="nav-number">2.</span> <span class="nav-text">线性可分支持向量机</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#SVM原始形式"><span class="nav-number">2.1.</span> <span class="nav-text">SVM原始形式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SVM的对偶形式"><span class="nav-number">2.2.</span> <span class="nav-text">SVM的对偶形式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#拉格朗日对偶性"><span class="nav-number">2.2.1.</span> <span class="nav-text">拉格朗日对偶性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KKT条件"><span class="nav-number">2.2.2.</span> <span class="nav-text">KKT条件</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线性支持向量机"><span class="nav-number">3.</span> <span class="nav-text">线性支持向量机</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SMO算法"><span class="nav-number">4.</span> <span class="nav-text">SMO算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码实现"><span class="nav-number">5.</span> <span class="nav-text">代码实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#关键代码行解释"><span class="nav-number">5.1.</span> <span class="nav-text">关键代码行解释</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#样本点筛选"><span class="nav-number">5.1.1.</span> <span class="nav-text">样本点筛选</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KKT条件的违反准则"><span class="nav-number">5.1.2.</span> <span class="nav-text">KKT条件的违反准则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#剔除无效的-alpha"><span class="nav-number">5.1.3.</span> <span class="nav-text">剔除无效的$\alpha$</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#正定核验证"><span class="nav-number">5.1.4.</span> <span class="nav-text">正定核验证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#alpha-的更新精度"><span class="nav-number">5.1.5.</span> <span class="nav-text">$\alpha$的更新精度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分离超平面的参数和方程"><span class="nav-number">5.1.6.</span> <span class="nav-text">分离超平面的参数和方程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#疑惑"><span class="nav-number">5.2.</span> <span class="nav-text">疑惑</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文献"><span class="nav-number">6.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#感知机学习算法"><span class="nav-number">1.</span> <span class="nav-text">感知机学习算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线性可分支持向量机"><span class="nav-number">2.</span> <span class="nav-text">线性可分支持向量机</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#SVM原始形式"><span class="nav-number">2.1.</span> <span class="nav-text">SVM原始形式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SVM的对偶形式"><span class="nav-number">2.2.</span> <span class="nav-text">SVM的对偶形式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#拉格朗日对偶性"><span class="nav-number">2.2.1.</span> <span class="nav-text">拉格朗日对偶性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KKT条件"><span class="nav-number">2.2.2.</span> <span class="nav-text">KKT条件</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#线性支持向量机"><span class="nav-number">3.</span> <span class="nav-text">线性支持向量机</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SMO算法"><span class="nav-number">4.</span> <span class="nav-text">SMO算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码实现"><span class="nav-number">5.</span> <span class="nav-text">代码实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#关键代码行解释"><span class="nav-number">5.1.</span> <span class="nav-text">关键代码行解释</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#样本点筛选"><span class="nav-number">5.1.1.</span> <span class="nav-text">样本点筛选</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KKT条件的违反准则"><span class="nav-number">5.1.2.</span> <span class="nav-text">KKT条件的违反准则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#剔除无效的-alpha"><span class="nav-number">5.1.3.</span> <span class="nav-text">剔除无效的$\alpha$</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#正定核验证"><span class="nav-number">5.1.4.</span> <span class="nav-text">正定核验证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#alpha-的更新精度"><span class="nav-number">5.1.5.</span> <span class="nav-text">$\alpha$的更新精度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分离超平面的参数和方程"><span class="nav-number">5.1.6.</span> <span class="nav-text">分离超平面的参数和方程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#疑惑"><span class="nav-number">5.2.</span> <span class="nav-text">疑惑</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#多分类扩展"><span class="nav-number">6.</span> <span class="nav-text">多分类扩展</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#one-against-all"><span class="nav-number">6.1.</span> <span class="nav-text">one-against-all</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#one-against-one"><span class="nav-number">6.2.</span> <span class="nav-text">one-against-one</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#error-correcting-output-codes"><span class="nav-number">6.3.</span> <span class="nav-text">error-correcting output codes</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考文献"><span class="nav-number">7.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
             
 
           </div>
