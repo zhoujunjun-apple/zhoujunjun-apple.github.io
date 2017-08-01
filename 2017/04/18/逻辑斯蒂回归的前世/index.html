@@ -93,7 +93,7 @@
 <meta property="og:url" content="http://yoursite.com/2017/04/18/逻辑斯蒂回归的前世/index.html">
 <meta property="og:site_name" content="二颗苹果">
 <meta property="og:description" content="从贝叶斯定理出发，推导出逻辑斯蒂回归模型的由来。">
-<meta property="og:updated_time" content="2017-08-01T09:36:56.739Z">
+<meta property="og:updated_time" content="2017-08-01T09:43:53.606Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="逻辑斯蒂回归的前世">
 <meta name="twitter:description" content="从贝叶斯定理出发，推导出逻辑斯蒂回归模型的由来。">
@@ -409,7 +409,7 @@ $$
 <h1 id="判别式-Logistic"><a href="#判别式-Logistic" class="headerlink" title="判别式(Logistic)"></a>判别式(Logistic)</h1><h2 id="二类别"><a href="#二类别" class="headerlink" title="二类别"></a>二类别</h2><p>逻辑斯蒂模型绕过原始分布参数的学习，直接学习参数$w,b$，对于一个样本$x$，我们希望$P(c_x | x)$尽可能接近1，也就是说最优的$w,b$应该使得如下的似然函数最大：</p>
 <script type="math/tex; mode=display">
 \mathop{\Pi}_{i=1}^N [\pi(x_i)]^{y_i} [1-\pi(x_i)]^{1-y_i}
-\tag{10}</script><p>其中$\pi(x_i) = P(c_1 | x_i)，y_i = (c_1 == c_{x_i} \; ? \; 1 ： 0)$，对(10)取对数 ，并将(8)带入整理得交叉熵：</p>
+\tag{10}</script><p>其中$\pi(x_i) = P(c_1 | x_i)，y_i = (1,\text{if} \; c_1 = c_{x_i} ; \text{else} \;0)$，对(10)取对数 ，并将(8)带入整理得交叉熵：</p>
 <script type="math/tex; mode=display">
 L(w,b) = \sum_{i=1}^N [(1-y_i)(w^T x_i + b) - log(1 + exp(w^T x_i + b))]
 \tag{11}</script><p>根据极大似然估计法，需要$L(w,b)$<strong>最大</strong>。分别计算它的梯度为：<br>
@@ -426,7 +426,7 @@ $$
 w := w + {1 \over N} \Delta w \\
 b := b + {1 \over N}\Delta b
 \end{cases}
-\tag{13}</script><p>除了梯度下降法，还可以用牛顿法进行优化更新。另外，从(12)中$\Delta w$的表达式可以看到，如果$x_i$是异常样本，则它同样会影响到最佳$\hat w$的值。为了减小异常样本对模型学习过程的影响，一种办法是对分类超平面的法向量$w$引入$L_1,L2$惩罚项.<br>逻辑斯蒂回归引入核函数可以帮助其拟合复杂的分类界面，不过因为不像SVM中只保留少数支撑向量，引入核函数的逻辑斯蒂回归训练和预测时计算量比较大[3].</p>
+\tag{13}</script><p>除了梯度下降法，还可以用牛顿法进行优化更新。另外，从(12)中$\Delta w$的表达式可以看到，如果$x_i$是异常样本，则它同样会影响到最佳$\hat w$的值。为了减小异常样本对模型学习过程的影响，一种办法是对分类超平面的法向量$w$引入$L_1,L_2$惩罚项.<br>逻辑斯蒂回归引入核函数可以帮助其拟合复杂的分类界面，不过因为不像SVM中只保留少数支撑向量，引入核函数的逻辑斯蒂回归训练和预测时计算量比较大[3].</p>
 <h2 id="多类别"><a href="#多类别" class="headerlink" title="多类别"></a>多类别</h2><p>二项逻辑斯蒂回归模型可以推广至多分类问题。根据式子(4)中$a$的定义，将其推广至$K&gt;2$的情况[2]：</p>
 <script type="math/tex; mode=display">
 log{P(c_i | x) \over P(c_K | x)} = w_i^T x + b_i, i=1,2,\ldots,K-1
@@ -481,10 +481,7 @@ $$
  \hat w_i^T x +  \hat b_i =  \hat w_j^T x +  \hat b_j
 $$
 <br>即分隔超平面方程为： $ (\hat w_i^T - \hat w_j^T) x +  \hat b_i - \hat b_j =0 $</p>
-<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p>1.<a href="https://ccjou.wordpress.com/2014/03/20/%E7%B7%9A%E6%80%A7%E5%88%A4%E5%88%A5%E5%88%86%E6%9E%90/" target="_blank" rel="external">极大似然估计法估计原始分布的参数值</a><br>2.Sergios Theodoridis. Pattern Recognition, fourth edition. Elsevier;</p>
-<ol>
-<li>林轩田，机器学习技法. 国立台湾大学；</li>
-</ol>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p>1.<a href="https://ccjou.wordpress.com/2014/03/20/%E7%B7%9A%E6%80%A7%E5%88%A4%E5%88%A5%E5%88%86%E6%9E%90/" target="_blank" rel="external">极大似然估计法估计原始分布的参数值</a>;<br>2.Sergios Theodoridis. Pattern Recognition, fourth edition. Elsevier;<br>3.林轩田，机器学习技法. 国立台湾大学；</p>
 
       
     </div>
