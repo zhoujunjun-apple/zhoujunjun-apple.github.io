@@ -117,7 +117,7 @@
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/Q_lambda_eligibility_trace.png">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/Q_lambda_eligibility_trace_graph.png">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/Q_lambda.png">
-<meta property="og:updated_time" content="2017-08-01T09:19:40.669Z">
+<meta property="og:updated_time" content="2017-08-01T09:36:56.743Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="强化学习（二）：基本算法">
 <meta name="twitter:description" content="本文介绍求解最优策略的基本算法。当环境能够通过离散的马尔科夫决策过程进行描述时，根据Bellman最优方程，遵循策略评估和策略改进的基本步骤，分析各个基本算法的前提假设和应用场景，以及优缺点。">
@@ -388,10 +388,10 @@
 <p>可以看到，值迭代改善了策略迭代的一个缺点：它只进行了<strong>一次</strong>策略评估，不要求收敛，而且<strong>隐藏</strong>在策略改进过程中。可以这样来理解这里的关键字”一次”和”隐藏”，算法中核心的语句是:</p>
 <script type="math/tex; mode=display">
 v(s) \leftarrow max_a \sum_{s'} p(s' | s, a)[ r(s', s, a) + \gamma v(s') ]
-\tag{2}</script><p>这里的$a \in A(s)$，同样的，有$\pi(s) \in A(s)$，当对于固定的一个状态$s$，遍历所有可能的动作$A(s)$时，必然会遍历到动作$\pi(s)$，此时表达式(2)中求和部分正好是状态值函数$v<em>{\pi}(s) = q</em>{\pi}(s, \pi(s))$，因此进行了<strong>一次</strong>策略评估，然后在执行贪婪改进策略$max_a$时，状态值函数<strong>隐藏</strong>在其中参与了最大值操作的比较，结束一个状态的策略改进过程。值迭代的优点是<strong>收敛速度快</strong>。</p>
+\tag{2}</script><p>这里的$a \in A(s)$，同样的，有$\pi(s) \in A(s)$，当对于固定的一个状态$s$，遍历所有可能的动作$A(s)$时，必然会遍历到动作$\pi(s)$，此时表达式(2)中求和部分正好是状态值函数$v_{\pi}(s) = q_{\pi}(s, \pi(s))$，因此进行了<strong>一次</strong>策略评估，然后在执行贪婪改进策略$max_a$时，状态值函数<strong>隐藏</strong>在其中参与了最大值操作的比较，结束一个状态的策略改进过程。值迭代的优点是<strong>收敛速度快</strong>。</p>
 <h4 id="c-一般策略迭代"><a href="#c-一般策略迭代" class="headerlink" title="c. 一般策略迭代"></a>c. 一般策略迭代</h4><p><img src="http://onvolufm1.bkt.clouddn.com/general_policy_iteration.PNG" alt=""></p>
 <p>一般策略迭代的特点是非常灵活：策略迭代过程的次数和针对的状态可以根据问题决定，同时策略改进时可以只针对部分状态进行改进更新。一般应用在环境状态数十分巨大的<strong>高维</strong>情况，加快策略迭代的收敛速度。<br><img src="http://onvolufm1.bkt.clouddn.com/general_policy_iteration_graph.png" alt=""></p>
-<h2 id="模型无关"><a href="#模型无关" class="headerlink" title="模型无关"></a>模型无关</h2><p>基于模型的算法的两个前提假设：状态转移概率$p(s’ | s, a)$和回报值函数$r(s’, s, a)$是已知的。这两个假设在实际情况中往往不能够满足，于是model-free的算法应用而生，这些算法的共同点在于：<br>1.不需要模型的信息；<br>2.需要智能体跟环境进行交互获得<strong>经验样本</strong>（$ S<em>t, A_t, S</em>{t+1} $）</p>
+<h2 id="模型无关"><a href="#模型无关" class="headerlink" title="模型无关"></a>模型无关</h2><p>基于模型的算法的两个前提假设：状态转移概率$p(s’ | s, a)$和回报值函数$r(s’, s, a)$是已知的。这两个假设在实际情况中往往不能够满足，于是model-free的算法应用而生，这些算法的共同点在于：<br>1.不需要模型的信息；<br>2.需要智能体跟环境进行交互获得<strong>经验样本</strong>（$ S_t, A_t, S_{t+1} $）</p>
 <h3 id="蒙特卡罗控制"><a href="#蒙特卡罗控制" class="headerlink" title="蒙特卡罗控制"></a>蒙特卡罗控制</h3><p>蒙特卡罗控制(MC)与动态规划的思路一样，智能体与环境交互采样获得样本，从而估计出状态值函数和动作值函数，前者需要经验样本$(s, r)$，后者需要$(s, a, r)$。MC估计值函数的方法是求回报值的平均值，为了求平均值的方便，将MC控制在场景(episode)任务中：即无论起始状态是什么，总能够在有限次状态转移后到达终止状态。</p>
 <p>计算回报值的平均值有两种方式：First-visit MC和Every-visit MC。对于一个状态$s$，前者找到所有episode中<strong>第一次</strong>访问到$s$或$(s, a)$[针对动作值函数估计]后一直到终止状态前的回报值求平均，而Every-visit MC则再找到所有episode中<strong>所有</strong>访问到$s$或$(s, a)$后一直到终止状态前的回报值求平均。这两种方法均随对状态$s$的(第一次)访问次数接近无穷而收敛。</p>
 <p>根据大数定理，在episode接近无穷时，MC预测的值函数逼近真实值，因此蒙特卡罗方法是无偏的(unbiased)，但是采样过程的随机性带给MC方法比较大的方差(variance)，但是，因为MC方法进行值函数的估计周期是episode-by-episode的，因此值函数的评估和改进也是以episode为周期，因此不支持step-by-step形式的增量计算（incremental computation）方式，如果episode的Trajectories非常长，会出现两个问题：评估周期变长；需要很大的存储空间来记录相同状态下的历史回报值，求平均值的计算时间也会增加。而通过增量计算的方式，将累加后求平均值的方式转换为step-by-step的计算方式，评估更新周期缩短且计算量减少。<br><img src="http://onvolufm1.bkt.clouddn.com/incremental_computation_math.png" alt=""></p>
@@ -418,7 +418,7 @@ $$
 <h3 id="时间差分控制"><a href="#时间差分控制" class="headerlink" title="时间差分控制"></a>时间差分控制</h3><p>时间差分算法结合了动态规划和MC的特点：它同样不需要模型，只需要跟环境进行交互，通过自举（bootstrap）解决预测问题和估计问题。时间差分控制与蒙特卡罗最大的不同在于前者能够在生成episode的过程中利用前后状态的信息对动作值函数进行改进更新，这两个特点使得TD支持<strong>在线的增量计算</strong> （incremental computation），这是符合现实应用中大部分场景的需求的。</p>
 <h4 id="TD-0"><a href="#TD-0" class="headerlink" title="TD(0)"></a>TD(0)</h4><p>根据值函数的表达式：</p>
 <script type="math/tex; mode=display">
-v_{\pi}(s) = E_{\pi} [ R_{t+1} + \gamma v_{\pi}(S_{t+1}) | S_t = s]</script><p>TD(0)正是为了估计上述表达式，当前状态为$S<em>t$时，根据当前策略执行相应的动作，获得立即回报$R_{t+1}$以及当前状态的值函数估计值$V(S</em>{t+1})$，利用获得的时间差分信息$R_{t+1} + \lambda V(S_{t+1}) - V(S_t)$对当前的值函数进行更新：</p>
+v_{\pi}(s) = E_{\pi} [ R_{t+1} + \gamma v_{\pi}(S_{t+1}) | S_t = s]</script><p>TD(0)正是为了估计上述表达式，当前状态为$S_t$时，根据当前策略执行相应的动作，获得立即回报$R_{t+1}$以及当前状态的值函数估计值$V(S_{t+1})$，利用获得的时间差分信息$R_{t+1} + \lambda V(S_{t+1}) - V(S_t)$对当前的值函数进行更新：</p>
 <script type="math/tex; mode=display">
 V(S_t) \leftarrow  V(S_t) + \alpha [ R_{t+1} + \lambda V(S_{t+1}) - V(S_t) ]</script><p>具体的算法流程如下：<br><img src="http://onvolufm1.bkt.clouddn.com/TD_0.png" alt=""></p>
 <p>从上述算法可以看到TD(0)的两个特点：不需要模型，且支持在线增量学习。第一个特点使得TD(0)能够应用大多数的实际场景下，第二个特点使得值函数的计算周期减小为一个time-step。</p>
@@ -471,7 +471,7 @@ V(S_t) \leftarrow V(S_t) + \alpha [ R_{t+1} + \gamma V(S_{t+1}) - V(S_t) ] Z_t(s
 \end{cases}
 \end{align}</script><p>结合资格迹和在线的Sarsa算法称为Sarsa($\lambda$)算法，它的算法流程如下：<br><img src="http://onvolufm1.bkt.clouddn.com/sarsa_lambda.png" alt=""></p>
 <p>上述算法中对于资格迹的实现方式似乎与定义不同，因为算法是先进行加1的操作，然后对所有的资格迹值乘$\gamma \lambda$，乍看，这与定义中的顺序是不一致的，定义中是先乘上$\gamma \lambda$再对特定的资格迹加上1。实际上，要注意的是定义中对<strong>当前时刻</strong>$t$的资格迹的更新是基于<strong>前一时刻</strong>$t-1$的值进行的，也就是说$\gamma \lambda Z_{t-1}(s,a)$是在上一次迭代中提前计算好的，当我们执行完算法中$Z(S,A) \leftarrow Z(S,A) + 1$这一步时，已经<strong>完成</strong>了对$Z_t(s,a)$的全部更新，后面的更新操作$Z(s,a) \leftarrow \gamma \lambda Z(S,A)$是在为<strong>下一时刻</strong>即$t+1$时刻的资格迹更新做准备。</p>
-<h5 id="Q-lambda"><a href="#Q-lambda" class="headerlink" title="Q($\lambda$)"></a>Q($\lambda$)</h5><p>Q-学习算法因为是离线学习算法，因此相应的资格迹定义为：<br><img src="http://onvolufm1.bkt.clouddn.com/Q_lambda_eligibility_trace.png" alt=""><br>其中$I_{xy}${%raw%}为示性函数，当$x=y$时等于1，否则等于0. 这种资格迹定义下的学习算法称为Watkins‘s Q($\lambda$)算法，它的**思路**是：只要是当前状态下的动作{%raw%}$A_t${%endraw%}是符合贪婪策略的，则对资格迹<strong>整体</strong>进行更新{%raw%}$Z_t(s,a) = 1 + \gamma \lambda Z_{t-1}(s, a)${%endraw%}，否则，{%raw%}$Z_{t-1}(S_t, A_t)${%endraw%}加1，而其他状态下的动作对应的资格迹全部重置为0，也就是说此时的资格迹只能记录到下一次探索动作发生时的信息，一旦发生探索动作，则丢弃之前的信息，重新记录，如果在与环境的交互过程中频繁的出现探索动作（一般出现在策略初期），则资格迹只能够记录很短时间内的信息，这会导致动作值函数的学习非常缓慢。资格迹的作用范围如下图所示：<br><img src="http://onvolufm1.bkt.clouddn.com/Q_lambda_eligibility_trace_graph.png" alt=""></p>
+<h5 id="Q-lambda"><a href="#Q-lambda" class="headerlink" title="Q($\lambda$)"></a>Q($\lambda$)</h5><p>Q-学习算法因为是离线学习算法，因此相应的资格迹定义为：<br><img src="http://onvolufm1.bkt.clouddn.com/Q_lambda_eligibility_trace.png" alt=""><br>其中$I_{xy}$为示性函数，当$x=y$时等于1，否则等于0. 这种资格迹定义下的学习算法称为Watkins‘s Q($\lambda$)算法，它的<strong>思路</strong>是：只要是当前状态下的动作$A_t$是符合贪婪策略的，则对资格迹<strong>整体</strong>进行更新$Z_t(s,a) = 1 + \gamma \lambda Z_{t-1}(s, a)$，否则，$Z_{t-1}(S_t, A_t)$加1，而其他状态下的动作对应的资格迹全部重置为0，也就是说此时的资格迹只能记录到下一次探索动作发生时的信息，一旦发生探索动作，则丢弃之前的信息，重新记录，如果在与环境的交互过程中频繁的出现探索动作（一般出现在策略初期），则资格迹只能够记录很短时间内的信息，这会导致动作值函数的学习非常缓慢。资格迹的作用范围如下图所示：<br><img src="http://onvolufm1.bkt.clouddn.com/Q_lambda_eligibility_trace_graph.png" alt=""></p>
 <p>对应的算法流程如下：<br><img src="http://onvolufm1.bkt.clouddn.com/Q_lambda.png" alt=""></p>
 <h2 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h2>
       

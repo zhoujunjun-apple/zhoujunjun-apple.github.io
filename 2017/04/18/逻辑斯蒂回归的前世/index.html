@@ -93,7 +93,7 @@
 <meta property="og:url" content="http://yoursite.com/2017/04/18/逻辑斯蒂回归的前世/index.html">
 <meta property="og:site_name" content="二颗苹果">
 <meta property="og:description" content="从贝叶斯定理出发，推导出逻辑斯蒂回归模型的由来。">
-<meta property="og:updated_time" content="2017-08-01T09:19:40.661Z">
+<meta property="og:updated_time" content="2017-08-01T09:36:56.739Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="逻辑斯蒂回归的前世">
 <meta name="twitter:description" content="从贝叶斯定理出发，推导出逻辑斯蒂回归模型的由来。">
@@ -409,7 +409,7 @@ $$
 <h1 id="判别式-Logistic"><a href="#判别式-Logistic" class="headerlink" title="判别式(Logistic)"></a>判别式(Logistic)</h1><h2 id="二类别"><a href="#二类别" class="headerlink" title="二类别"></a>二类别</h2><p>逻辑斯蒂模型绕过原始分布参数的学习，直接学习参数$w,b$，对于一个样本$x$，我们希望$P(c_x | x)$尽可能接近1，也就是说最优的$w,b$应该使得如下的似然函数最大：</p>
 <script type="math/tex; mode=display">
 \mathop{\Pi}_{i=1}^N [\pi(x_i)]^{y_i} [1-\pi(x_i)]^{1-y_i}
-\tag{10}</script><p>其中$\pi(x_i) = P(c_1 | x_i)，y_i = (c_1 == c_{x_i} \? 1 ： 0)$，对(10)取对数 ，并将(8)带入整理得交叉熵：</p>
+\tag{10}</script><p>其中$\pi(x_i) = P(c_1 | x_i)，y_i = (c_1 == c_{x_i} \; ? \; 1 ： 0)$，对(10)取对数 ，并将(8)带入整理得交叉熵：</p>
 <script type="math/tex; mode=display">
 L(w,b) = \sum_{i=1}^N [(1-y_i)(w^T x_i + b) - log(1 + exp(w^T x_i + b))]
 \tag{11}</script><p>根据极大似然估计法，需要$L(w,b)$<strong>最大</strong>。分别计算它的梯度为：<br>

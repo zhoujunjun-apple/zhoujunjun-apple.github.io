@@ -96,7 +96,7 @@
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/GBDT_algorithm.png">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/GBDT_diagram_for_K-class_Classification.png">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/GBDT_algorithms_K-class_Classification.PNG">
-<meta property="og:updated_time" content="2017-08-01T09:19:40.641Z">
+<meta property="og:updated_time" content="2017-08-01T09:36:56.739Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="树，Bagging树，提升树">
 <meta name="twitter:description" content="本文首先介绍机器学习中不可避免的Bias-variance tradeoff问题，分析决策树所面临的问题，从减小Bias和减小Variance两方面的思路，介绍Bagging树和提升树两类模型。">
@@ -423,7 +423,7 @@ $$<br>在这个基础上，定义模型$f_M(x)$的多项式偏差损失函数(mu
 \begin{align}
 L(y, p(x)) &=  - \sum_{i=1}^K I(y = c_i) \text{log} p_i(x) \\
 &= - \sum_{i=1}^K I(y = c_i)f_M^i(x) + log(\sum_{j=1}^K (e^{f_M^j(x)}))
-\end{align}</script><p>其中$I(y = c<em>i)$表示$c_i$等于真实的类别$y$时取1，否则取0。可以看到，对于样本$(x, c_i)$,该损失函数只计算对应类$c_i$下模型输出值$f_M(x)$的负对数似然损失：$- \text{log}p_i(x)$。因为BGDT的学习需要用到损失函数的负梯度，因此对于样本$(x,y</em>{lk})$计算相应损失对模型预测值$f_{m-1}^k(x)$的负梯度：</p>
+\end{align}</script><p>其中$I(y = c_i)$表示$c_i$等于真实的类别$y$时取1，否则取0。可以看到，对于样本$(x, c_i)$,该损失函数只计算对应类$c_i$下模型输出值$f_M(x)$的负对数似然损失：$- \text{log}p_i(x)$。因为BGDT的学习需要用到损失函数的负梯度，因此对于样本$(x,y_{lk})$计算相应损失对模型预测值$f_{m-1}^k(x)$的负梯度：</p>
 <script type="math/tex; mode=display">
 -\partial {L(y_{lk}, f_{m-1}(x))} \over \partial {f_{m-1}^k(x)}</script><p>其中$y_{lk}$表示样本$x$的的类$c_l$的第$k$个编码值：当$k = l$时为1；否则为0. 其中$f_{m-1}^k(x)$表示模型$f_{m-1}(x)$对于样本$x$的类别的第$k$个编码值的对应输出值。</p>
 <p>当$k = l$时，$I(y_{ll} = c_l)=1=y_{ll}$,<br>
