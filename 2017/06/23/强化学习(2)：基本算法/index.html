@@ -117,7 +117,7 @@
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/Q_lambda_eligibility_trace.png">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/Q_lambda_eligibility_trace_graph.png">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/Q_lambda.png">
-<meta property="og:updated_time" content="2017-08-01T08:29:50.363Z">
+<meta property="og:updated_time" content="2017-08-01T09:19:40.669Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="强化学习（二）：基本算法">
 <meta name="twitter:description" content="本文介绍求解最优策略的基本算法。当环境能够通过离散的马尔科夫决策过程进行描述时，根据Bellman最优方程，遵循策略评估和策略改进的基本步骤，分析各个基本算法的前提假设和应用场景，以及优缺点。">
@@ -407,26 +407,26 @@ v(s) \leftarrow max_a \sum_{s'} p(s' | s, a)[ r(s', s, a) + \gamma v(s') ]
 <h4 id="4-0ff-policy-MC"><a href="#4-0ff-policy-MC" class="headerlink" title="4. 0ff-policy MC"></a>4. 0ff-policy MC</h4><p>离策略给予我们更大的自由：改进和更新的策略$\pi$可以不同于生成episode的行为策略$\mu$。前者依旧可以是确定性策略，同时后者保证所有可能的动作都会出现在episode中。使用离线策略的MC时，选择行为策略$\mu$有比较大的自由，但是必须满足一个约束条件：</p>
 <script type="math/tex; mode=display">
 if  \; \pi(a | s) \gt 0 ,then \; \mu(a | s) \gt 0</script><p>这个条件是为了保证目标策略$\pi$下的所有动作$\pi(\cdot | s)$都会出现在策略$\mu(\cdot | s)$下，从而保证对目标策略进行改进和更新。这个约束条件也就意味着行为策略$\mu$只能是随机性策略，比如常见的$\epsilon$-贪婪策略。</p>
-<p>在on-policy的情况下，因为行为策略$\mu$和估计策略$\pi$是同一个策略，因此直接利用episode中对应状态下的回报值平均值作为$v<em>{\pi}(s)$的<strong>无偏</strong>估计。但是在off-policy的情况下，因为策略$\mu, \pi$的不同，导致在相同状态下的动作分布是不同的：$\mu(a | s) \ne \pi(a | s)$，因此$\mu$策略产生的episode中的回报值平均值是$v</em>{\pi}(s)$的<strong>有偏</strong>估计。为了解决这个问题，需要考虑同一状态在两个策略下的相对概率：<br><img src="http://onvolufm1.bkt.clouddn.com/relative_prob_off_policy_MC.png" alt=""></p>
-<p>中间那一步化简到最后一步是因为状态转移概率分布$p(S<em>{t+1} | S_t, A_t)$是由环境决定的，不同策略下保持不变。利用这个比值对多个episode中同一状态下的回报值加权求和，得到$v</em>{\pi}(s)$的无偏估计：<br>
+<p>在on-policy的情况下，因为行为策略$\mu$和估计策略$\pi$是同一个策略，因此直接利用episode中对应状态下的回报值平均值作为$v_{\pi}(s)$的<strong>无偏</strong>估计。但是在off-policy的情况下，因为策略$\mu, \pi$的不同，导致在相同状态下的动作分布是不同的：$\mu(a | s) \ne \pi(a | s)$，因此$\mu$策略产生的episode中的回报值平均值是$v_{\pi}(s)$的<strong>有偏</strong>估计。为了解决这个问题，需要考虑同一状态在两个策略下的相对概率：<br><img src="http://onvolufm1.bkt.clouddn.com/relative_prob_off_policy_MC.png" alt=""></p>
+<p>中间那一步化简到最后一步是因为状态转移概率分布$p(S_{t+1} | S_t, A_t)$是由环境决定的，不同策略下保持不变。利用这个比值对多个episode中同一状态下的回报值加权求和，得到$v_{\pi}(s)$的无偏估计：<br>
 $$
 V(s) = {{\sum_{i=1}^{n_s} {p_i(s) \over p'_i(s)} G_i(s)}  \over  {\sum_{i=1}^{n_s} {p_i(s) \over p'_i(s)}}}
 $$
 <br>其中$G_i(s)$表示第$i$个episode中状态$s$所观察得到的回报值。具体的算法流程如下图所示：</p>
 <p><img src="http://onvolufm1.bkt.clouddn.com/off_policy_MC.png" alt=""></p>
-<p>算法中需要说明地方是：(b)步骤中算法从episode后面往前寻找第一个满足$A<em>{\tau} \ne \pi(S</em>{\tau})$的时间点$\tau$，也就意味着$\tau + 1,  \ldots, T$时刻的状态总是满足$A<em>{\tau} = \pi(S</em>{\tau})$，这等价于$\pi(A_t | S_t) = 1, t = \tau, \ldots, T-1$，因此在步骤(c)中求$W$时累乘的分数中分子为1的原因。</p>
+<p>算法中需要说明地方是：(b)步骤中算法从episode后面往前寻找第一个满足$A_{\tau} \ne \pi(S_{\tau})$的时间点$\tau$，也就意味着$\tau + 1,  \ldots, T$时刻的状态总是满足$A_{\tau} = \pi(S_{\tau})$，这等价于$\pi(A_t | S_t) = 1, t = \tau, \ldots, T-1$，因此在步骤(c)中求$W$时累乘的分数中分子为1的原因。</p>
 <h3 id="时间差分控制"><a href="#时间差分控制" class="headerlink" title="时间差分控制"></a>时间差分控制</h3><p>时间差分算法结合了动态规划和MC的特点：它同样不需要模型，只需要跟环境进行交互，通过自举（bootstrap）解决预测问题和估计问题。时间差分控制与蒙特卡罗最大的不同在于前者能够在生成episode的过程中利用前后状态的信息对动作值函数进行改进更新，这两个特点使得TD支持<strong>在线的增量计算</strong> （incremental computation），这是符合现实应用中大部分场景的需求的。</p>
 <h4 id="TD-0"><a href="#TD-0" class="headerlink" title="TD(0)"></a>TD(0)</h4><p>根据值函数的表达式：</p>
 <script type="math/tex; mode=display">
-v_{\pi}(s) = E_{\pi} [ R_{t+1} + \gamma v_{\pi}(S_{t+1}) | S_t = s]</script><p>TD(0)正是为了估计上述表达式，当前状态为$S<em>t$时，根据当前策略执行相应的动作，获得立即回报$R</em>{t+1}$以及当前状态的值函数估计值$V(S<em>{t+1})$，利用获得的时间差分信息$R</em>{t+1} + \lambda V(S_{t+1}) - V(S_t)$对当前的值函数进行更新：</p>
+v_{\pi}(s) = E_{\pi} [ R_{t+1} + \gamma v_{\pi}(S_{t+1}) | S_t = s]</script><p>TD(0)正是为了估计上述表达式，当前状态为$S<em>t$时，根据当前策略执行相应的动作，获得立即回报$R_{t+1}$以及当前状态的值函数估计值$V(S</em>{t+1})$，利用获得的时间差分信息$R_{t+1} + \lambda V(S_{t+1}) - V(S_t)$对当前的值函数进行更新：</p>
 <script type="math/tex; mode=display">
 V(S_t) \leftarrow  V(S_t) + \alpha [ R_{t+1} + \lambda V(S_{t+1}) - V(S_t) ]</script><p>具体的算法流程如下：<br><img src="http://onvolufm1.bkt.clouddn.com/TD_0.png" alt=""></p>
 <p>从上述算法可以看到TD(0)的两个特点：不需要模型，且支持在线增量学习。第一个特点使得TD(0)能够应用大多数的实际场景下，第二个特点使得值函数的计算周期减小为一个time-step。</p>
 <p>将TD(0)算法应用到估计问题上时，根据行为策略和估计策略的不同分为在线策略和离线策略两种，代表算法分别是SARSA学习算法和Q-学习算法。</p>
 <h5 id="1-Q-学习"><a href="#1-Q-学习" class="headerlink" title="1. Q-学习"></a>1. Q-学习</h5><p><img src="http://onvolufm1.bkt.clouddn.com/q_learning.PNG" alt=""><br>从算法可以发现，它需要的经验样本为$(s, a, r, s’)$</p>
 <h5 id="2-SARSA-学习"><a href="#2-SARSA-学习" class="headerlink" title="2. SARSA 学习"></a>2. SARSA 学习</h5><p><img src="http://onvolufm1.bkt.clouddn.com/sarsa.PNG" alt=""><br>sarsa学习算法需要的经验样本为$(s, a, r, s’, a’)$</p>
-<h4 id="TD-lambda"><a href="#TD-lambda" class="headerlink" title="TD($\lambda$)"></a>TD($\lambda$)</h4><h5 id="n-步TD"><a href="#n-步TD" class="headerlink" title="n-步TD"></a>n-步TD</h5><p>第一部分的TD(0)也成为1-步TD，因为它总是需要后一时刻的回报值$R<em>{t+1}$以及后面一个状态的估计值函数$V(S</em>{t+1})$来更新当前的状态值函数$V(S_t)$，而在MC中，我们总是在episode结束后根据状态$S_t$后面一直到终止状态为止的所有回报值来估计当前的值函数$V(S_t)$。n-步TD正是为了描述这两种极端的估计方法之间的其他方法，如下图所示。<br><img src="http://onvolufm1.bkt.clouddn.com/n_step_TD.png" alt=""></p>
-<p>图中空心圆表示状态，实心圆表示动作。当我们处在状态$S<em>t$，希望利用到后面$n$个时间步之后的回报值$R_i, i=t+1, \ldots, t+n$以及$t+n$时刻的值函数估计值$V(S</em>{t+n})$来更新当下的值函数$S_t$时，对应的更新方式为：</p>
+<h4 id="TD-lambda"><a href="#TD-lambda" class="headerlink" title="TD($\lambda$)"></a>TD($\lambda$)</h4><h5 id="n-步TD"><a href="#n-步TD" class="headerlink" title="n-步TD"></a>n-步TD</h5><p>第一部分的TD(0)也成为1-步TD，因为它总是需要后一时刻的回报值$R_{t+1}$以及后面一个状态的估计值函数$V(S_{t+1})$来更新当前的状态值函数$V(S_t)$，而在MC中，我们总是在episode结束后根据状态$S_t$后面一直到终止状态为止的所有回报值来估计当前的值函数$V(S_t)$。n-步TD正是为了描述这两种极端的估计方法之间的其他方法，如下图所示。<br><img src="http://onvolufm1.bkt.clouddn.com/n_step_TD.png" alt=""></p>
+<p>图中空心圆表示状态，实心圆表示动作。当我们处在状态$S_t$，希望利用到后面$n$个时间步之后的回报值$R_i, i=t+1, \ldots, t+n$以及$t+n$时刻的值函数估计值$V(S_{t+n})$来更新当下的值函数$S_t$时，对应的更新方式为：</p>
 <script type="math/tex; mode=display">
 V(S_t) \leftarrow  V(S_t) + \alpha [ G_t^{(n)} - V(S_t) ]</script><p>其中$G_t^{(n)}$称为n-步回报（n-step return），它的计算方式为：</p>
 <script type="math/tex; mode=display">
@@ -471,7 +471,7 @@ V(S_t) \leftarrow V(S_t) + \alpha [ R_{t+1} + \gamma V(S_{t+1}) - V(S_t) ] Z_t(s
 \end{cases}
 \end{align}</script><p>结合资格迹和在线的Sarsa算法称为Sarsa($\lambda$)算法，它的算法流程如下：<br><img src="http://onvolufm1.bkt.clouddn.com/sarsa_lambda.png" alt=""></p>
 <p>上述算法中对于资格迹的实现方式似乎与定义不同，因为算法是先进行加1的操作，然后对所有的资格迹值乘$\gamma \lambda$，乍看，这与定义中的顺序是不一致的，定义中是先乘上$\gamma \lambda$再对特定的资格迹加上1。实际上，要注意的是定义中对<strong>当前时刻</strong>$t$的资格迹的更新是基于<strong>前一时刻</strong>$t-1$的值进行的，也就是说$\gamma \lambda Z_{t-1}(s,a)$是在上一次迭代中提前计算好的，当我们执行完算法中$Z(S,A) \leftarrow Z(S,A) + 1$这一步时，已经<strong>完成</strong>了对$Z_t(s,a)$的全部更新，后面的更新操作$Z(s,a) \leftarrow \gamma \lambda Z(S,A)$是在为<strong>下一时刻</strong>即$t+1$时刻的资格迹更新做准备。</p>
-<h5 id="Q-lambda"><a href="#Q-lambda" class="headerlink" title="Q($\lambda$)"></a>Q($\lambda$)</h5><p>Q-学习算法因为是离线学习算法，因此相应的资格迹定义为：<br><img src="http://onvolufm1.bkt.clouddn.com/Q_lambda_eligibility_trace.png" alt=""><br>其中$I<em>{xy}$为示性函数，当$x=y$时等于1，否则等于0. 这种资格迹定义下的学习算法称为Watkins‘s Q($\lambda$)算法，它的<strong>思路</strong>是：只要是当前状态下的动作$A_t$是符合贪婪策略的，则对资格迹<strong>整体</strong>进行更新$Z_t(s,a) = 1 + \gamma \lambda Z</em>{t-1}(s, a)$，否则，$Z_{t-1}(S_t, A_t)$加1，而其他状态下的动作对应的资格迹全部重置为0，也就是说此时的资格迹只能记录到下一次探索动作发生时的信息，一旦发生探索动作，则丢弃之前的信息，重新记录，如果在与环境的交互过程中频繁的出现探索动作（一般出现在策略初期），则资格迹只能够记录很短时间内的信息，这会导致动作值函数的学习非常缓慢。资格迹的作用范围如下图所示：<br><img src="http://onvolufm1.bkt.clouddn.com/Q_lambda_eligibility_trace_graph.png" alt=""></p>
+<h5 id="Q-lambda"><a href="#Q-lambda" class="headerlink" title="Q($\lambda$)"></a>Q($\lambda$)</h5><p>Q-学习算法因为是离线学习算法，因此相应的资格迹定义为：<br><img src="http://onvolufm1.bkt.clouddn.com/Q_lambda_eligibility_trace.png" alt=""><br>其中$I_{xy}${%raw%}为示性函数，当$x=y$时等于1，否则等于0. 这种资格迹定义下的学习算法称为Watkins‘s Q($\lambda$)算法，它的**思路**是：只要是当前状态下的动作{%raw%}$A_t${%endraw%}是符合贪婪策略的，则对资格迹<strong>整体</strong>进行更新{%raw%}$Z_t(s,a) = 1 + \gamma \lambda Z_{t-1}(s, a)${%endraw%}，否则，{%raw%}$Z_{t-1}(S_t, A_t)${%endraw%}加1，而其他状态下的动作对应的资格迹全部重置为0，也就是说此时的资格迹只能记录到下一次探索动作发生时的信息，一旦发生探索动作，则丢弃之前的信息，重新记录，如果在与环境的交互过程中频繁的出现探索动作（一般出现在策略初期），则资格迹只能够记录很短时间内的信息，这会导致动作值函数的学习非常缓慢。资格迹的作用范围如下图所示：<br><img src="http://onvolufm1.bkt.clouddn.com/Q_lambda_eligibility_trace_graph.png" alt=""></p>
 <p>对应的算法流程如下：<br><img src="http://onvolufm1.bkt.clouddn.com/Q_lambda.png" alt=""></p>
 <h2 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h2>
       

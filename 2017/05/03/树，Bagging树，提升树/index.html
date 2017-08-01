@@ -96,7 +96,7 @@
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/GBDT_algorithm.png">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/GBDT_diagram_for_K-class_Classification.png">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/GBDT_algorithms_K-class_Classification.PNG">
-<meta property="og:updated_time" content="2017-08-01T08:29:50.351Z">
+<meta property="og:updated_time" content="2017-08-01T09:19:40.641Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="树，Bagging树，提升树">
 <meta name="twitter:description" content="本文首先介绍机器学习中不可避免的Bias-variance tradeoff问题，分析决策树所面临的问题，从减小Bias和减小Variance两方面的思路，介绍Bagging树和提升树两类模型。">
@@ -357,7 +357,7 @@ E[(y-\hat f(x))^2] = Bias[\hat f(x)]^2 + Var[\hat f(x)] + \gamma^2</script><p>�
 <script type="math/tex; mode=display">
 Bias[\hat f(x)] = E[\hat f(x) - f(x)], \quad Var[\hat f(x)] = E[\hat f(x)^2] - E[\hat f(x)]^2</script><p>里面的$y$表示数据$x$的对应的实际输出值，由两部分组成：真实映射关系$f(x)$和随机误差$\epsilon$:</p>
 <script type="math/tex; mode=display">
-y = f(x) + \epsilon</script><p>其中的随机误差$\epsilon$满足:$E[\epsilon]=0,Var[\epsilon]=\gamma^2$<br>需要注意到是上面Bias和Variance中的均值计算是针对同一个测试样本$x$的不同预测函数$\hat f(x)$，即：从相同的联合分布$P(X,Y)$中采集K个不同的但均包含N个样本的训练集$D<em>i,i=1,2,\ldots,K$，分别在这K个训练集上训练参数为$\theta$的模型$f</em>\theta(x)$，得到K个模型$\hat f_i(x),i=1,2,\ldots,K$，从而模型偏差Bias的计算为：</p>
+y = f(x) + \epsilon</script><p>其中的随机误差$\epsilon$满足:$E[\epsilon]=0,Var[\epsilon]=\gamma^2$<br>需要注意到是上面Bias和Variance中的均值计算是针对同一个测试样本$x$的不同预测函数$\hat f(x)$，即：从相同的联合分布$P(X,Y)$中采集K个不同的但均包含N个样本的训练集$D_i,i=1,2,\ldots,K$，分别在这K个训练集上训练参数为$\theta$的模型$f_\theta(x)$，得到K个模型$\hat f_i(x),i=1,2,\ldots,K$，从而模型偏差Bias的计算为：</p>
 <script type="math/tex; mode=display">
 Bias[\hat f(x)] =\lim_{K \to +\infty} {1 \over K} \sum_{i=1}^K {[\hat f_i(x)-f(x)]}</script><p>模型的复杂度影响它的偏差和方差，从而影响模型在测试数据上的泛化误差。一般的，如果模型$\hat f(x)$较为简单，则它和数据中真实的pattern(即映射关系$f(x)$)差距较大，没有充分学习到关系$f(x)$而欠拟合，导致Bias项较大，但因为此时受随机误差$\epsilon$的影响较小，因此方差Variance较低，总的来说此时由于模型整体欠拟合，因此平均泛化误差会比较大。<br>反之，如果模型$\hat f(x)$十分复杂，则能够比较好的学习到Pattern $f(x)$，但是由于$\hat f(x)$过于复杂和灵活，导致它除了学习到$f(x)$之外，还学习到了随机误差$\epsilon$引进的噪音信息。由于噪声$\epsilon$的随机性，从而导致来自于同一个分布$P(X,Y)$的多个训练集$D_i$中包含差异性较大的噪音信息$\epsilon_i$，导致学习到的模型$\hat f_i(x)$具有较大的差异性，从而使得对于同一个训练样本$x$预测结果的方差变大，最终导致模型整体的泛化误差变大，此时称为模型过拟合。</p>
 <p>可以看到，一个模型的偏差和方差处于“鱼和熊掌不可兼得”的状况，而Bagging和Boosting可以改善这种情况。对于High Variance, Low Bias的基本模型，通过Boostrap Aggregation的方法可以在降低Variance的同时仍然保持较低的Bias；而对于High Bias, Low Variance的基本模型，通过Boosting可以在减小Bias的同时保持较低的Variance。</p>
@@ -366,31 +366,33 @@ Bias[\hat f(x)] =\lim_{K \to +\infty} {1 \over K} \sum_{i=1}^K {[\hat f_i(x)-f(x
 <script type="math/tex; mode=display">
 T(x;\Theta)=\sum_{j=1}^J {\beta_j I(x \in R_j)}</script><p>其中参数$\Theta = {R_j, \beta_j }_1^J$表示决策树J个叶子节点和对应的输出值，也是需要我们根据训练数据去学习的参数。为了学习到这组参数$\Theta$，定义相应的损失函数：</p>
 <script type="math/tex; mode=display">
-Loss(x;\Theta) = \sum_{j=1}^J \sum_{x_i \in R_j} {L(y_j, \beta_j)}</script><p>在能够确定$R<em>j,j=1,2,\ldots,J$的前提下，如果$L(y_j, \beta_j)$是平方误差损失，则可以确定$\hat \beta_j = \overline y_j$，即对应叶子节点$R_j$中训练样本输出值的平均值；如果是分类问题，则存在下列三种常见的节点不纯度度量方式：<br>$$
+Loss(x;\Theta) = \sum_{j=1}^J \sum_{x_i \in R_j} {L(y_j, \beta_j)}</script><p>在能够确定$R_j,j=1,2,\ldots,J$的前提下，如果$L(y_j, \beta_j)$是平方误差损失，则可以确定$\hat \beta_j = \overline y_j$，即对应叶子节点$R_j$中训练样本输出值的平均值；如果是分类问题，则存在下列三种常见的节点不纯度度量方式：<br>
+$$
 \begin{align}
 Misclassification \; error: & {1 \over N_m} \sum_{i \in R_m} I(y_i \neq  k(m)) = 1-\hat p_{mk(m)} \\
 Gini \; index :  & \sum_{k \neq \ddot k}{\hat p_{mk} \hat p_{m \ddot k}} = \sum_{k=1}^K {\hat  p_{mk} (1-\hat p_{mk})} \\
 Cross-entropy: & - \sum_{k=1}^K \hat p_{mk} log \hat p_{mk}
 \end{align}
-$$<br>其中$k(m) = argmax_k \hat p</em>{mk}$，表示我们将节点$R<em>m$的类别确定为类别$k$，这个$k$是使得$\hat p</em>{mk}={1 \over N<em>m} \sum</em>{x_i \in R_m} I(y_i = k)$最大的类标签，也就是该结点中占比最大的那个类标签。</p>
-<p>但是最优$R<em>j$的寻找是个NP问题，一般采取贪婪式的、从上至下递归划分的方法来寻找次优的$R_j$。对于平方差损失函数，划分变量的选择和切分点的选择标准是使得划分后的两个子节点的平方差损失和最小。对于分类树，可以用上面提到的三种不纯度度量方式来选择划分变量和划分点，一般用的较多的是Gini系数和信息增益(比)，而用误分类率的较少，从定义$1-\hat p</em>{mk(m)}$来看，我个人猜测是由于它漏掉了节点$R_m$中其他类别的信息，从而跟前两者相比，在刻画节点不纯度方面效果较差。 </p>
+$$
+<br>其中$k(m) = argmax_k \hat p_{mk}$，表示我们将节点$R_m$的类别确定为类别$k$，这个$k$是使得$\hat p_{mk}={1 \over N_m} \sum_{x_i \in R_m} I(y_i = k)$最大的类标签，也就是该结点中占比最大的那个类标签。</p>
+<p>但是最优$R_j$的寻找是个NP问题，一般采取贪婪式的、从上至下递归划分的方法来寻找次优的$R_j$。对于平方差损失函数，划分变量的选择和切分点的选择标准是使得划分后的两个子节点的平方差损失和最小。对于分类树，可以用上面提到的三种不纯度度量方式来选择划分变量和划分点，一般用的较多的是Gini系数和信息增益(比)，而用误分类率的较少，从定义$1-\hat p_{mk(m)}$来看，我个人猜测是由于它漏掉了节点$R_m$中其他类别的信息，从而跟前两者相比，在刻画节点不纯度方面效果较差。 </p>
 <h2 id="Bagging"><a href="#Bagging" class="headerlink" title="Bagging"></a>Bagging</h2><h2 id="Boosting"><a href="#Boosting" class="headerlink" title="Boosting"></a>Boosting</h2><h3 id="GBDT"><a href="#GBDT" class="headerlink" title="GBDT"></a>GBDT</h3><p>提升树模型建立在决策树的基础之上，具体定义为系数均为1的加法模型：</p>
 <script type="math/tex; mode=display">
 f_M(x) = \sum_{m=1}^M T(x; \Theta_m)</script><p>求解加法模型需要用前向分步算法，需要极小化的损失函数为：</p>
 <script type="math/tex; mode=display">
-\sum_{i=1}^N L(y_i, f_{m-1}(x_i) + T(x_i;\Theta_m))</script><p>求解参数$\Theta<em>m$时，当前模型$f</em>{m-1}(x)$是已知的，对应的损失$L(y<em>i, f</em>{m-1}(x_i))$也是确定的，为了使新的模型$f_m(x)$对应的损失尽可能小，首先将损失函数做一阶泰勒展开，得到：</p>
+\sum_{i=1}^N L(y_i, f_{m-1}(x_i) + T(x_i;\Theta_m))</script><p>求解参数$\Theta_m$时，当前模型$f_{m-1}(x)$是已知的，对应的损失$L(y_i, f_{m-1}(x_i))$也是确定的，为了使新的模型$f_m(x)$对应的损失尽可能小，首先将损失函数做一阶泰勒展开，得到：</p>
 <script type="math/tex; mode=display">
-L(y, f_{m-1}(x) + T(x;\Theta_m)) = L(y, f_{m-1}(x)) + g_m(x)T(x;\Theta_m)</script><p>其中$g<em>m(x) = {\begin{bmatrix} {\partial L(y, f(x))} \over {\partial f(x)} \end{bmatrix} }</em>{f(x) = f<em>{m-1}(x)}$表示损失函数在$f</em>{m-1}(x)$处的梯度，为了使得新模型$f_m(x)$的损失尽可能减小，等价于：</p>
+L(y, f_{m-1}(x) + T(x;\Theta_m)) = L(y, f_{m-1}(x)) + g_m(x)T(x;\Theta_m)</script><p>其中$g_m(x) = {\begin{bmatrix} {\partial L(y, f(x))} \over {\partial f(x)} \end{bmatrix} }_{f(x) = f_{m-1}(x)}$表示损失函数在$f_{m-1}(x)$处的梯度，为了使得新模型$f_m(x)$的损失尽可能减小，等价于：</p>
 <script type="math/tex; mode=display">
 min_{\Theta_m} L(y, f_{m-1}(x) + T(x;\Theta_m)) - L(y, f_{m-1}(x))  
 = min_{\Theta_m} g_m(x)T(x;\Theta_m)</script><p>为了使$ g_m(x)T(x;\Theta_m)$尽可能小，$T(x;\Theta_m)$应该取梯度(向量)$g_m(x)$的反方向，也就是说第m棵树需要去尽可能拟合$-g_m(x_i)$以逼近理论上的负梯度方向。</p>
 <p>之前我们假设了$T(x;\Theta_m)$是一颗决策树，如果去掉这个假设约束，完全可以取$f_i = -\rho_i g_i$，即沿着负梯度方向找到最佳的步长$\rho_i$，这样完全按照最速下降法就能够让损失函数逼近最小值，为什么需要去建一棵树来逼近理论上最优的负梯度方向呢？ Trevor Hastie在其著作[1]中给出的解释是：得到的梯度$g_m(x_i)$仅仅定义在<strong>训练样本</strong>$x_i$上，所以最速下降法找到的模型$f_M^s(x)$使得损失函数在训练集上减小到最优值附近，但我们所希望的是最终的模型$f_M(x)$能够在<strong>新的测试样本</strong>中具有好的泛化能力，所以采取折中的办法：建立一颗决策树来尽可能逼近前一轮损失函数的负梯度方向，这样既能够利用负梯度的信息，又不会落到训练集上的最优值上。</p>
 <p>用<strong>平方损失</strong>  (这里的衡量函数形式与$\sum_{i=1}^N L(y_i, f_m(x))$中的损失函数形式无关)  来<strong>衡量决策树对负梯度的逼近程度</strong>，于是我们的目标函数变为：</p>
 <script type="math/tex; mode=display">
-min_{\Theta_m} \sum_{i=1}^N (- g_{im} - T(x_i;\Theta_m))^2</script><p>其中$g_{im} =  {\begin{bmatrix} {\partial L(y_i, f(x_i))} \over {\partial f(x_i)} \end{bmatrix} }_{f(x_i) = f_{m-1}(x_i)}$<br>根据CART回归树的建树步骤找到对负梯度逼近最好的<strong>回归树</strong>$T(x;\Theta<em>m)$后，此时叶子结点$R</em>{jm},j=1,2,\ldots,J$的输出值是每个结点中样本输出值的平均值，如果$ L(y<em>i, f_m(x))$是平方损失函数，则此时回归树的输出值是满足要求的。但是对于其他形式的损失函数，还需要<strong>重新</strong>确定树的叶子结点$R</em>{jm},j=1,2,\ldots,J$的输出值$\hat \gamma<em>{jm}$，它需要满足：<br>$$
+min_{\Theta_m} \sum_{i=1}^N (- g_{im} - T(x_i;\Theta_m))^2</script><p>其中$g_{im} =  {\begin{bmatrix} {\partial L(y_i, f(x_i))} \over {\partial f(x_i)} \end{bmatrix} }_{f(x_i) = f_{m-1}(x_i)}$<br>根据CART回归树的建树步骤找到对负梯度逼近最好的<strong>回归树</strong>$T(x;\Theta_m)$后，此时叶子结点$R_{jm},j=1,2,\ldots,J$的输出值是每个结点中样本输出值的平均值，如果$ L(y_i, f_m(x))$是平方损失函数，则此时回归树的输出值是满足要求的。但是对于其他形式的损失函数，还需要<strong>重新</strong>确定树的叶子结点$R_{jm},j=1,2,\ldots,J$的输出值$\hat \gamma_{jm}$，它需要满足：<br>$$
 \hat \gamma_{jm} = argmin_{\gamma_{jm}} \sum_{x_i \in R_{jm}} L(y_i, f_{m-1}(x_i) + \gamma_{jm})
-$$<br>也就是说每个叶节点的输出值$\hat \gamma</em>{jm}$取决于损失函数$\sum_{i=1}^N L(y_i, f_m(x))$的具体形式。如果是绝对值损失，则是结点中样本输出值的中位数。</p>
-<p>在构建树$T(x;\Theta<em>m)$时需要用到负梯度值$-g</em>{m}$，对于平方损失${1 \over 2} (y_i - f(x_i))^2$，负梯度为残差$y_i - f(x_i)$; 对于绝对值损失$| y_i - f(x_i)|$，负梯度为$sign[y_i - f(x_i)]$；对于Huber损失，</p>
+$$<br>也就是说每个叶节点的输出值$\hat \gamma_{jm}$取决于损失函数$\sum_{i=1}^N L(y_i, f_m(x))$的具体形式。如果是绝对值损失，则是结点中样本输出值的中位数。</p>
+<p>在构建树$T(x;\Theta_m)$时需要用到负梯度值$-g_{m}$，对于平方损失${1 \over 2} (y_i - f(x_i))^2$，负梯度为残差$y_i - f(x_i)$; 对于绝对值损失$| y_i - f(x_i)|$，负梯度为$sign[y_i - f(x_i)]$；对于Huber损失，</p>
 <script type="math/tex; mode=display">
 Huber(y_i, f(x_i)) = 
 \begin{cases}
@@ -423,45 +425,49 @@ L(y, p(x)) &=  - \sum_{i=1}^K I(y = c_i) \text{log} p_i(x) \\
 &= - \sum_{i=1}^K I(y = c_i)f_M^i(x) + log(\sum_{j=1}^K (e^{f_M^j(x)}))
 \end{align}</script><p>其中$I(y = c<em>i)$表示$c_i$等于真实的类别$y$时取1，否则取0。可以看到，对于样本$(x, c_i)$,该损失函数只计算对应类$c_i$下模型输出值$f_M(x)$的负对数似然损失：$- \text{log}p_i(x)$。因为BGDT的学习需要用到损失函数的负梯度，因此对于样本$(x,y</em>{lk})$计算相应损失对模型预测值$f_{m-1}^k(x)$的负梯度：</p>
 <script type="math/tex; mode=display">
--\partial {L(y_{lk}, f_{m-1}(x))} \over \partial {f_{m-1}^k(x)}</script><p>其中$y<em>{lk}$表示样本$x$的的类$c_l$的第$k$个编码值：当$k = l$时为1；否则为0. 其中$f</em>{m-1}^k(x)$表示模型$f_{m-1}(x)$对于样本$x$的类别的第$k$个编码值的对应输出值。</p>
-<p>当$k = l$时，$I(y<em>{ll} = c_l)=1=y</em>{ll}$,<br>
+-\partial {L(y_{lk}, f_{m-1}(x))} \over \partial {f_{m-1}^k(x)}</script><p>其中$y_{lk}$表示样本$x$的的类$c_l$的第$k$个编码值：当$k = l$时为1；否则为0. 其中$f_{m-1}^k(x)$表示模型$f_{m-1}(x)$对于样本$x$的类别的第$k$个编码值的对应输出值。</p>
+<p>当$k = l$时，$I(y_{ll} = c_l)=1=y_{ll}$,<br>
 $$
 \begin{align}
- & {- \partial \over \partial {f_{m-1}^l(x)}}  
+& {- \partial \over \partial {f_{m-1}^l(x)}}  
   [ {- f_{m-1}^l(x)} + log(\sum_{j=1}^K (e^{f_{m-1}^j(x)} ) ) ]  \\
 &= - [ { {-1 + e^{f_{m-1}^l(x)}} \over { \sum_{j=1}^K e^{f_{m-1}^j(x)} } }] \\
 &= 1 - p_l(x) \\
 &=y_{ll} - p_l(x)
 \end{align}
 $$
-<br>当$k \ne l$时，$I(y<em>{lk} = c_l)=0=y</em>{lk}$，<br>$$
+<br>当$k \ne l$时，$I(y_{lk} = c_l)=0=y_{lk}$，则有；<br>
+$$
 \begin{align}
- & {- \partial \over \partial {f_{m-1}^k(x)}}   [  log(\sum_{j=1}^K(e^{f_{m-1}^j(x)}))]  \\
+& {- \partial \over \partial {f_{m-1}^k(x)}}   [  log(\sum_{j=1}^K(e^{f_{m-1}^j(x)}))]  \\
 &= - [{{e^{f_{m-1}^k(x)}} \over {\sum_{j=1}^K e^{f_{m-1}^j(x)}}}] \\
 &=  - p_k(x)  \\
 & = y_{lk} - p_k(x)
 \end{align}
-$$<br>写成统一的格式：$\text{残差} = y<em>{lk} - p_k(x)$。在计算出所有N个样本的所有K个类编码残差后，<strong>对于每个类编码的残差</strong>分别构建决策树$T</em>{im}(x),i=1,2,\ldots,K$，再确定每棵树的叶子节点的输出值，利用这些输出值更新模型为$f_{im}(x)$。<br>总结一下具体的算法过程[1]：<br><img src="http://onvolufm1.bkt.clouddn.com/GBDT_algorithms_K-class_Classification.PNG" alt=""></p>
+$$
+<br>写成统一的格式：$\text{残差} = y_{lk} - p_k(x)$。在计算出所有N个样本的所有K个类编码残差后，<strong>对于每个类编码的残差</strong>分别构建决策树$T_{im}(x),i=1,2,\ldots,K$，再确定每棵树的叶子节点的输出值，利用这些输出值更新模型为$f_{im}(x)$。<br>总结一下具体的算法过程[1]：<br><img src="http://onvolufm1.bkt.clouddn.com/GBDT_algorithms_K-class_Classification.PNG" alt=""></p>
 <h3 id="xgboost"><a href="#xgboost" class="headerlink" title="xgboost"></a>xgboost</h3><p>跟GBDT相比，xgboost主要有以下几点不同：</p>
 <ol>
 <li>除了考虑损失函数的一阶信息，还增加了二阶信息；</li>
-<li>优化的目标函数增加了惩罚项$\Omega (f<em>m)=\gamma K + {1 \over 2} \lambda  \sum</em>{j=1}^K w_j^2$，用于控制叶子结点数目$K$和输出值$w_j$的大小;</li>
+<li>优化的目标函数增加了惩罚项$\Omega (f_m)=\gamma K + {1 \over 2} \lambda  \sum_{j=1}^K w_j^2$，用于控制叶子结点数目$K$和输出值$w_j$的大小;</li>
 <li>增加了用于决策树$f_m$中结点的切分变量和切分点选择的标准；</li>
 <li>叶子节点的输出值$w_j$的计算具有统一的形式，跟具体的损失函数无关；</li>
 </ol>
-<p>根据泰勒公式对损失函数进行二阶展开，得到：<br>$$
+<p>根据泰勒公式对损失函数进行二阶展开，得到：<br>
+$$
 \begin{align}
 & \sum_{i=1}^N L(y_i, f_{m-1}(x_i) + f_m(x_i) ) + \Omega(f_m) \\
  \approx & \sum_{i=1}^N [L(y_i, f_{m-1}(x_i) )+g_i f_m(x_i) +{1 \over 2}h_i f_m^2(x_i)] + \Omega(f_m) \\
 \end{align}
-$$<br>其中$g<em>i = {\partial L(y_i, f</em>{}m-1(x<em>i))  \over  \partial f</em>{m-1}(x<em>i)}$，$h_i = {\partial^2 L(y_i, f</em>{}m-1(x<em>i))  \over  \partial f</em>{m-1}^2(x_i)}$，$f_m(x)$在这里表示在第m次迭代时需要建立的决策树.<br>为了使损失函数减小的最多，等价于最小化如下的目标函数：</p>
+$$
+<br>其中$g_i = {\partial L(y_i, f_{}m-1(x_i))  \over  \partial f_{m-1}(x_i)}$，$h_i = {\partial^2 L(y_i, f_{}m-1(x_i))  \over  \partial f_{m-1}^2(x_i)}$，$f_m(x)$在这里表示在第m次迭代时需要建立的决策树.<br>为了使损失函数减小的最多，等价于最小化如下的目标函数：</p>
 <script type="math/tex; mode=display">
 L_{(m)} = \sum_{i=1}^N [ g_i f_m(x_i) +{1 \over 2}h_i f_m^2(x_i) + \Omega(f_m)  ]</script><p>定义$I_j = { i | i \in R_j}$表示落在叶子结点$R_j$中的样本集合，并将$\Omega(f_m)$的表达式带入，对上式进行等价改写：</p>
 <script type="math/tex; mode=display">
 L_{(m)} = \sum_{j=1}^K [ (\sum_{i \in I_j} g_i)w_j + {1 \over 2}(\sum_{i \in I_j} h_i + \lambda)w_j^2 ] + \gamma T</script><p>其中$K$表示叶子节点的数目，$w_j$表示叶子节点$R_j$的输出值。<br>对于固定的树结构，单个叶子节点的最小值在抛物线底端取得，即该叶子结点$R_j$的最佳输出值为：</p>
 <script type="math/tex; mode=display">
 w_j^\star = - {\sum_{i \in I_j} g_i  \over  {\lambda + \sum_{i \in I_j} h_i}}</script><p>从原论文[2]来看，上面的表达式直接用于计算$f_m(x)$叶节点$R_j$的输出值，而不用像GBDT那样需要根据损失函数的具体形式再确定叶子结点的输出值。</p>
-<p>利用每个叶子节点的$w<em>j^\star$值，可以计算出对应树结构的最佳$L</em>{(m)}$值：</p>
+<p>利用每个叶子节点的$w_j^\star$值，可以计算出对应树结构的最佳$L_{(m)}$值：</p>
 <script type="math/tex; mode=display">
 L_{(m)}^{optimal} = -{1 \over 2} \sum_{j=1}^K {(\sum_{i \in I_j} g_i)^2 \over  {\lambda + \sum_{i \in I_j} h_i}} + \gamma T</script><p>类似于Gini系数、信息增益比等结点不纯度度量方式，上式同样可以用于确定结点的切分变量和切分点。</p>
 <h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><ol>
