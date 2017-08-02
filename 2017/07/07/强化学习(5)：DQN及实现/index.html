@@ -1,0 +1,813 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="DQN,Tensorflow," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="表格式的动作值函数无法有效的应用到连续MDP或者高维状态的情况下，因此考虑用一个函数来代替Q函数，替代函数的选择十分关键。Deepmind团队成功的将深度学习和RL结合，提出了DQN模型，十分巧妙的利用了深度神经网络强大的非线性函数表达能力，对Q函数进行近似，本文对DQN模型原理进行介绍，最后附上MorvanZhou对DQN的实现算法，以及我对其的理解。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="强化学习（五）：DQN与实现">
+<meta property="og:url" content="http://yoursite.com/2017/07/07/强化学习(5)：DQN及实现/index.html">
+<meta property="og:site_name" content="二颗苹果">
+<meta property="og:description" content="表格式的动作值函数无法有效的应用到连续MDP或者高维状态的情况下，因此考虑用一个函数来代替Q函数，替代函数的选择十分关键。Deepmind团队成功的将深度学习和RL结合，提出了DQN模型，十分巧妙的利用了深度神经网络强大的非线性函数表达能力，对Q函数进行近似，本文对DQN模型原理进行介绍，最后附上MorvanZhou对DQN的实现算法，以及我对其的理解。">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/dqn_network_compare.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/dqn_experience_replay.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/dqn_algorithm.jpg">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/DQN.bmp">
+<meta property="og:updated_time" content="2017-08-02T15:38:57.118Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="强化学习（五）：DQN与实现">
+<meta name="twitter:description" content="表格式的动作值函数无法有效的应用到连续MDP或者高维状态的情况下，因此考虑用一个函数来代替Q函数，替代函数的选择十分关键。Deepmind团队成功的将深度学习和RL结合，提出了DQN模型，十分巧妙的利用了深度神经网络强大的非线性函数表达能力，对Q函数进行近似，本文对DQN模型原理进行介绍，最后附上MorvanZhou对DQN的实现算法，以及我对其的理解。">
+<meta name="twitter:image" content="http://onvolufm1.bkt.clouddn.com/dqn_network_compare.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/07/07/强化学习(5)：DQN及实现/"/>
+
+
+
+
+
+  <title> 强化学习（五）：DQN与实现 | 二颗苹果 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">二颗苹果</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/07/07/强化学习(5)：DQN及实现/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周君君">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://onvolufm1.bkt.clouddn.com/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="二颗苹果">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                强化学习（五）：DQN与实现
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-07T23:56:14+08:00">
+                2017-07-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/目录/深度强化学习/" itemprop="url" rel="index">
+                    <span itemprop="name">深度强化学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  表格式的动作值函数无法有效的应用到连续MDP或者高维状态的情况下，因此考虑用一个函数来代替Q函数，替代函数的选择十分关键。Deepmind团队成功的将深度学习和RL结合，提出了DQN模型，十分巧妙的利用了深度神经网络强大的非线性函数表达能力，对Q函数进行近似，本文对DQN模型原理进行介绍，最后附上MorvanZhou对DQN的实现算法，以及我对其的理解。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Q函数近似"><a href="#Q函数近似" class="headerlink" title="Q函数近似"></a>Q函数近似</h2><p>前面所讲的基本算法均只针对离散状态的马尔科夫决策过程：状态集$S$通过集合形式表示。离散状态MDP下的动作值函数一般保存为表格：行对应状态，列对应动作，这种表示方法无法应用在连续状态MDP的情况下，因此在连续状态空间下，需要通过函数近似的方式来表示动作值函数$Q(S，A)$。</p>
+<h2 id="DQN"><a href="#DQN" class="headerlink" title="DQN"></a>DQN</h2><h3 id="算法"><a href="#算法" class="headerlink" title="算法"></a>算法</h3><p>上一小节说到可以通过函数来近似动作值函数，但是我们不知道最优的动作值函数的形式，因此近似函数形式的选择比较麻烦，特别在状态是高维度时，寻找合适的近似函数更加困难。因为深度神经网络理论上能够良好的近似任意形式的函数，而且自动抽取高维特征，因此考虑直接通过神经网络来近似最优的动作值函数，我们称这个网络为Q-network，假设它的参数为$w$，我们希望[1]：</p>
+<script type="math/tex; mode=display">
+Q(s, a, w) \approx Q^{\star}(s, a)</script><p>有两种Q-network结构能够用来近似最优动作值函数[1]，如下图所示：</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/dqn_network_compare.png" alt=""></p>
+<p>第一种网络的输入包括状态和动作，输出对应的值函数估计；第二种网络仅仅输入状态，输出所有可能动作对应的值函数估计值。显然应该选择第二种结构，理由有两个：我们希望Q-网络能够抽取高维状态中的特征，没必要加入动作；另外第一种结构中，为了得到状态$s$下所有动作的值函数估计值，需要针对每个动作进行前向计算，而在第二种结构下，只需要一次前向计算便可以得到所有的动作值估计值，因此更加高效。</p>
+<p>用Q-network近似最优值函数$Q^{\star}(s, a)$时，需要知道$Q^{\star}(s, a)$的形式，但是我们不知道它的具体形式（否则也没有必要用Q-网络近似表示），但我们知道它必须满足Belleman最优方程：</p>
+<script type="math/tex; mode=display">
+Q^{\star}(s, a) = E_{s'} [ r + \gamma  \; max_{a'} Q^{\star}(s', a') | s, a ]</script><p>根据原始Q-learning算法的思路，我们用$ r + \gamma  \; max<em>{a’} Q^{\star}(s’, a’) $来近似最优动作值函数，然后通过与环境的在线（on-line）交互进行增量式学习。将$ r + \gamma  \; max</em>{a’} Q^{\star}(s’, a’)$ 中的$Q^{\star}(s’, a’)$替换为Q-网络$Q^{\star}(s’, a’, w)$，通过平方误差来衡量当前Q-网络$Q^{\star}(s, a)$的误差:</p>
+<script type="math/tex; mode=display">
+L(w) = ( r + \gamma  \; max_{a'} Q^{\star}(s', a', w) - Q^{\star}(s, a, w) )^2</script><p>当我们尝试用梯度类算法来优化上述损失函数时，会面临如下<strong>两个问题</strong>，导致优化平方差损失函数时很难收敛：<br>第一，神经网络理论上要求输入的状态样本是独立同分布的，而在增量式学习过程中，环境的状态转移概率具有马尔可夫性，因此得到的状态样本不满足独立性。<br>第二个问题称为non-stationary target[1]，在原始论文[2]中作者对该问题的描述为：</p>
+<blockquote>
+<p>“ … small updates to Q may significantly change the policy and therefore change the data distribution, and the correlations between the action-values (Q) and the target values $\; r + \gamma  \; max_{a’} Q^{\star}(s’, a’, w)$  …”</p>
+</blockquote>
+<p>离散MDP下的$Q(s, a)$是一个表格，当我们修改$Q(s, a)$时不会影响$Q(s’, a’)$的值，而在这里，Q-network用于近似整体状态空间下的动作值函数，当我们修改$Q(s, a, w)$的网络参数时，影响的是<strong>整体</strong>的值函数，从而影响$Q(s’, a’)$，也就是说我们在调整网络参数尝试靠近目标时，（网络参数的调整）同时也改变了我们希望靠近的目标$\; r + \gamma  \; max_{a’} Q^{\star}(s’, a’, w)$，这与有监督学习的学习过程完全不同。</p>
+<p>论文[2]针对第一个问题的解决方法称为：Experience Replay。为了<strong>打破状态之间的相关性</strong>，在内存中保存一定量的Transition $(s, a, r, s’)$，然后从里面随机采集一个样本batch用于优化损失函数，如下图所示：</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/dqn_experience_replay.png" alt=""></p>
+<p>针对第二个问题，问题<strong>根源</strong>在于参数更新发生在<strong>同一个Q-网络中</strong>，因此作者[2]引入另一个网络Target network，这个网络的作用是周期性的记录Q-network的参数，以保证Q-network上的参数更新时Target network上对应的$Q^{\star}(s’, a’, w)$不变，从而减小这两个网络的关联性。</p>
+<p>于是优化的目标函数变为：</p>
+<script type="math/tex; mode=display">
+L(w) = ( r + \gamma  \; max_{a'} Q^{\star}(s', a', w^-) - Q^{\star}(s, a, w) )^2</script><p>其中$w$表示发生参数更新的Q-network的权重参数，$w^-$表示Target-network <strong>上次</strong>保存的Q-network的权重参数。算法整体的流程如下：</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/dqn_algorithm.jpg" alt=""></p>
+<h3 id="简单DQN实现"><a href="#简单DQN实现" class="headerlink" title="简单DQN实现"></a>简单DQN实现</h3><h4 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h4><p>从上面的算法流程来看，要实现DQN的步骤如下所示：</p>
+<ol>
+<li>搭建两个网络结构完全相同的网络：目标网络Target_Network和计算网络Evaluate_Network；</li>
+<li>Evaluate_Network根据当前的状态S选择动作A；</li>
+<li>动作A作用于环境后得到Transition（S, A, R, S’），将该Transition存入Transition池中；</li>
+<li>从Transition池中随机选择Batch_size个Transition样本，记为Batch_Sample，将Batch_Sample送入网络Target_Network和Evaluate_Network中，分别得到两组输出结果q_next和q_eval；</li>
+<li>根据结果q_next计算Evaluate_Network需要逼近的目标值：<script type="math/tex; mode=display">
+\text{q_target} = R+ \gamma  \; max_{A'} Q^{\star}(S', A', w^-)</script></li>
+<li>将结果q_target送入网络Evaluate_Network进行参数更新；</li>
+<li>重复步骤2) — 6)，每隔一定迭代次数将Evaluate_Network的网络参数复制给Target_Network.</li>
+</ol>
+<h4 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h4><p>按照DQN算法步骤，整体算法可以用下面的图来说明，建议配合我绘制的这张图来分析对应部分的代码：<br><img src="http://onvolufm1.bkt.clouddn.com/DQN.bmp" alt=""></p>
+<h5 id="搭建网络"><a href="#搭建网络" class="headerlink" title="搭建网络"></a>搭建网络</h5><p>Evaluate_Network和Target_Network的结构需要保持完全一致，不同的地方在于前者需要定义损失函数和相应的优化器，而后者只是作为前者网络参数的暂存器，不需要更改网络参数。因为DQN需要周期性的将Evaluate_Network的各层网络参数复制给Target_Network，因此需要在两个网络中建立两个独立的collection，便于从中提取网络参数Tensor。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">DeepQNetwork</span>:</span></div><div class="line">    <span class="function"><span class="keyword">def</span> <span class="title">build_net</span><span class="params">(self)</span>:</span></div><div class="line">        <span class="comment"># Q学习需要用到的Transition为(S, A, R, S_)</span></div><div class="line">        <span class="comment"># self.S是Evaluate_Network用来接收输入状态</span></div><div class="line">        <span class="comment"># 参数shape=[None,self.n_features]表示输入状态的特征数为self.n_features，状态的个数为None，即未指定，因此可以是任意多个状态</span></div><div class="line">        self.S = tf.placeholder(tf.float32, [<span class="keyword">None</span>, self.n_features], name=<span class="string">'S'</span>)</div><div class="line">        <span class="comment"># 计算损失值时需要用到，计算公式在步骤5)中</span></div><div class="line">        self.q_target = tf.placeholder(tf.float32, [<span class="keyword">None</span>, self.n_actions], name=<span class="string">'Q_Target'</span>)</div><div class="line">        <span class="comment"># 1、搭建Evaluate_Network</span></div><div class="line">        <span class="keyword">with</span> tf.variable_scope(<span class="string">'Evaluate_Network'</span>):</div><div class="line">            <span class="comment"># 建立一个collection，用于网络参数的提取</span></div><div class="line">            <span class="comment"># 某一层的参数需要提取时，对应的collection设置为c_names</span></div><div class="line">            c_names = [<span class="string">'eval_net_params'</span>, tf.GraphKeys.GLOBAL_VARIABLES]</div><div class="line">            num_layer1 = <span class="number">10</span> <span class="comment"># 第一个隐藏层的神经元个数</span></div><div class="line">            <span class="comment"># 用于初始化网络权重</span></div><div class="line">            w_initializer = tf.random_normal_initializer(<span class="number">0.</span>, <span class="number">0.5</span>)</div><div class="line">            <span class="comment"># 用于初始化网络偏置</span></div><div class="line">            b_initializer = tf.constant_initializer(<span class="number">0.5</span>)</div><div class="line"></div><div class="line">             <span class="comment"># 整个网络的参数对应上图左边网络的参数w</span></div><div class="line">             <span class="comment"># 搭建Evaluate_Network的第一个隐藏层</span></div><div class="line">             <span class="keyword">with</span> tf.variable_scope(<span class="string">'Layer_1'</span>):</div><div class="line">                 w1 = tf.get_variable(<span class="string">'w1'</span>, [self.n_features, num_layer1], initializer=w_initializer, collections=c_names)</div><div class="line">                 b1 = tf.get_variable(<span class="string">'b1'</span>, [<span class="number">1</span>, num_layer1], initializer=b_initializer, collections=c_names)</div><div class="line">                 out_layer1 = tf.nn.relu(tf.matmul(self.S, w1) + b1)</div><div class="line">             <span class="comment"># 搭建Evaluate_Network的输出层</span></div><div class="line">             <span class="keyword">with</span> tf.variable_scope(<span class="string">'Layer_2'</span>):</div><div class="line">                 w2 = tf.get_variable(<span class="string">'w2'</span>, [num_layer1, self.n_actions], initializer=w_initializer, collection=c_names)</div><div class="line">                 b2 = tf.get_variable(<span class="string">'b2'</span>, [<span class="number">1</span>, self.n_actions], initializer=b_initializer, collection=c_names)</div><div class="line">                 self.q_eval = tf.matmul(out_layer1,  w2)+b2</div><div class="line">    </div><div class="line">        <span class="comment"># 根据期待输出q_target和当前输出q_eval计算MSE损失</span></div><div class="line">        <span class="keyword">with</span> tf.variable_scope(<span class="string">'loss'</span>):</div><div class="line">            self.loss = tf.reduce_mean(tf.squared_difference(self.q_target, self.q_eval))</div><div class="line">        <span class="comment"># 选择RMSProp优化算法进行优化更新</span></div><div class="line">        <span class="keyword">with</span> tf.variable_scope(<span class="string">'train'</span>):</div><div class="line">            self.train_evalute_network = tf.train.RMSPropOptimizer(self.lr).minimize(self.loss)</div><div class="line"></div><div class="line">        <span class="comment"># Target_Network需要的输入状态</span></div><div class="line">        self.S_ = tf.placeholder(tf.float32, [<span class="keyword">None</span>, self.n_features], name=<span class="string">'S_'</span>)</div><div class="line">        <span class="comment"># 然后搭建与Evaluate_Network网络结构一样的Target_Network</span></div><div class="line">        <span class="keyword">with</span> tf.variable_scope(<span class="string">'Target_Network'</span>):</div><div class="line">            <span class="comment"># 定义一个与Evaluate_Network不同的collection</span></div><div class="line">            <span class="comment"># 用于周期性的提取Target_Network各层网络的参数</span></div><div class="line">            c_names = [<span class="string">'target_net_params'</span>, tf.GraphKeys.GLOBAL_VARIABLES]</div><div class="line"></div><div class="line">            <span class="comment"># 相同的网络结构，采用相同的权重初始化方式</span></div><div class="line">            <span class="comment"># 由于上层variable_scope的不同，因此是独立的网络</span></div><div class="line">            <span class="comment"># 整个网络的参数对应上图右边网络的参数w^-</span></div><div class="line">            <span class="keyword">with</span> tf.variable_scope(<span class="string">'Layer_1'</span>):</div><div class="line">                w1 = tf.get_variable(<span class="string">'w1'</span>, [self.n_features, num_layer1], initializer=w_initializer, collections=c_names)</div><div class="line">                b1 = tf.get_variable(<span class="string">'b1'</span>, [num_layer1, self.n_actions], initializer=b_initializer, collections = c_names)</div><div class="line">                out_layer1 = tf.nn.relu(tf.matmul(self.S_, w1) + b1)</div><div class="line">            <span class="comment"># Target_Network的输出层</span></div><div class="line">            <span class="comment"># Target_Network作为Evaluate_Network参数的暂存网络</span></div><div class="line">            <span class="comment"># 不需要进行参数优化，因此不需要定义损失函数和优化器</span></div><div class="line">            <span class="keyword">with</span> tf.variable_scope(<span class="string">'Layer_2'</span>):</div><div class="line">                w2 = tf.get_variable(<span class="string">'w2'</span>, [num_layer1, self.n_actions], initializer=w_initializer, collection=c_names)</div><div class="line">                b2 = tf.get_variable(<span class="string">'b2'</span>, [<span class="number">1</span>, self.n_actions], initializer = b_initializer, collection=c_names)</div><div class="line">                self.q_next = tf.matmul(out_layer1, w2) + b2</div></pre></td></tr></table></figure></p>
+<h5 id="选择动作"><a href="#选择动作" class="headerlink" title="选择动作"></a>选择动作</h5><p>这里采用的行为策略依旧是$\epsilon$-贪婪策略，因此与前一篇 <a href="https://zhoujunjun-apple.github.io/2017/06/27/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0(4" target="_blank" rel="external">博文</a>%EF%BC%9A%E5%9F%BA%E6%9C%AC%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0/) 中Q-学习算法选择动作的思路一致，不同的地方在于，这里的Q函数是Evaluate_Network，因此需要在Session中进行前向传播，得到当前状态下的输出动作。需要注意的是需要将状态observation的shape转换成[1, self.n_features]的维度，方便输入到网络中（参见搭建网络时对self.S的说明）。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">choose_action</span><span class="params">(self, observation)</span>:</span></div><div class="line">    observation = observation[np.newaxis,:]</div><div class="line"></div><div class="line">    <span class="keyword">if</span> np.random.uniform() &lt; self.epsilon:</div><div class="line">        action_value = self.sess.run(self.q_eval, feed_dict=&#123;self.S : observation&#125;)</div><div class="line">        action = np.argmax(action_value)</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        action = np.random.randint(<span class="number">0</span>, self.n_actions)</div><div class="line">    <span class="keyword">return</span> action</div></pre></td></tr></table></figure></p>
+<h5 id="Transition-Experience存储"><a href="#Transition-Experience存储" class="headerlink" title="Transition Experience存储"></a>Transition Experience存储</h5><p>存储Transition时，通过一个array存储，每一行对应一条(S,A,R,S_)记录。列的存储顺序上，该array的前后 self.n_features 列存储状态S和S’，第self.n_features+1列的位置存储动作A，紧挨着后面一列存储回报值R。行的存储顺序上，在给定最大行self.memory_size的array中从前往后循环存储，如果array存满，则重新从头开始覆盖掉旧的Transition进行存储。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">store_transition</span><span class="params">(self, S, A, R, S_)</span>:</span></div><div class="line">    <span class="keyword">if</span> <span class="keyword">not</span> hasattr(self, <span class="string">'memory_counter'</span>):</div><div class="line">        self.memory_counter = <span class="number">0</span></div><div class="line">    <span class="comment"># 按行的方向，将Transition拉成一维的向量，方便存储</span></div><div class="line">    transition = np.hstack((S, [A, R], S_))</div><div class="line"></div><div class="line">    index = self.memory_counter%self.memory_size</div><div class="line">    self.memory[index,:] = transition</div><div class="line"></div><div class="line">    self.memory_counter += <span class="number">1</span></div></pre></td></tr></table></figure></p>
+<h5 id="网络学习"><a href="#网络学习" class="headerlink" title="网络学习"></a>网络学习</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">learn</span><span class="params">(self)</span>:</span></div><div class="line">    <span class="comment"># 周期性更新Target_Network的参数</span></div><div class="line">    <span class="keyword">if</span> self.learn_step_counter % self.replace_target_iter == <span class="number">0</span>:</div><div class="line">        self.replace_target_params()</div><div class="line">        print(<span class="string">'\n target_params_replaced \n'</span>)</div><div class="line">    </div><div class="line">    <span class="comment"># 从Transition Experience中选择一个batch_size的样本</span></div><div class="line">    <span class="keyword">if</span> self.memory_counter &gt; self.memory_size:</div><div class="line">        sample_index = np.random.choice(self.memory_size, size=self.batch_size)</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        sample_index = np.random.choice(self.memory_counter, size=self.batch_size)</div><div class="line">    batch_sample = self.memory[sample_index,:]</div><div class="line"></div><div class="line">    <span class="comment"># 将样本中S部分输入到Evaluate_Network中，而</span></div><div class="line">    <span class="comment"># 将样本中S_部分输入到Target_Network中，模仿1-step TD过程</span></div><div class="line">    q_next, q_eval = self.sess.run(</div><div class="line">        [self.q_next, self.q_eval],</div><div class="line">        feed_dict=&#123;</div><div class="line">			self.S_ : batch_sample[:, -self.n_features:]</div><div class="line">			self.S : batch_sample[:, :self.n_features]</div><div class="line">		&#125;</div><div class="line">    )</div><div class="line"></div><div class="line">    <span class="comment"># 建议结合上面的算法整体示意图来理解下面五行代码的操作过程</span></div><div class="line">    q_target = q_eval.copy()</div><div class="line">    batch_index = np.arange(self.batch_size, dtype=np.int32)</div><div class="line">    eval_act_index = batch_memory[:, self.n_features].astype(int)</div><div class="line">    reward = batch_memory[:, self.n_features+<span class="number">1</span>]</div><div class="line"></div><div class="line">    <span class="comment"># 结合离散MDP中Q-学习算法的Q函数更新方式来理解：我们只需要更新（S,A）对应的Q函数，eval_act_index正是在定位对应状态S下那个需要更新的A</span></div><div class="line">    q_target[batch_index, eval_act_index] = reward + self.gamma * np.max(q_next, axis=<span class="number">1</span>)</div><div class="line"></div><div class="line">    <span class="comment"># 训练Evaluate_Network并记录相应的损失值</span></div><div class="line">	_, self.cost = self.sess.run(</div><div class="line">		[self.train_evalute_network, self.loss],</div><div class="line">		feed_dict = &#123;</div><div class="line">			self.S : batch_memory[:, :self.n_features],</div><div class="line">			self.q_target: q_target</div><div class="line">		&#125;</div><div class="line">	)</div><div class="line">	self.cost_history.append(self.cost)</div><div class="line"></div><div class="line">    <span class="comment"># 这一步是为了平衡策略的Exploration和Exploitation问题：设置一个较小的self.epsilon值，则在初期时行为策略会产生大量的探索行为(随机选择产生)，然后逐步增加这个值，随机的探索行为会逐渐减少，使得行为策略会逐渐的逼近估计策略：贪婪策略。</span></div><div class="line">	self.epsilon = self.epsilon + self.epsilon_increment <span class="keyword">if</span> self.epsilon &lt; self.epsilon_max <span class="keyword">else</span> self.epsilon_max</div><div class="line">	self.learn_step_counter += <span class="number">1</span></div></pre></td></tr></table></figure>
+<h5 id="网络参数复制"><a href="#网络参数复制" class="headerlink" title="网络参数复制"></a>网络参数复制</h5><p>通过两个网络不同的collection分别得到两个网络各层参数的Tensor，再通过tf.assign()逐层的将Evaluate_Network的参数复制给Target_Network的对应层。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">replace_target_params</span><span class="params">(self)</span>:</span></div><div class="line">    target_params = tf.get_collection(<span class="string">'target_net_params'</span>)</div><div class="line">    evaluate_params = tf.get_collection(<span class="string">'eval_net_params'</span>)</div><div class="line">    self.sess.run( [ tf.assign(t, e) <span class="keyword">for</span> t,e <span class="keyword">in</span> zip(target_params, evaluate_params) ] )</div></pre></td></tr></table></figure></p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
+<li><a href="http://icml.cc/2016/tutorials/deep_rl_tutorial.pdf" target="_blank" rel="external">A tutorial of deep reinforcement learning from Deepmind </a>;</li>
+<li><a href="https://www.cs.swarthmore.edu/~meeden/cs63/s15/nature15b.pdf" target="_blank" rel="external">Human-level control through deep reinforcement<br>learning </a></li>
+<li><a href="https://github.com/MorvanZhou/Reinforcement-learning-with-tensorflow/tree/master/contents/5_Deep_Q_Network" target="_blank" rel="external">莫烦实现的DQN及其实验环境</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/标签/DQN/" rel="tag"># DQN</a>
+          
+            <a href="/标签/Tensorflow/" rel="tag"># Tensorflow</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/27/强化学习(4)：基本算法实现/" rel="next" title="强化学习（四）：基本算法实现">
+                <i class="fa fa-chevron-left"></i> 强化学习（四）：基本算法实现
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://onvolufm1.bkt.clouddn.com/avatar.jpg"
+               alt="周君君" />
+          <p class="site-author-name" itemprop="name">周君君</p>
+           
+              <p class="site-description motion-element" itemprop="description">越努力越幸运</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">11</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">25</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/zhoujunjun-apple" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Q函数近似"><span class="nav-number">1.</span> <span class="nav-text">Q函数近似</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DQN"><span class="nav-number">2.</span> <span class="nav-text">DQN</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#算法"><span class="nav-number">2.1.</span> <span class="nav-text">算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#简单DQN实现"><span class="nav-number">2.2.</span> <span class="nav-text">简单DQN实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#步骤"><span class="nav-number">2.2.1.</span> <span class="nav-text">步骤</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实现"><span class="nav-number">2.2.2.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#搭建网络"><span class="nav-number">2.2.2.1.</span> <span class="nav-text">搭建网络</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#选择动作"><span class="nav-number">2.2.2.2.</span> <span class="nav-text">选择动作</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Transition-Experience存储"><span class="nav-number">2.2.2.3.</span> <span class="nav-text">Transition Experience存储</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#网络学习"><span class="nav-number">2.2.2.4.</span> <span class="nav-text">网络学习</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#网络参数复制"><span class="nav-number">2.2.2.5.</span> <span class="nav-text">网络参数复制</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文献"><span class="nav-number">3.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">周君君</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="custom_mathjax_source">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+  
+
+
+  
+
+</body>
+</html>
