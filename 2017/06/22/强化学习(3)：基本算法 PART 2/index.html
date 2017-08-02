@@ -1,0 +1,830 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="时间差分控制，Q学习，Sarsa学习，Q(lambda)学习，Sarsa(lambda)学习," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="本文介绍求解最优策略的基本算法第二部分：时间差分类算法。时间差分(Temporal Difference)控制算法是在实际场景中应用的最广泛的算法，这得益于它具有的二个特点：时间步上的灵活性、支持在线增量式学习。在基本算法的第一部分中介绍的马尔科夫控制算法最大的两个应用困难在于：它评估和改进算法的周期是episode-by-episode的，而且只适用于episode(场景式)任务，这带来的问题便">
+<meta property="og:type" content="article">
+<meta property="og:title" content="强化学习（三）：基本算法 PART 2">
+<meta property="og:url" content="http://yoursite.com/2017/06/22/强化学习(3)：基本算法 PART 2/index.html">
+<meta property="og:site_name" content="二颗苹果">
+<meta property="og:description" content="本文介绍求解最优策略的基本算法第二部分：时间差分类算法。时间差分(Temporal Difference)控制算法是在实际场景中应用的最广泛的算法，这得益于它具有的二个特点：时间步上的灵活性、支持在线增量式学习。在基本算法的第一部分中介绍的马尔科夫控制算法最大的两个应用困难在于：它评估和改进算法的周期是episode-by-episode的，而且只适用于episode(场景式)任务，这带来的问题便">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/TD_0.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/q_learning.PNG">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/sarsa.PNG">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/n_step_TD.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/TD_lambda.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/TD_lambda_forward.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/eligibility_trace_compare.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/TD_lambda_backward.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/sarsa_lambda.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/Q_lambda_eligibility_trace.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/Q_lambda_eligibility_trace_graph.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/Q_lambda.png">
+<meta property="og:updated_time" content="2017-08-02T04:21:45.413Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="强化学习（三）：基本算法 PART 2">
+<meta name="twitter:description" content="本文介绍求解最优策略的基本算法第二部分：时间差分类算法。时间差分(Temporal Difference)控制算法是在实际场景中应用的最广泛的算法，这得益于它具有的二个特点：时间步上的灵活性、支持在线增量式学习。在基本算法的第一部分中介绍的马尔科夫控制算法最大的两个应用困难在于：它评估和改进算法的周期是episode-by-episode的，而且只适用于episode(场景式)任务，这带来的问题便">
+<meta name="twitter:image" content="http://onvolufm1.bkt.clouddn.com/TD_0.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/06/22/强化学习(3)：基本算法 PART 2/"/>
+
+
+
+
+
+  <title> 强化学习（三）：基本算法 PART 2 | 二颗苹果 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">二颗苹果</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/06/22/强化学习(3)：基本算法 PART 2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周君君">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://onvolufm1.bkt.clouddn.com/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="二颗苹果">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                强化学习（三）：基本算法 PART 2
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-06-22T20:21:17+08:00">
+                2017-06-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/目录/机器学习，强化学习/" itemprop="url" rel="index">
+                    <span itemprop="name">机器学习，强化学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  本文介绍求解最优策略的基本算法第二部分：时间差分类算法。时间差分(Temporal Difference)控制算法是在实际场景中应用的最广泛的算法，这得益于它具有的二个特点：时间步上的灵活性、支持在线增量式学习。在基本算法的第一部分中介绍的马尔科夫控制算法最大的两个应用困难在于：它评估和改进算法的周期是episode-by-episode的，而且只适用于episode(场景式)任务，这带来的问题便是策略迭代速度太慢，不能够很好满足大部分实际场景的在线增量式更新需求而且对任务要求有限制。时间差分算法很好的解决了这个问题，它对于Q函数的改进周期是step-by-step的，不限制任务为场景式。其中最简单的Q学习和Sarsa学习均只需要知道后一个状态的Q值便能够更新和改进Q函数，而资格迹的引入使得时间差分更加灵活。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="时间差分控制"><a href="#时间差分控制" class="headerlink" title="时间差分控制"></a>时间差分控制</h2><p>时间差分算法结合了动态规划和MC的特点：它同样不需要模型，只需要跟环境进行交互，通过自举（bootstrap）解决预测问题和估计问题。时间差分控制与蒙特卡罗最大的不同在于前者能够在生成episode的过程中利用前后状态的信息对动作值函数进行改进更新，这两个特点使得TD支持<strong>在线的增量计算</strong> （incremental computation），这是符合现实应用中大部分场景的需求的。</p>
+<h3 id="TD-0"><a href="#TD-0" class="headerlink" title="TD(0)"></a>TD(0)</h3><p>根据值函数的表达式：</p>
+<script type="math/tex; mode=display">
+v_{\pi}(s) = E_{\pi} [ R_{t+1} + \gamma v_{\pi}(S_{t+1}) | S_t = s]</script><p>TD(0)正是为了估计上述表达式，当前状态为$S_t$时，根据当前策略执行相应的动作，获得立即回报$R_{t+1}$以及当前状态的值函数估计值$V(S_{t+1})$，利用获得的时间差分信息$R_{t+1} + \lambda V(S_{t+1}) - V(S_t)$对当前的值函数进行更新：</p>
+<script type="math/tex; mode=display">
+V(S_t) \leftarrow  V(S_t) + \alpha [ R_{t+1} + \lambda V(S_{t+1}) - V(S_t) ]</script><p>具体的算法流程如下：<br><img src="http://onvolufm1.bkt.clouddn.com/TD_0.png" alt=""></p>
+<p>从上述算法可以看到TD(0)的两个特点：不需要模型，且支持在线增量学习。第一个特点使得TD(0)能够应用大多数的实际场景下，第二个特点使得值函数的计算周期减小为一个time-step。</p>
+<p>将TD(0)算法应用到估计问题上时，根据行为策略和估计策略的不同分为在线策略和离线策略两种，代表算法分别是SARSA学习算法和Q-学习算法。</p>
+<h4 id="1-Q-学习"><a href="#1-Q-学习" class="headerlink" title="1. Q-学习"></a>1. Q-学习</h4><p><img src="http://onvolufm1.bkt.clouddn.com/q_learning.PNG" alt=""><br>从算法可以发现，它需要的经验样本为$(s, a, r, s’)$</p>
+<h4 id="2-SARSA-学习"><a href="#2-SARSA-学习" class="headerlink" title="2. SARSA 学习"></a>2. SARSA 学习</h4><p><img src="http://onvolufm1.bkt.clouddn.com/sarsa.PNG" alt=""><br>sarsa学习算法需要的经验样本为$(s, a, r, s’, a’)$</p>
+<h3 id="TD-lambda"><a href="#TD-lambda" class="headerlink" title="TD($\lambda$)"></a>TD($\lambda$)</h3><h4 id="n-步TD"><a href="#n-步TD" class="headerlink" title="n-步TD"></a>n-步TD</h4><p>第一部分的TD(0)也成为1-步TD，因为它总是需要后一时刻的回报值$R_{t+1}$以及后面一个状态的估计值函数$V(S_{t+1})$来更新当前的状态值函数$V(S_t)$，而在MC中，我们总是在episode结束后根据状态$S_t$后面一直到终止状态为止的所有回报值来估计当前的值函数$V(S_t)$。n-步TD正是为了描述这两种极端的估计方法之间的其他方法，如下图所示。<br><img src="http://onvolufm1.bkt.clouddn.com/n_step_TD.png" alt=""></p>
+<p>图中空心圆表示状态，实心圆表示动作。当我们处在状态$S_t$，希望利用到后面$n$个时间步之后的回报值$R_i, i=t+1, \ldots, t+n$以及$t+n$时刻的值函数估计值$V(S_{t+n})$来更新当下的值函数$S_t$时，对应的更新方式为：</p>
+<script type="math/tex; mode=display">
+V(S_t) \leftarrow  V(S_t) + \alpha [ G_t^{(n)} - V(S_t) ]</script><p>其中$G_t^{(n)}$称为n-步回报（n-step return），它的计算方式为：</p>
+<script type="math/tex; mode=display">
+G_t^{(n)} = R_{t+1} + \gamma R_{t+2} + \ldots + \gamma^{n-1} R_{t+n} + \gamma^n V(S_{t+n})</script><h4 id="A-forward-view"><a href="#A-forward-view" class="headerlink" title="A forward view"></a>A forward view</h4><p>n-step TD中，我们根据$G_t^{(n)}$的值能够完成值函数的更新。如果希望综合多个$G_t^{(i)}，i = t+1, t+2, \ldots$的信息来估计值函数时，需要利用加权的方式进行计算，重点在于权重之和必须为1。TD($\lambda$)算法是一种特定对多个i-步回报加权求和的方法，它具有一组特定的权重序列，对应的i-步回报如下图所示：<br><img src="http://onvolufm1.bkt.clouddn.com/TD_lambda.png" alt=""></p>
+<p>我们称这种综合的回报信息为$\lambda$-回报（$\lambda$-return），它表示为：</p>
+<script type="math/tex; mode=display">
+G_t^{\lambda} = (1 - \lambda) \sum_{n=1}^{\infty} \lambda^{n-1}  G_t^{(n)}</script><p>TD($\lambda$)下状态值的更新方式与TD(0)的方式一致，不同的地方在于时间差分变为$G_t^{\lambda} - V(S_t)$，下图形象的描述了该算法（$\lambda$-回报算法）的思想：<br><img src="http://onvolufm1.bkt.clouddn.com/TD_lambda_forward.png" alt=""></p>
+<h4 id="A-backward-view"><a href="#A-backward-view" class="headerlink" title="A backward view"></a>A backward view</h4><p>上一小节中$G_t^{\lambda}$实际上应用时存在问题，即便是在episode任务中，它也必须在一个完整的episode结束后才能开始值函数更新，因此不支持在线学习。为了解决这个问题，引入额外的记忆变量<strong>资格迹</strong>（eligibility trace），通过每个状态的资格迹将$G_t^{\lambda}$等价的转换为方便<strong>在线学习</strong>的形式：</p>
+<script type="math/tex; mode=display">
+V(S_t) \leftarrow V(S_t) + \alpha [ R_{t+1} + \gamma V(S_{t+1}) - V(S_t) ] Z_t(s)</script><p>其中资格迹$Z_t(s)$有两种常用的形式：</p>
+<script type="math/tex; mode=display">
+\begin{align}
+& Z_t(s) = 
+\begin{cases}
+\gamma \lambda Z_{t-1}(s) + 1 , \; if \; s = S_t; \\
+\gamma \lambda Z_{t-1}(s), \; if \; s \ne S_t;
+\end{cases}
+\\
+\\
+& Z_t(s) = 
+\begin{cases}
+1 , \; if \; s = S_t; \\
+\gamma \lambda Z_{t-1}(s), \; if \; s \ne S_t;
+\end{cases}
+\end{align}</script><p>前者称为accumulating trace，后者叫replacing trace，唯一的区别在于：前者将当前状态$S_t$的资格迹乘上decay权重$\gamma \lambda$后再加上1，而后者直接将其重置为1。两者处理非当前状态$s \ne S_t$的资格迹的方式一致。两者的对比如下图所示：<br><img src="http://onvolufm1.bkt.clouddn.com/eligibility_trace_compare.png" alt=""></p>
+<p>通过引入资格迹，使得TD($\lambda$)算法能够应用到在线学习环境中，在当前时刻$t$，根据所有状态对应的历史资格迹$Z_{t-1}(s)$更新当前的资格迹值，并更新当前状态的值函数$V(S_t)$，对于其他的非当前状态$s \ne S_t$则通过资格迹的更新来记录历史信息，这个过程的示意图如下，与forward的视角不同的地方在于，forward在当前时刻只更新$V(S_t)$，它需要后续所有时刻的信息，这个更新操作实际上发生在episode结束后，而backward的视角则只需要后一时刻的回报值和状态值更新当前时刻的值函数，同时更新所有其他状态的资格迹，以备在未来时刻出现相应的状态时进行值函数更新，相当于<strong>用空间换时间</strong>。<br><img src="http://onvolufm1.bkt.clouddn.com/TD_lambda_backward.png" alt=""></p>
+<h4 id="Sarsa-lambda"><a href="#Sarsa-lambda" class="headerlink" title="Sarsa($\lambda$)"></a>Sarsa($\lambda$)</h4><p>前面介绍的资格迹只定义在状态集上，为了将其应用在RL的控制问题上，需要将资格迹的定义扩展到（状态，动作）对上，其中accumulating trace和replacing trace对应的定义分别如下：</p>
+<script type="math/tex; mode=display">
+\begin{align}
+& Z_t(s, a) = 
+\begin{cases}
+\gamma \lambda Z_{t-1}(s, a) + 1 , \; if \; s = S_t \; and \; a = A_t; \\
+\gamma \lambda Z_{t-1}(s, a), \; else;
+\end{cases}
+\\
+\\
+& Z_t(s, a) = 
+\begin{cases}
+1 , \; if \; s = S_t \; and \; a = A_t; \\
+0, \; \; if \; s = S_t \; and \; a \ne A_t; \\
+\gamma \lambda Z_{t-1}(s), \; if \; s \ne S_t;
+\end{cases}
+\end{align}</script><p>结合资格迹和在线的Sarsa算法称为Sarsa($\lambda$)算法，它的算法流程如下：<br><img src="http://onvolufm1.bkt.clouddn.com/sarsa_lambda.png" alt=""></p>
+<p>上述算法中对于资格迹的实现方式似乎与定义不同，因为算法是先进行加1的操作，然后对所有的资格迹值乘$\gamma \lambda$，乍看，这与定义中的顺序是不一致的，定义中是先乘上$\gamma \lambda$再对特定的资格迹加上1。实际上，要注意的是定义中对<strong>当前时刻</strong>$t$的资格迹的更新是基于<strong>前一时刻</strong>$t-1$的值进行的，也就是说$\gamma \lambda Z_{t-1}(s,a)$是在上一次迭代中提前计算好的，当我们执行完算法中$Z(S,A) \leftarrow Z(S,A) + 1$这一步时，已经<strong>完成</strong>了对$Z_t(s,a)$的全部更新，后面的更新操作$Z(s,a) \leftarrow \gamma \lambda Z(S,A)$是在为<strong>下一时刻</strong>即$t+1$时刻的资格迹更新做准备。</p>
+<h4 id="Q-lambda"><a href="#Q-lambda" class="headerlink" title="Q($\lambda$)"></a>Q($\lambda$)</h4><p>Q-学习算法因为是离线学习算法，因此相应的资格迹定义为：</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/Q_lambda_eligibility_trace.png" alt=""></p>
+<p>其中$I_{xy}$为示性函数，当$x=y$时等于1，否则等于0. 这种资格迹定义下的学习算法称为Watkins‘s Q($\lambda$)算法，它的<strong>思路</strong>是：只要是当前状态下的动作$A_t$是符合贪婪策略的，则对资格迹<strong>整体</strong>进行更新$Z_t(s,a) = 1 + \gamma \lambda Z_{t-1}(s, a)$，否则，$Z_{t-1}(S_t, A_t)$加1，而其他状态下的动作对应的资格迹全部重置为0，也就是说此时的资格迹只能记录到下一次探索动作发生时的信息，一旦发生探索动作，则丢弃之前的信息，重新记录，如果在与环境的交互过程中频繁的出现探索动作（一般出现在策略初期），则资格迹只能够记录很短时间内的信息，这会导致动作值函数的学习非常缓慢。资格迹的作用范围如下图所示：<br><img src="http://onvolufm1.bkt.clouddn.com/Q_lambda_eligibility_trace_graph.png" alt=""></p>
+<p>对应的算法流程如下：<br><img src="http://onvolufm1.bkt.clouddn.com/Q_lambda.png" alt=""></p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>1、Richard S. Sutton. Reinforcement learning An introduction. Second edition. MIT Press;</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/标签/时间差分控制，Q学习，Sarsa学习，Q-lambda-学习，Sarsa-lambda-学习/" rel="tag"># 时间差分控制，Q学习，Sarsa学习，Q(lambda)学习，Sarsa(lambda)学习</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/15/强化学习(2)：基本算法 PART 1/" rel="next" title="强化学习（二）：基本算法 PART 1">
+                <i class="fa fa-chevron-left"></i> 强化学习（二）：基本算法 PART 1
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/06/23/强化学习(2)：基本算法/" rel="prev" title="强化学习（二）：基本算法">
+                强化学习（二）：基本算法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://onvolufm1.bkt.clouddn.com/avatar.jpg"
+               alt="周君君" />
+          <p class="site-author-name" itemprop="name">周君君</p>
+           
+              <p class="site-description motion-element" itemprop="description">越努力越幸运</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">11</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/zhoujunjun-apple" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#时间差分控制"><span class="nav-number">1.</span> <span class="nav-text">时间差分控制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#TD-0"><span class="nav-number">1.1.</span> <span class="nav-text">TD(0)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-Q-学习"><span class="nav-number">1.1.1.</span> <span class="nav-text">1. Q-学习</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-SARSA-学习"><span class="nav-number">1.1.2.</span> <span class="nav-text">2. SARSA 学习</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TD-lambda"><span class="nav-number">1.2.</span> <span class="nav-text">TD($\lambda$)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#n-步TD"><span class="nav-number">1.2.1.</span> <span class="nav-text">n-步TD</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#A-forward-view"><span class="nav-number">1.2.2.</span> <span class="nav-text">A forward view</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#A-backward-view"><span class="nav-number">1.2.3.</span> <span class="nav-text">A backward view</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Sarsa-lambda"><span class="nav-number">1.2.4.</span> <span class="nav-text">Sarsa($\lambda$)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Q-lambda"><span class="nav-number">1.2.5.</span> <span class="nav-text">Q($\lambda$)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文献"><span class="nav-number">2.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">周君君</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="custom_mathjax_source">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+  
+
+
+  
+
+</body>
+</html>

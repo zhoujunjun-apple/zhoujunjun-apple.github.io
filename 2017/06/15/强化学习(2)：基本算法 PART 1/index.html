@@ -1,0 +1,813 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="动态规划，蒙特卡洛控制," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="本文介绍求解最优策略的基本算法第一部分。当环境能够通过离散的马尔科夫决策过程进行描述时，根据Bellman最优方程，遵循策略评估和策略改进的基本步骤，能够计算或估算出最优策略。动态规划算法是一个理论上完美的模型，它假设环境的状态转移概率分布和回报值函数是已知的，我们通过对其的分析熟悉策略评估和策略改进的基本步骤，然后将这个步骤扩展到无模型情况下的算法，比如马尔科夫控制算法，但是因为其不支持在线的增">
+<meta property="og:type" content="article">
+<meta property="og:title" content="强化学习（二）：基本算法 PART 1">
+<meta property="og:url" content="http://yoursite.com/2017/06/15/强化学习(2)：基本算法 PART 1/index.html">
+<meta property="og:site_name" content="二颗苹果">
+<meta property="og:description" content="本文介绍求解最优策略的基本算法第一部分。当环境能够通过离散的马尔科夫决策过程进行描述时，根据Bellman最优方程，遵循策略评估和策略改进的基本步骤，能够计算或估算出最优策略。动态规划算法是一个理论上完美的模型，它假设环境的状态转移概率分布和回报值函数是已知的，我们通过对其的分析熟悉策略评估和策略改进的基本步骤，然后将这个步骤扩展到无模型情况下的算法，比如马尔科夫控制算法，但是因为其不支持在线的增">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/policy_iteration.PNG">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/policy_iteration_graph.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/value_iteration.PNG">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/value_iteration_graph.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/general_policy_iteration.PNG">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/general_policy_iteration_graph.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/incremental_computation_math.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/first_visit_MC.PNG">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/MC_ES.PNG">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/MC_epsilon.PNG">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/relative_prob_off_policy_MC.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/off_policy_MC.png">
+<meta property="og:updated_time" content="2017-08-02T04:21:45.413Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="强化学习（二）：基本算法 PART 1">
+<meta name="twitter:description" content="本文介绍求解最优策略的基本算法第一部分。当环境能够通过离散的马尔科夫决策过程进行描述时，根据Bellman最优方程，遵循策略评估和策略改进的基本步骤，能够计算或估算出最优策略。动态规划算法是一个理论上完美的模型，它假设环境的状态转移概率分布和回报值函数是已知的，我们通过对其的分析熟悉策略评估和策略改进的基本步骤，然后将这个步骤扩展到无模型情况下的算法，比如马尔科夫控制算法，但是因为其不支持在线的增">
+<meta name="twitter:image" content="http://onvolufm1.bkt.clouddn.com/policy_iteration.PNG">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/06/15/强化学习(2)：基本算法 PART 1/"/>
+
+
+
+
+
+  <title> 强化学习（二）：基本算法 PART 1 | 二颗苹果 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">二颗苹果</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/06/15/强化学习(2)：基本算法 PART 1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周君君">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://onvolufm1.bkt.clouddn.com/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="二颗苹果">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                强化学习（二）：基本算法 PART 1
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-06-15T20:21:17+08:00">
+                2017-06-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/目录/机器学习，强化学习/" itemprop="url" rel="index">
+                    <span itemprop="name">机器学习，强化学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  本文介绍求解最优策略的基本算法第一部分。当环境能够通过离散的马尔科夫决策过程进行描述时，根据Bellman最优方程，遵循策略评估和策略改进的基本步骤，能够计算或估算出最优策略。动态规划算法是一个理论上完美的模型，它假设环境的状态转移概率分布和回报值函数是已知的，我们通过对其的分析熟悉策略评估和策略改进的基本步骤，然后将这个步骤扩展到无模型情况下的算法，比如马尔科夫控制算法，但是因为其不支持在线的增量式学习，因此限制了它的应用范围。本文分析动态规划和马尔科夫控制算法的前提假设和应用场景，以及各自的优缺点。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="两个问题"><a href="#两个问题" class="headerlink" title="两个问题"></a>两个问题</h2><p>强化学习的算法需要利用值函数$v(s), q(s, a)$解决两个基本问题：<br>预测问题(prediction problem)：评估当前策略  $\Leftarrow$ 估计状态值函数；<br>控制问题(control problem)：寻找最优策略 $\Leftarrow$ 估计动作值函数，迭代进行策略改进，直到值函数收敛。</p>
+<h2 id="基于模型"><a href="#基于模型" class="headerlink" title="基于模型"></a>基于模型</h2><p>基于模型指的是状态转移概率$p(s’ | s, a)$和回报值函数$r(s’, s, a)$均是已知的情况，在这种情况下，利用状态值函数对当前策略进行评估，再利用动作值函数进行策略改进，直到策略最优。动态规划就是依据上述思路进行最优策略寻找。</p>
+<p>状态值函数和动作值函数分别如下：</p>
+<script type="math/tex; mode=display">
+\begin{align}
+& v_{\pi}(s) =    \sum_{s'} p(s' | s, \pi(s)) [ r(s', s, a) + \gamma v_{\pi}(s') ] \\
+& q_{\pi}(s, a) =    \sum_{s'} p(s' | s, a) [ r(s', s, a) + \gamma v_{\pi}(s') ]
+\end{align}
+\tag{1}</script><h3 id="动态规划"><a href="#动态规划" class="headerlink" title="动态规划"></a>动态规划</h3><p>动态规划是一个理论上比较完美的模型，因为它的<strong>前提</strong>是模型已知。基于这个前提，迭代进行策略评估和策略改进这两个步骤，直到收敛，根据表达式(1)可以看到，当前状态值函数的计算需要用到其他状态(这里是下一个时刻的状态)的状态值信息，这种思想统称为<strong>自举(bootstrapping)</strong>，这是动态规划算法的共同特性。具体实现时有下列三种形式。</p>
+<h4 id="a-策略迭代"><a href="#a-策略迭代" class="headerlink" title="a. 策略迭代"></a>a. 策略迭代</h4><p><img src="http://onvolufm1.bkt.clouddn.com/policy_iteration.PNG" alt=""></p>
+<p>从上图可以看到，策略评估部分要求<strong>所有状态</strong>$s$的状态值均在 $\theta$范围内<strong>收敛</strong>，收敛后才会进入到策略改进部分。策略改进时同样要求对<strong>所有状态</strong>进行改进，直到策略在所有状态下均是最优的，否则重新开始策略评估，这个过程可以通过如下示意图描述：<br><img src="http://onvolufm1.bkt.clouddn.com/policy_iteration_graph.png" alt=""></p>
+<p>策略评估时，当对所有状态完成了一遍评估时，称为一个$sweep$，为了让所有状态的评估值收敛，需要许多的$sweeps$，这正是策略迭代的一个缺点：策略改进必须等待策略评估收敛才能进行，造成改进<strong>速度慢</strong>；另一个缺点在于策略改进是针对所有状态同步进行的，这同样导致了改进速度较慢。</p>
+<h4 id="b-值迭代"><a href="#b-值迭代" class="headerlink" title="b. 值迭代"></a>b. 值迭代</h4><p><img src="http://onvolufm1.bkt.clouddn.com/value_iteration.PNG" alt=""><br>上图的算法可以通过如下示意图描述：<br><img src="http://onvolufm1.bkt.clouddn.com/value_iteration_graph.png" alt=""></p>
+<p>可以看到，值迭代改善了策略迭代的一个缺点：它只进行了<strong>一次</strong>策略评估，不要求收敛，而且<strong>隐藏</strong>在策略改进过程中。可以这样来理解这里的关键字”一次”和”隐藏”，算法中核心的语句是:</p>
+<script type="math/tex; mode=display">
+v(s) \leftarrow max_a \sum_{s'} p(s' | s, a)[ r(s', s, a) + \gamma v(s') ]
+\tag{2}</script><p>这里的$a \in A(s)$，同样的，有$\pi(s) \in A(s)$，当对于固定的一个状态$s$，遍历所有可能的动作$A(s)$时，必然会遍历到动作$\pi(s)$，此时表达式(2)中求和部分正好是状态值函数$v_{\pi}(s) = q_{\pi}(s, \pi(s))$，因此进行了<strong>一次</strong>策略评估，然后在执行贪婪改进策略$max_a$时，状态值函数<strong>隐藏</strong>在其中参与了最大值操作的比较，结束一个状态的策略改进过程。值迭代的优点是<strong>收敛速度快</strong>。</p>
+<h4 id="c-一般策略迭代"><a href="#c-一般策略迭代" class="headerlink" title="c. 一般策略迭代"></a>c. 一般策略迭代</h4><p><img src="http://onvolufm1.bkt.clouddn.com/general_policy_iteration.PNG" alt=""></p>
+<p>一般策略迭代的特点是非常灵活：策略迭代过程的次数和针对的状态可以根据问题决定，同时策略改进时可以只针对部分状态进行改进更新。一般应用在环境状态数十分巨大的<strong>高维</strong>情况，加快策略迭代的收敛速度。<br><img src="http://onvolufm1.bkt.clouddn.com/general_policy_iteration_graph.png" alt=""></p>
+<h2 id="模型无关"><a href="#模型无关" class="headerlink" title="模型无关"></a>模型无关</h2><p>基于模型的算法的两个前提假设：状态转移概率$p(s’ | s, a)$和回报值函数$r(s’, s, a)$是已知的。这两个假设在实际情况中往往不能够满足，于是model-free的算法应用而生，这些算法的共同点在于：<br>1.不需要模型的信息；<br>2.需要智能体跟环境进行交互获得<strong>经验样本</strong>（$ S_t, A_t, S_{t+1} $）</p>
+<h3 id="蒙特卡罗控制"><a href="#蒙特卡罗控制" class="headerlink" title="蒙特卡罗控制"></a>蒙特卡罗控制</h3><p>蒙特卡罗控制(MC)与动态规划的思路一样，智能体与环境交互采样获得样本，从而估计出状态值函数和动作值函数，前者需要经验样本$(s, r)$，后者需要$(s, a, r)$。MC估计值函数的方法是求回报值的平均值，为了求平均值的方便，将MC控制在场景(episode)任务中：即无论起始状态是什么，总能够在有限次状态转移后到达终止状态。</p>
+<p>计算回报值的平均值有两种方式：First-visit MC和Every-visit MC。对于一个状态$s$，前者找到所有episode中<strong>第一次</strong>访问到$s$或$(s, a)$[针对动作值函数估计]后一直到终止状态前的回报值求平均，而Every-visit MC则再找到所有episode中<strong>所有</strong>访问到$s$或$(s, a)$后一直到终止状态前的回报值求平均。这两种方法均随对状态$s$的(第一次)访问次数接近无穷而收敛。</p>
+<p>根据大数定理，在episode接近无穷时，MC预测的值函数逼近真实值，因此蒙特卡罗方法是无偏的(unbiased)，但是采样过程的随机性带给MC方法比较大的方差(variance)，但是，因为MC方法进行值函数的估计周期是episode-by-episode的，因此值函数的评估和改进也是以episode为周期，因此不支持step-by-step形式的增量计算（incremental computation）方式，如果episode的Trajectories非常长，会出现两个问题：评估周期变长；需要很大的存储空间来记录相同状态下的历史回报值，求平均值的计算时间也会增加。而通过增量计算的方式，将累加后求平均值的方式转换为step-by-step的计算方式，评估更新周期缩短且计算量减少。<br><img src="http://onvolufm1.bkt.clouddn.com/incremental_computation_math.png" alt=""></p>
+<h4 id="1-MC"><a href="#1-MC" class="headerlink" title="1. MC"></a>1. MC</h4><p><img src="http://onvolufm1.bkt.clouddn.com/first_visit_MC.PNG" alt=""></p>
+<p>上图是First-visit MC进行状态值函数的算法流程，动作值函数$q_{\pi}(s, a)$的估计采用同样的方式求平均值。</p>
+<p>用上述方法估计值函数时，存在两个前提假设：<br>a. 所有的状态、动作对$(s, a)$均能够访问到；<br>b. 进行无穷多次的epsilon</p>
+<p>第一个前提条件是确保动作值函数的估计覆盖所有的$(s, a)$，这样才能够在策略改进时进行更优动作的选择。为了保证第一个前提假设成立，需要对动作进行持续探索，两种常见的方法是：探索起点条件和$\epsilon$-贪婪策略；</p>
+<h4 id="2-MC-with-exploring-start"><a href="#2-MC-with-exploring-start" class="headerlink" title="2. MC with exploring start"></a>2. MC with exploring start</h4><p><img src="http://onvolufm1.bkt.clouddn.com/MC_ES.PNG" alt=""></p>
+<p>探索起点(Exploring Start)条件是指在估计动作值函数时，人为的确定所有episode的起始点$(S_0, A_0)$，从而保证所有的(状态，动作)对出现的概率大于0。但是实际应用中初始环境的选择有时候不能人为确定，导致一部分动作仍然可能不会出现。</p>
+<p>针对持续探索更一般的方法是让智能体能够持续不断的选择所有可能的动作。两种方法：在策略（on-policy）方法和离策略（off-policy）方法。这两种方法的区别在于生成episode的策略（行为策略 <strong>behavior policy</strong>）是否和评估并改进的策略（估计策略 <strong>estimation policy</strong>）相同。若为同一个策略，则称为on-policy方法；否则为off-policy方法，离策略方法的好处在于可以用一个随机性的策略保证所有可能的动作都能够持续的采样到，同时评估和改进的策略可以是不同的确定性策略（比如贪婪策略：每次取值函数最大的动作进行策略改进）</p>
+<h4 id="3-MC-with-epsilon-greedy"><a href="#3-MC-with-epsilon-greedy" class="headerlink" title="3. MC with $\epsilon$-greedy"></a>3. MC with $\epsilon$-greedy</h4><p><img src="http://onvolufm1.bkt.clouddn.com/MC_epsilon.PNG" alt=""></p>
+<p>$\epsilon$-贪婪策略是on-policy方法的一种。它不对初始状态做任何规定，而是从策略上保证所有的动作都会出现。假设状态$s$下能够取的动作为$A(s)$，记$|A|$表示集合$A(s)$中元素的个数，则$\epsilon$-贪婪策略在策略改进阶段设置<strong>非最优动作</strong>的概率$\pi(a|s)$为$\epsilon \over |A|$，最优动作的概率为$\pi(a^{\star} | s) = 1 - \epsilon + {\epsilon \over |A|}$。在产生一系列的episode时，逐渐将初始较大的$\epsilon$减少至0，这样就保证了在开始的episode中非最优动作出现的概率较大，越到后面的epsilon则最优动作会出现的越频繁，从而保证所有的$(s, a)$对的动作值函数能够有效的收敛。</p>
+<h4 id="4-0ff-policy-MC"><a href="#4-0ff-policy-MC" class="headerlink" title="4. 0ff-policy MC"></a>4. 0ff-policy MC</h4><p>离策略给予我们更大的自由：改进和更新的策略$\pi$可以不同于生成episode的行为策略$\mu$。前者依旧可以是确定性策略，同时后者保证所有可能的动作都会出现在episode中。使用离线策略的MC时，选择行为策略$\mu$有比较大的自由，但是必须满足一个约束条件：</p>
+<script type="math/tex; mode=display">
+if  \; \pi(a | s) \gt 0 ,then \; \mu(a | s) \gt 0</script><p>这个条件是为了保证目标策略$\pi$下的所有动作$\pi(\cdot | s)$都会出现在策略$\mu(\cdot | s)$下，从而保证对目标策略进行改进和更新。这个约束条件也就意味着行为策略$\mu$只能是随机性策略，比如常见的$\epsilon$-贪婪策略。</p>
+<p>在on-policy的情况下，因为行为策略$\mu$和估计策略$\pi$是同一个策略，因此直接利用episode中对应状态下的回报值平均值作为$v_{\pi}(s)$的<strong>无偏</strong>估计。但是在off-policy的情况下，因为策略$\mu, \pi$的不同，导致在相同状态下的动作分布是不同的：$\mu(a | s) \ne \pi(a | s)$，因此$\mu$策略产生的episode中的回报值平均值是$v_{\pi}(s)$的<strong>有偏</strong>估计。为了解决这个问题，需要考虑同一状态在两个策略下的相对概率：<br><img src="http://onvolufm1.bkt.clouddn.com/relative_prob_off_policy_MC.png" alt=""></p>
+<p>中间那一步化简到最后一步是因为状态转移概率分布$p(S_{t+1} | S_t, A_t)$是由环境决定的，不同策略下保持不变。利用这个比值对多个episode中同一状态下的回报值加权求和，得到$v_{\pi}(s)$的无偏估计：<br>
+$$
+V(s) = {{\sum_{i=1}^{n_s} {p_i(s) \over p'_i(s)} G_i(s)}  \over  {\sum_{i=1}^{n_s} {p_i(s) \over p'_i(s)}}}
+$$
+<br>其中$G_i(s)$表示第$i$个episode中状态$s$所观察得到的回报值。具体的算法流程如下图所示：</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/off_policy_MC.png" alt=""></p>
+<p>算法中需要说明地方是：(b)步骤中算法从episode后面往前寻找第一个满足$A_{\tau} \ne \pi(S_{\tau})$的时间点$\tau$，也就意味着$\tau + 1,  \ldots, T$时刻的状态总是满足$A_{\tau} = \pi(S_{\tau})$，这等价于$\pi(A_t | S_t) = 1, t = \tau, \ldots, T-1$，因此在步骤(c)中求$W$时累乘的分数中分子为1的原因。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>1、Richard S. Sutton. Reinforcement learning An introduction. Second edition. MIT Press;</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/标签/动态规划，蒙特卡洛控制/" rel="tag"># 动态规划，蒙特卡洛控制</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/10/强化学习(1)：基础知识/" rel="next" title="强化学习（一）：基础知识部分">
+                <i class="fa fa-chevron-left"></i> 强化学习（一）：基础知识部分
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/06/22/强化学习(3)：基本算法 PART 2/" rel="prev" title="强化学习（三）：基本算法 PART 2">
+                强化学习（三）：基本算法 PART 2 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://onvolufm1.bkt.clouddn.com/avatar.jpg"
+               alt="周君君" />
+          <p class="site-author-name" itemprop="name">周君君</p>
+           
+              <p class="site-description motion-element" itemprop="description">越努力越幸运</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">11</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/zhoujunjun-apple" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#两个问题"><span class="nav-number">1.</span> <span class="nav-text">两个问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于模型"><span class="nav-number">2.</span> <span class="nav-text">基于模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#动态规划"><span class="nav-number">2.1.</span> <span class="nav-text">动态规划</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#a-策略迭代"><span class="nav-number">2.1.1.</span> <span class="nav-text">a. 策略迭代</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#b-值迭代"><span class="nav-number">2.1.2.</span> <span class="nav-text">b. 值迭代</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#c-一般策略迭代"><span class="nav-number">2.1.3.</span> <span class="nav-text">c. 一般策略迭代</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模型无关"><span class="nav-number">3.</span> <span class="nav-text">模型无关</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#蒙特卡罗控制"><span class="nav-number">3.1.</span> <span class="nav-text">蒙特卡罗控制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-MC"><span class="nav-number">3.1.1.</span> <span class="nav-text">1. MC</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-MC-with-exploring-start"><span class="nav-number">3.1.2.</span> <span class="nav-text">2. MC with exploring start</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-MC-with-epsilon-greedy"><span class="nav-number">3.1.3.</span> <span class="nav-text">3. MC with $\epsilon$-greedy</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-0ff-policy-MC"><span class="nav-number">3.1.4.</span> <span class="nav-text">4. 0ff-policy MC</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文献"><span class="nav-number">4.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">周君君</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="custom_mathjax_source">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+  
+
+
+  
+
+</body>
+</html>

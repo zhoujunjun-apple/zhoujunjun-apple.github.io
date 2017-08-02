@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="adaboost,python实现,R实现," />
+  <meta name="keywords" content="Hexo, NexT" />
 
 
 
@@ -87,16 +87,15 @@
 
 
 
-<meta name="description" content="本文对Adaptive Boosting算法进行简单介绍，并分别利用Python和R语言进行了实现，只适用于数值类单特征的二分类问题。">
-<meta property="og:type" content="article">
-<meta property="og:title" content="adaboost算法的python和R实现">
-<meta property="og:url" content="http://yoursite.com/2017/04/03/adaboost算法的python和R实现/index.html">
+<meta name="description" content="越努力越幸运">
+<meta property="og:type" content="website">
+<meta property="og:title" content="二颗苹果">
+<meta property="og:url" content="http://yoursite.com/page/2/index.html">
 <meta property="og:site_name" content="二颗苹果">
-<meta property="og:description" content="本文对Adaptive Boosting算法进行简单介绍，并分别利用Python和R语言进行了实现，只适用于数值类单特征的二分类问题。">
-<meta property="og:updated_time" content="2017-04-03T14:17:13.906Z">
+<meta property="og:description" content="越努力越幸运">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="adaboost算法的python和R实现">
-<meta name="twitter:description" content="本文对Adaptive Boosting算法进行简单介绍，并分别利用Python和R语言进行了实现，只适用于数值类单特征的二分类问题。">
+<meta name="twitter:title" content="二颗苹果">
+<meta name="twitter:description" content="越努力越幸运">
 
 
 
@@ -124,13 +123,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/04/03/adaboost算法的python和R实现/"/>
+  <link rel="canonical" href="http://yoursite.com/page/2/"/>
 
 
 
 
 
-  <title> adaboost算法的python和R实现 | 二颗苹果 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <title> 二颗苹果 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -155,7 +154,9 @@
     
   
 
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left 
+   page-home 
+ ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -238,9 +239,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-
-  <div id="posts" class="posts-expand">
+  <section id="posts" class="posts-expand">
     
+      
 
   
 
@@ -270,7 +271,10 @@
             
             
               
-                adaboost算法的python和R实现
+                
+                <a class="post-title-link" href="/2017/04/03/adaboost算法的python和R实现/" itemprop="url">
+                  adaboost算法的python和R实现
+                </a>
               
             
           </h1>
@@ -331,10 +335,6 @@
           
 
           
-              <div class="post-description">
-                  本文对Adaptive Boosting算法进行简单介绍，并分别利用Python和R语言进行了实现，只适用于数值类单特征的二分类问题。
-              </div>
-          
 
         </div>
       </header>
@@ -347,108 +347,54 @@
       
 
       
-        <h1 id="adaboost算法"><a href="#adaboost算法" class="headerlink" title="adaboost算法"></a>adaboost算法</h1><ul>
-<li>输入：训练数据集 $T = \{(x_1,y_1),(x_2,y_2),\ldots,(x_N,y_N), with \ x_i \in R^1, y_i \in \{-1,+1\}\}$</li>
-<li>输出：最终分类器 $G_{final}(x)$</li>
-</ul>
-<ol>
-<li>初始化样本的权值分布$ D = (w_{11}, \ldots, w_{1i}, \ldots, w_{1N}), w_{1i} = {1 \over N}, i=1, 2, \ldots, N, N $表示样本个数;</li>
-<li>计算候选的切分点序列 $ S=(S_1, S_2, \ldots, S_{N-1}) $，默认是取特征的相邻两个值的平均值;</li>
-<li>采用树桩作为基本的弱分类器，从$S$中选择使得在训练数据集上分类误差率最小的切分点建立基本分类器$G_j(x):x \rightarrow \{-1, 1\}$,同时记录其分类误差率$e_j$;</li>
-<li>计算基本分类器$G_j(x)$的权重系数$ \alpha = {1 \over 2} log ({{1 - e_j} \over e_j})$ ;</li>
-<li>更新训练样本的权值分布: $ w_{2i} = { w_{1i} \over Z } exp(-\alpha y_i G_j(x_i)) $,其中$Z$是一个归一化因子;</li>
-<li>构建最终分类器$G_{final}(x) = sign (\sum{\alpha G_j(x)})$</li>
-<li>判断是否满足精度要求或者达到最大迭代次数。如果是，则返回第3步;否则，输出最终分类器$G_{final}(x)$</li>
-</ol>
-<h1 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h1><h2 id="样本初始化"><a href="#样本初始化" class="headerlink" title="样本初始化"></a>样本初始化</h2><p>如果训练样本的类标签是大致均匀的话，则一般采用算法中默认的初始化方法；但类别不平衡时，需要不同的初始化方法。例如：$A,B,C$类样本数量分别为1000,200,100,则可以采用如下方法：<br>
-$$
-sample \ weight = \left\{
-\begin{array}{rcl}
-A \ class & {{1 \over 3} \times {1 \over 1000} }\\
-B \ class & {{1 \over 3} \times {1 \over 200} }\\
-C \ class & {{1 \over 3} \times {1 \over 100} }
-\end{array} \right.
-$$
-</p>
-<h2 id="候选的切分点序列"><a href="#候选的切分点序列" class="headerlink" title="候选的切分点序列"></a>候选的切分点序列</h2><p>这里只考虑数值型特征的切分点选择，特征的值<strong>从小到大排序</strong>后将相邻值的平均值作为候选切分点；</p>
-<h2 id="基本弱分类器的构建"><a href="#基本弱分类器的构建" class="headerlink" title="基本弱分类器的构建"></a>基本弱分类器的构建</h2><p>对于每一个切分点，对应大于该切分点取正类和小于该切分点取正类存在相应的两种弱分类器，在R实现的时候通过“UP”和“DOWN”两个字符串来区分它们。后面从存储空间上考虑，用Python实现时只用了一个逻辑位来区分这两种情况；</p>
-<h2 id="最佳基本分类器的选择"><a href="#最佳基本分类器的选择" class="headerlink" title="最佳基本分类器的选择"></a>最佳基本分类器的选择</h2><ul>
-<li>在R语言实现的版本中，每个切分点的两种弱分类器的误分类率都存储在向量(vector)中，该向量的前后半部分分别存储两个弱分类器的error rate，通过最小误分类率所在的位置来判断应该选择哪种弱分类器。</li>
-<li>在Python的版本中，因为考虑到其实同一个切分点对应的两个弱分类器的误分类率之和必为1，因此只记录其中一个分类器的误分类率，那么如何选择最佳切分点以及正确的那个弱分类器呢？</li>
-<li>假设某个切分点对应的两个弱分类器的误差率分别为$x,1-x$，则$|x - (1-x)|  = |2x-1|$最大值对应的切分点是最佳切分点，而该最佳切分点上正确的弱分类器则通过与$1 \over 2$比较来确定；</li>
-</ul>
-<h1 id="代码链接"><a href="#代码链接" class="headerlink" title="代码链接"></a>代码链接</h1><p>具体的python和R代码放在<a href="https://github.com/zhoujunjun-apple/machine-learning" target="_blank" rel="external">我的github</a>，代码的注释比较详细，欢迎大家提出建议！</p>
-
+        
+          本文对Adaptive Boosting算法进行简单介绍，并分别利用Python和R语言进行了实现，只适用于数值类单特征的二分类问题。
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/04/03/adaboost算法的python和R实现/">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
       
     </div>
 
     <div>
       
-        
-
-      
     </div>
 
     <div>
       
-        
-
-      
     </div>
 
     <div>
-      
-        
-
       
     </div>
 
     <footer class="post-footer">
       
-        <div class="post-tags">
-          
-            <a href="/标签/adaboost/" rel="tag"># adaboost</a>
-          
-            <a href="/标签/python实现/" rel="tag"># python实现</a>
-          
-            <a href="/标签/R实现/" rel="tag"># R实现</a>
-          
-        </div>
+
       
 
       
-        
-      
 
       
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/04/03/SVM模型的由来及SMO算法的python实现/" rel="prev" title="SVM模型的由来及SMO算法的python实现">
-                SVM模型的由来及SMO算法的python实现 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
       
-
-      
+        <div class="post-eof"></div>
       
     </footer>
   </article>
 
 
+    
+  </section>
 
-    <div class="post-spread">
-      
-    </div>
-  </div>
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+  </nav>
+
 
 
           </div>
@@ -456,10 +402,6 @@ $$
 
 
           
-  <div class="comments" id="comments">
-    
-  </div>
-
 
         </div>
         
@@ -479,17 +421,8 @@ $$
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <section class="site-overview sidebar-panel">
+      <section class="site-overview sidebar-panel sidebar-panel-active">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="http://onvolufm1.bkt.clouddn.com/avatar.jpg"
@@ -562,22 +495,6 @@ $$
 
       </section>
 
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#adaboost算法"><span class="nav-number">1.</span> <span class="nav-text">adaboost算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#算法实现"><span class="nav-number">2.</span> <span class="nav-text">算法实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#样本初始化"><span class="nav-number">2.1.</span> <span class="nav-text">样本初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#候选的切分点序列"><span class="nav-number">2.2.</span> <span class="nav-text">候选的切分点序列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基本弱分类器的构建"><span class="nav-number">2.3.</span> <span class="nav-text">基本弱分类器的构建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最佳基本分类器的选择"><span class="nav-number">2.4.</span> <span class="nav-text">最佳基本分类器的选择</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码链接"><span class="nav-number">3.</span> <span class="nav-text">代码链接</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
       
 
       
@@ -685,10 +602,6 @@ $$
   
 
   
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
-
-
 
   
 
