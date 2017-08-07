@@ -94,7 +94,7 @@
 <meta property="og:site_name" content="二颗苹果">
 <meta property="og:description" content="本篇博客介绍了在机器学习中常见的几种优化算法，简单的介绍各个优化算法的原理以及核心的优化更新公式。">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/nesterov.bmp">
-<meta property="og:updated_time" content="2017-08-07T17:49:08.403Z">
+<meta property="og:updated_time" content="2017-08-07T17:53:22.031Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="常见优化算法">
 <meta name="twitter:description" content="本篇博客介绍了在机器学习中常见的几种优化算法，简单的介绍各个优化算法的原理以及核心的优化更新公式。">
@@ -371,7 +371,7 @@ $$<br>这便是最原始的梯度下降法的更新公式，其中步长$\eta$�
 <h2 id="动量项"><a href="#动量项" class="headerlink" title="动量项"></a>动量项</h2><p>对于优化问题$min J(\theta)$原始的梯度下降法迭代更新的公式为：<br>$$
 v_t = \eta \nabla_{\theta} J(\theta) \\
 \theta = \theta - v_t
-$$<br>动量项从<strong>步伐</strong> $v<em>t$上下手，它的思想是：如果当前的梯度方向$v_t$与上一次的梯度方向$v</em>{t-1}$相同，则加大步伐；如果相反，则缩小步伐。它的目标是期望减小振荡现象从而加快收敛，它有利于跳过局部极小值区域：<br>$$
+$$<br>动量项从<strong>步伐</strong> $v_t$上下手，它的思想是：如果当前的梯度方向$v_t$与上一次的梯度方向$v_{t-1}$相同，则加大步伐；如果相反，则缩小步伐。它的目标是期望减小振荡现象从而加快收敛，它有利于跳过局部极小值区域：<br>$$
 v_t = \gamma v_{t-1} + \eta \nabla_{\theta} J(\theta)
 $$</p>
 <h2 id="Nesterov加速"><a href="#Nesterov加速" class="headerlink" title="Nesterov加速"></a>Nesterov加速</h2><p>Nesterov在动量项的基础上，用$\theta - \gamma v_{t-1}$来近似估计下一次迭代点的位置，如果该估计点的梯度与之前的梯度$v_{t-1}$方向相反，则当前步长$v_t$会被压缩，它的目标是希望函数在接近最小值时减小振荡：<br>$$
@@ -539,7 +539,7 @@ $$<br>作者论文中[1]给的各个参数分别为$\epsilon=10^{-8}, \gamma_1 =
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-count">13</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -561,7 +561,7 @@ $$<br>作者论文中[1]给的各个参数分别为$\epsilon=10^{-8}, \gamma_1 =
             
             <div class="site-state-item site-state-tags">
               <a href="/tags/index.html">
-                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-count">30</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

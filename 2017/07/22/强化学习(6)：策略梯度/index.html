@@ -1,0 +1,845 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="策略梯度,TRPO,PPO," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="在状态集和动作集均比较小的情况下，可以通过直接估计表格式的(Tabular)动作值函数来寻找最优策略，但是在状态集和动作集数量很大的情况下，Tabular方式在存储和效率上会变得很差。本篇博文介绍另一种求解最优策略的思路：直接对策略进行参数化建模，然后通过常见的梯度算法进行策略参数更新，这里关键的地方在于对参数化的策略下的目标函数的梯度计算，这也是所有策略梯度类算法的基础部分。所以首先详细的推导处">
+<meta property="og:type" content="article">
+<meta property="og:title" content="强化学习（六）：策略梯度算法">
+<meta property="og:url" content="http://yoursite.com/2017/07/22/强化学习(6)：策略梯度/index.html">
+<meta property="og:site_name" content="二颗苹果">
+<meta property="og:description" content="在状态集和动作集均比较小的情况下，可以通过直接估计表格式的(Tabular)动作值函数来寻找最优策略，但是在状态集和动作集数量很大的情况下，Tabular方式在存储和效率上会变得很差。本篇博文介绍另一种求解最优策略的思路：直接对策略进行参数化建模，然后通过常见的梯度算法进行策略参数更新，这里关键的地方在于对参数化的策略下的目标函数的梯度计算，这也是所有策略梯度类算法的基础部分。所以首先详细的推导处">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/policy_RL_pro_dispro.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/vanilla_policy_gradient.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/trpo_target_function.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/ppo_algorithm_version1.png">
+<meta property="og:updated_time" content="2017-08-07T17:53:22.027Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="强化学习（六）：策略梯度算法">
+<meta name="twitter:description" content="在状态集和动作集均比较小的情况下，可以通过直接估计表格式的(Tabular)动作值函数来寻找最优策略，但是在状态集和动作集数量很大的情况下，Tabular方式在存储和效率上会变得很差。本篇博文介绍另一种求解最优策略的思路：直接对策略进行参数化建模，然后通过常见的梯度算法进行策略参数更新，这里关键的地方在于对参数化的策略下的目标函数的梯度计算，这也是所有策略梯度类算法的基础部分。所以首先详细的推导处">
+<meta name="twitter:image" content="http://onvolufm1.bkt.clouddn.com/policy_RL_pro_dispro.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/07/22/强化学习(6)：策略梯度/"/>
+
+
+
+
+
+  <title> 强化学习（六）：策略梯度算法 | 二颗苹果 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">二颗苹果</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/07/22/强化学习(6)：策略梯度/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周君君">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://onvolufm1.bkt.clouddn.com/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="二颗苹果">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                强化学习（六）：策略梯度算法
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-22T20:04:09+08:00">
+                2017-07-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/目录/强化学习/" itemprop="url" rel="index">
+                    <span itemprop="name">强化学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  在状态集和动作集均比较小的情况下，可以通过直接估计表格式的(Tabular)动作值函数来寻找最优策略，但是在状态集和动作集数量很大的情况下，Tabular方式在存储和效率上会变得很差。本篇博文介绍另一种求解最优策略的思路：直接对策略进行参数化建模，然后通过常见的梯度算法进行策略参数更新，这里关键的地方在于对参数化的策略下的目标函数的梯度计算，这也是所有策略梯度类算法的基础部分。所以首先详细的推导处策略梯度的计算方法，以及介绍建立在在此基础上的Vanilla策略梯度算法，然后通过分析普通策略梯度算法中步长的问题，介绍最新的两种策略梯度算法原理：TRPO和PPO。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="策略梯度"><a href="#策略梯度" class="headerlink" title="策略梯度"></a>策略梯度</h2><p>前面求解最优策略的方法有两种：对于离散的MDP，如果状态和动作集不大，则通过估计动作值函数$q(s,a)$来估计最优策略；如果状态和动作集非常大，则通过寻找一个函数$f(s,a)$来近似动作值函数，比如上一篇博文中的DQN能够处理高维的状态信息，然后输出离散动作的概率分布。</p>
+<p>除此之外，可以直接对策略进行参数化建模，不需要值函数信息，David Silver[1]认为这种直接基于策略的方法有如下的优缺点：</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/policy_RL_pro_dispro.png" alt=""></p>
+<p>我们将带参数的策略近似函数记为$\pi_{\theta}(s, a)$，其中$\theta$用于描述策略近似函数。我们的目标是给定带参数$\theta$的策略$\pi_{\theta}(s, a)$，寻找最佳的参数$\theta^\star$。为此，我们需要一个值来衡量当前策略$\pi_{\theta}(s, a)$的好坏程度。</p>
+<p>假设智能体从初始状态$s_0$开始，根据策略$\pi_{\theta}(s, a)$不断与环境交互，得到一个$trajectory \; \tau = \{ s_0, a_0, \ldots, s_T \}$，每个时刻$t$获得的回报值记为$r_t, t=0,1,\ldots,T$，则在策略参数$\theta$描述的策略下该trajectory出现的概率$p(\tau | \theta)$可以表示为：<br>$$
+p(\tau | \theta) = \mu(s_0) \pi(a_0 | s_0, \theta)P(s_1, r_0 | s_0,a_0) \pi(a_1 | s_1,\theta) \cdots \pi(a_{T-1} | s_{T-1},\theta )P(s_T,r_{T-1} | s_{T-1}, a_{T-1})
+$$<br>我们从$\tau$上选择前$t$个时刻的部分trajectory  $\tau_t =  \{ s_0, a_0, \ldots, s_t \}$来分析，这个子轨迹出现的概率记为$p(\tau_t | \theta)$，最后时刻$t$对应的回报值记为$r_t$，我们通过$r_t$的期望值来衡量策略$\pi_{\theta}(s, a)$在$\tau_t$的质量：<br>$$
+E_{\tau_t} [r_t] = \sum_{\tau_t} p(\tau_t | \theta) r_t
+$$<br>这里的期望是针对子序列$\tau_t$的概率分布取得，上式是一个以$\theta$为参数的函数，对其求梯度得：<br>$$
+\begin{align}
+\nabla_{\theta} E_{\tau_t} [r_t] & = \nabla_{\theta} \sum_{\tau_t} p(\tau_t | \theta) r_t \\
+& = \sum_{\tau_t}  \nabla_{\theta} p(\tau_t | \theta) r_t \\
+& =  \sum_{\tau_t} p(\tau_t | \theta) { \nabla_{\theta} p(\tau_t | \theta) \over p(\tau_t | \theta) }r_t \\
+& = \sum_{\tau_t} p(\tau_t | \theta)  \nabla_{\theta} log [ p(\tau_t | \theta) ] r_t \\
+& = E_{\tau_t} [\nabla_{\theta} log [ p(\tau_t | \theta) ] r_t]
+\end{align}
+$$<br>我们将$ p(\tau_t | \theta)$展开得到：<br>$$
+p(\tau_t | \theta) = \mu(s_0) \pi(a_0 | s_0, \theta)P(s_1, r_0 | s_0,a_0) \pi(a_1 | s_1,\theta) \cdots \pi(a_{t-1} | s_{t-1},\theta )P(s_t,r_{t-1} | s_{t-1}, a_{t-1})
+$$<br>前面加上对数运算后，上式的累乘运算会变为各部分累加运算：<br>$$
+log [ p(\tau_t | \theta) ] = \sum_{i=0}^t  log \pi(a_i | s_i, \theta) + \sum_{i=0}^{t-1}  log P(s_{i+1}, r_i | s_i,a_i) + log \mu(s_0)
+$$<br>因为参数$\theta$只出现在策略函数$ \pi(a_i | s_i, \theta)$中，因此$log [ p(\tau_t | \theta) ] $中后两项对参数$\theta$的求导为0，因此有：<br>$$
+\begin{align}
+\nabla_{\theta} E_{\tau_t} [r_t] 
+& = E_{\tau_t} [\nabla_{\theta} log [ p(\tau_t | \theta) ] r_t] \\
+& =  E_{\tau_t} [ r_t \sum_{i=0}^t  \nabla_{\theta}  log \pi(a_i | s_i, \theta) ]
+\end{align}
+$$<br>整体轨迹$\tau$的累积回报值$R(\tau) = \sum_{k=0}^{T-1} \gamma^k r_k$，对应的期望值导数为：<br>$$
+\begin{align}
+\nabla_{\theta} E_{\tau} [R(\tau)] 
+& =  E_{\tau} [ R(\tau)  \sum_{i=0}^t  \nabla_{\theta}  log \pi(a_i | s_i, \theta) ] \\
+& =  E_{\tau} [ \sum_{k=0}^{T-1} \gamma^k r_k \sum_{i=0}^k \nabla_{\theta}  log \pi(a_i | s_i, \theta) ] \\
+& =  E_{\tau} [ \sum_{t=0}^{T-1} \nabla_{\theta}  log \pi(a_t | s_t, \theta) \sum_{t'=t}^{T-1} \gamma^{t'-t} r_{t'} ]  \tag{*} \\
+\end{align}
+$$<br>表达式(<em>)是用于实际估计策略梯度的计算方法，但在实际应用中梯度方差较大[1][2]，容易造成策略收敛不稳定，baseline方法可以减小梯度的方差，加上baseline后的计算表达式为：<br>$$
+\begin{align}
+\nabla_{\theta} E_{\tau} [R(\tau)] 
+& =  E_{\tau} [ \sum_{t=0}^{T-1} \nabla_{\theta}  log \pi(a_t | s_t, \theta) \; ( \sum_{t'=t}^{T-1} \gamma^{t'-t} r_{t'}  - b(s_t) )  ]\tag{**} \\
+\end{align}
+$$<br>加上$ b(s_t)$无论取什么值都不会对期望的梯度造成影响[2]，目标在于取一个合适的$ b(s_t)$使得尽可能降低期望梯度的方差，[3]认为最佳的$ b(s_t)$应该取每个状态下的状态值函数估计值，即：<br>$$
+b(s_t) \approx V^{\pi_{\theta}}(s_t) = E_{\tau} [  \sum_{t'=t}^{T-1} \gamma^{t'-t} r_{t'} | s_t; a_{t:T-1  {\pi_{\theta}}}] 
+$$<br>根据表达式(*</em>)，可以得到最原始的策略梯度算法(如下图所示)，这只是策略梯度计算的其中一种，更多的策略梯度算法请参考[1][4]文献，这些策略梯度算法的不同在于梯度的计算，而具体的梯度类优化可以自行选择，可以参见本人另一篇介绍优化算法的<a href="https://zhoujunjun-apple.github.io/2017/04/25/%E4%BC%98%E5%8C%96%E7%AE%97%E6%B3%95/" target="_blank" rel="external">博文</a>，关于策略优化，还包括策略梯度在内的许多其他方法，Pieter Abbeel 在 Berkeley    AI    Research    Lab 上的汇报[8] 是不错的参考资料。</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/vanilla_policy_gradient.png" alt=""></p>
+<h2 id="TRPO"><a href="#TRPO" class="headerlink" title="TRPO"></a>TRPO</h2><p>上一节所讨论的策略梯度类算法采取统一的策略参数的更新方式：计算出当前参数下的策略梯度，根据梯度上升方向更新策略参数：<br>$$
+\theta \leftarrow \theta + \eta \nabla_{\theta} E_{\tau} [R(\tau)] 
+$$<br>其中$\eta$为更新步长。在策略梯度算法中，<strong>步长</strong> $\eta$ 的选择十分关键：如果步长选择太短，则策略更新缓慢；如果步长过长，则容易导致更新到一个坏策略，而坏策略下产生的轨迹$\tau$用于下一轮的策略参数更新，这种恶性循环容易导致策略<strong>can’t recover and collapse in performance</strong> [5]，这一点与有监督学习下不同：此时因为我们所希望capture到的模式隐藏在给定的训练数据下，因此在某一次迭代时步长过长导致模型效果变差后，能够在后面迭代轮次时纠正过来，而在强化学习下，缺乏这种 ground-truth数据，它训练用的轨迹$\tau$产生自上一次迭代更新后的策略$\pi_{\theta}(s, a)$，因此容易出现“一步走错步步错”的情况。</p>
+<p>TRPO（Trust Region Policy Optimization）正是为了解决这个步长选择的问题，它通过计算前后两个策略之间KL散度来控制策略更新的速度，对应的目标函数为：</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/trpo_target_function.png" alt=""></p>
+<p>其中$\pi_{old}(a|s)$表示参数更新之前的策略，$\pi(a|s)$表示参数更新之后当前的策略,$A^{\pi_{old}} (s,a)$表示策略$\pi_{old}(a|s)$下各个状态动作对下的优势函数：<br>$$
+A^{\pi_{old}} (s,a) = E_{\pi_{old}} [ r | s, a ] - V_{\pi_{old}}(s)
+$$<br>其中$V_{\pi_{old}}(s)$是状态值函数，$E_{\pi_{old}} [ r | s, a ]$是近似的动作值函数，因此$A^{\pi_{old}} (s,a)$描述的是策略$\pi_{old}(a|s)$下各个<strong>状态动作对</strong>的期望回报相对于<strong>相同状态</strong>下的期望回报所具有的优势大小。TRPO具体的算法步骤参照原论文[6]和博客[7]。另外，Deepmind团队在近期一篇关于利用GAIL模型进行复杂环境下鲁棒性策略学习的论文[11]中将TRPO算法用于策略训练</p>
+<h2 id="PPO"><a href="#PPO" class="headerlink" title="PPO"></a>PPO</h2><p>TRPO 算法相对于一般的策略梯度算法来说能够更加稳定的训练策略，但是它也存在局限性[9]：</p>
+<blockquote>
+<p>… trust region policy optimization (TRPO) is relatively complicated, and is not compatible with architectures that include noise (such as dropout) or parameter sharing (between the policy and value function, or with auxiliary tasks).</p>
+</blockquote>
+<p>为此，OpenAI团队在17年7月底提出了PPO（Proximal Policy Optimization ）系列算法，它跟TRPO相比[9]：</p>
+<blockquote>
+<p>… use multiple epochs of stochastic gradient ascent to perform each policy update …  have the stability and reliability of trust-region methods but are much simpler to implement, requiring only few lines of code change to a vanilla policy gradient implementation, applicable in more general settings (for example, when using a joint architecture for the policy and value function), and have better overall performance.</p>
+</blockquote>
+<p>Deepmind团队在近期一篇关于复杂环境下寻找鲁棒性策略的论文[10]中给出了一种PPO算法的算法流程：</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/ppo_algorithm_version1.png" alt=""></p>
+<p>可以看到，它首先对加了KL散度惩罚项的目标函数$J_{PPO}(\theta)$利用普通的<strong>梯度上升</strong>类算法进行策略参数更新，然后通过平方损失下的梯度下降法更新优势函数，最后它通过检查前后两个策略的KL散度值是否超过区间$(\beta_{low} KL_{target}, \beta_{high} KL_{target})$来不断的调整目标函数中的惩罚系数$\lambda$，如果前后策略的KL散度值超过上限值，则减小惩罚系数，否则扩大惩罚系数，注意这里是希望最大化目标函数$J_{PPO}(\theta)$。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
+<li><a href="http://www0.cs.ucl.ac.uk/staff/d.silver/web/Teaching_files/pg.pdf" target="_blank" rel="external">Tutorial for Policy Gradient Algorithm by David Silver</a>;</li>
+<li><a href="https://www2.eecs.berkeley.edu/Pubs/TechRpts/2016/EECS-2016-217.pdf" target="_blank" rel="external">John Schulman. Optimizing Expectations: From Deep Reinforcement Learning to Stochastic Computation Graphs</a>;</li>
+<li>E. Greensmith, P. L. Bartlett, and J. Baxter. “Variance reduction techniques for gradient estimates in reinforcement learning.” In: The Journal of Machine Learning Research 5 (2004), pp. 1471–1530 ;</li>
+<li>Richard S. Sutton . reinforcement learning an introduction. Second Edition. MIT press 2012 ; </li>
+<li><a href="http://joschu.net/docs/2016-NIPS-Tutorial.pdf" target="_blank" rel="external">Turorial on TRPO</a>;</li>
+<li><a href="https://arxiv.org/pdf/1502.05477.pdf" target="_blank" rel="external">Trust Region Policy Optimization</a>;</li>
+<li><a href="http://roosephu.github.io/2016/11/19/TRPO/" target="_blank" rel="external">About how to solve target function of TRPO</a>;</li>
+<li><a href="https://media.nips.cc/Conferences/2016/Slides/6198-Slides.pdf" target="_blank" rel="external">Pieter Abbel. Deep Reinforcement Learning    through Policy    Optimization</a>;</li>
+<li><a href="https://arxiv.org/pdf/1707.06347.pdf" target="_blank" rel="external">John Schulman etc. Proximal Policy Optimization Algorithms</a>;</li>
+<li><a href="https://arxiv.org/pdf/1707.02286.pdf" target="_blank" rel="external">Nicolas Heess etc. Emergence of Locomotion Behaviours in Rich Environments</a>;</li>
+<li><a href="https://arxiv.org/pdf/1707.02747.pdf" target="_blank" rel="external">Ziyu Wang etc. Robust Imitation of Diverse Behaviors</a>;</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/标签/策略梯度/" rel="tag"># 策略梯度</a>
+          
+            <a href="/标签/TRPO/" rel="tag"># TRPO</a>
+          
+            <a href="/标签/PPO/" rel="tag"># PPO</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/07/07/强化学习(5)：DQN及实现/" rel="next" title="强化学习（五）：DQN与实现">
+                <i class="fa fa-chevron-left"></i> 强化学习（五）：DQN与实现
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://onvolufm1.bkt.clouddn.com/avatar.jpg"
+               alt="周君君" />
+          <p class="site-author-name" itemprop="name">周君君</p>
+           
+              <p class="site-description motion-element" itemprop="description">越努力越幸运</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">13</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">30</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/zhoujunjun-apple" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#策略梯度"><span class="nav-number">1.</span> <span class="nav-text">策略梯度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TRPO"><span class="nav-number">2.</span> <span class="nav-text">TRPO</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PPO"><span class="nav-number">3.</span> <span class="nav-text">PPO</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文献"><span class="nav-number">4.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">周君君</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="custom_mathjax_source">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+  
+
+
+  
+
+</body>
+</html>
