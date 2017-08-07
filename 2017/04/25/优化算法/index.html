@@ -71,7 +71,7 @@
 <link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="adaboost,python实现,R实现," />
+  <meta name="keywords" content="梯度下降,稀疏性," />
 
 
 
@@ -87,16 +87,18 @@
 
 
 
-<meta name="description" content="本文对Adaptive Boosting算法进行简单介绍，并分别利用Python和R语言进行了实现，只适用于数值类单特征的二分类问题。">
+<meta name="description" content="本篇博客介绍了在机器学习中常见的几种优化算法，简单的介绍各个优化算法的原理以及核心的优化更新公式。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="adaboost算法的python和R实现">
-<meta property="og:url" content="http://yoursite.com/2017/04/03/adaboost算法的python和R实现/index.html">
+<meta property="og:title" content="常见优化算法">
+<meta property="og:url" content="http://yoursite.com/2017/04/25/优化算法/index.html">
 <meta property="og:site_name" content="二颗苹果">
-<meta property="og:description" content="本文对Adaptive Boosting算法进行简单介绍，并分别利用Python和R语言进行了实现，只适用于数值类单特征的二分类问题。">
-<meta property="og:updated_time" content="2017-08-02T04:47:10.766Z">
+<meta property="og:description" content="本篇博客介绍了在机器学习中常见的几种优化算法，简单的介绍各个优化算法的原理以及核心的优化更新公式。">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/nesterov.bmp">
+<meta property="og:updated_time" content="2017-08-07T17:49:08.403Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="adaboost算法的python和R实现">
-<meta name="twitter:description" content="本文对Adaptive Boosting算法进行简单介绍，并分别利用Python和R语言进行了实现，只适用于数值类单特征的二分类问题。">
+<meta name="twitter:title" content="常见优化算法">
+<meta name="twitter:description" content="本篇博客介绍了在机器学习中常见的几种优化算法，简单的介绍各个优化算法的原理以及核心的优化更新公式。">
+<meta name="twitter:image" content="http://onvolufm1.bkt.clouddn.com/nesterov.bmp">
 
 
 
@@ -124,13 +126,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/04/03/adaboost算法的python和R实现/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/04/25/优化算法/"/>
 
 
 
 
 
-  <title> adaboost算法的python和R实现 | 二颗苹果 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <title> 常见优化算法 | 二颗苹果 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -259,7 +261,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/03/adaboost算法的python和R实现/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/25/优化算法/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="周君君">
@@ -280,7 +282,7 @@
             
             
               
-                adaboost算法的python和R实现
+                常见优化算法
               
             
           </h1>
@@ -295,8 +297,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-03T14:51:08+08:00">
-                2017-04-03
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-25T23:26:33+08:00">
+                2017-04-25
               </time>
             
 
@@ -342,7 +344,7 @@
 
           
               <div class="post-description">
-                  本文对Adaptive Boosting算法进行简单介绍，并分别利用Python和R语言进行了实现，只适用于数值类单特征的二分类问题。
+                  本篇博客介绍了在机器学习中常见的几种优化算法，简单的介绍各个优化算法的原理以及核心的优化更新公式。
               </div>
           
 
@@ -357,37 +359,58 @@
       
 
       
-        <h1 id="adaboost算法"><a href="#adaboost算法" class="headerlink" title="adaboost算法"></a>adaboost算法</h1><ul>
-<li>输入：训练数据集 $T = \{(x_1,y_1),(x_2,y_2),\ldots,(x_N,y_N), with \ x_i \in R^1, y_i \in \{-1,+1\}\}$</li>
-<li>输出：最终分类器 $G_{final}(x)$</li>
-</ul>
-<ol>
-<li>初始化样本的权值分布$ D = (w_{11}, \ldots, w_{1i}, \ldots, w_{1N}), w_{1i} = {1 \over N}, i=1, 2, \ldots, N, N $表示样本个数;</li>
-<li>计算候选的切分点序列 $ S=(S_1, S_2, \ldots, S_{N-1}) $，默认是取特征的相邻两个值的平均值;</li>
-<li>采用树桩作为基本的弱分类器，从$S$中选择使得在训练数据集上分类误差率最小的切分点建立基本分类器$G_j(x):x \rightarrow \{-1, 1\}$,同时记录其分类误差率$e_j$;</li>
-<li>计算基本分类器$G_j(x)$的权重系数$ \alpha = {1 \over 2} log ({{1 - e_j} \over e_j})$ ;</li>
-<li>更新训练样本的权值分布: $ w_{2i} = { w_{1i} \over Z } exp(-\alpha y_i G_j(x_i)) $,其中$Z$是一个归一化因子;</li>
-<li>构建最终分类器$G_{final}(x) = sign (\sum{\alpha G_j(x)})$</li>
-<li>判断是否满足精度要求或者达到最大迭代次数。如果是，则返回第3步;否则，输出最终分类器$G_{final}(x)$</li>
+        <h2 id="梯度下降法"><a href="#梯度下降法" class="headerlink" title="梯度下降法"></a>梯度下降法</h2><p>根据泰勒级数的定义：<br>$$
+f(x + \Delta x) = f(x) + f'(x) \Delta x + {f^{(2)}(x) \over 2} \Delta x^2 + O(\Delta x^3)
+$$<br>如果将自变量x沿着方向D移动步长$\eta$后变为$x+\eta D$，由一阶泰勒公式展开式可得：<br>$$
+f(x + \eta D) = f(x) + f'(x) \eta D
+$$<br>为了找到函数$f(x)$的最小值，我们希望x的本次移动能够使得目标函数$f(x)$减小的尽可能多，也即在给定步长$\eta$后我们希望：<br>$$
+max_D\{  f(x) - f(x + \eta D)  = -f'(x) \eta D\}
+$$<br>等式右边的$ -f'(x)  D$表示函数在x处的负梯度与移动方向D的乘积，为了使得这两个向量的乘积最大，需要让D等于负梯度$ -f'(x)  D$方向，加上步长$\eta$，x需要沿着负梯度的方向前进：<br>$$
+x^{(t+1)} = x^{(t)} - \eta f'(x^{(t)})
+$$<br>这便是最原始的梯度下降法的更新公式，其中步长$\eta$的选择十分关键，步长太短，收敛速度慢，容易收敛到局部最小值处，步长太大，则收敛到极小值附近时容易出现振荡，另外的两个缺点是，它对所有的参数设置相同的学习率，而我们希望对于出现频次比较低的特征每次更新的幅度大一些；另外一个缺点是梯度下降对于非凸函数容易陷入局部极小值。</p>
+<h2 id="动量项"><a href="#动量项" class="headerlink" title="动量项"></a>动量项</h2><p>对于优化问题$min J(\theta)$原始的梯度下降法迭代更新的公式为：<br>$$
+v_t = \eta \nabla_{\theta} J(\theta) \\
+\theta = \theta - v_t
+$$<br>动量项从<strong>步伐</strong> $v<em>t$上下手，它的思想是：如果当前的梯度方向$v_t$与上一次的梯度方向$v</em>{t-1}$相同，则加大步伐；如果相反，则缩小步伐。它的目标是期望减小振荡现象从而加快收敛，它有利于跳过局部极小值区域：<br>$$
+v_t = \gamma v_{t-1} + \eta \nabla_{\theta} J(\theta)
+$$</p>
+<h2 id="Nesterov加速"><a href="#Nesterov加速" class="headerlink" title="Nesterov加速"></a>Nesterov加速</h2><p>Nesterov在动量项的基础上，用$\theta - \gamma v_{t-1}$来近似估计下一次迭代点的位置，如果该估计点的梯度与之前的梯度$v_{t-1}$方向相反，则当前步长$v_t$会被压缩，它的目标是希望函数在接近最小值时减小振荡：<br>$$
+\begin{align}
+& \theta_1 = \theta_0 - v_{t-1} \\
+& v_t = \gamma v_{t-1} + \eta \nabla_{\theta} J(\theta_1 - \gamma v_{t-1}) \\
+& \theta_2 = \theta_1 - v_t
+\end{align}
+$$<br>结合下图来理解上面的更新公式：我们现在站在$\theta_1$这个位置，在动量项方法中，我们综合考虑之前的更新方向$v_{t-1}$和当前位置的梯度方向$ \nabla_{\theta} J(\theta_1)$，然后决定本次更新的步长$v_t$，而Nesterov加速法则考虑按照之前的更新方向$v_{t-1}$再往前探一探，如果探测的结果$\nabla_{\theta} J(\theta_1 - \gamma v_{t-1})$与上一次的更新方向相反，则减小当前的更新力度。</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/nesterov.bmp" alt=""></p>
+<h2 id="Adagrad"><a href="#Adagrad" class="headerlink" title="Adagrad"></a>Adagrad</h2><p>Adagrad与之前优化算法最大的不同在于：它为每个参数自动设置不同的学习率，使得频繁出现的参数的更新幅度小一些，而不频繁出现的参数的更新幅度大一些，它适合用在稀疏数据的优化，它的更新公式为：<br>$$
+\theta_{t+1,i} = \theta_{t,i} - {\eta \over {\sqrt{\epsilon + \sum_{k=1}^t g_{k, i}^2}}} g_{t,i}
+$$<br>其中$\theta_{t,i}$表示参数向量$\theta$中第$i$个参数分量在$t$时刻的值，$g_{k,i}$记录的是第$k$次迭代时梯度在第$i$个参数分量上的取值，$\epsilon$是为了分母部分为0，因此一般取一个很小的非零值即可。</p>
+<h2 id="RMSprop法"><a href="#RMSprop法" class="headerlink" title="RMSprop法"></a>RMSprop法</h2><p>Adagrad中分母部分的$g_{k, i}^2$因为始终是非负数，随着迭代次数的增加，其累计和可能会越来越大，从而导致参数更新幅度很小，RMSprop法正是为了解决这个问题，它在对$g_{k, i}^2$进行累加时乘上了一个小于1的系数，更新公式如下：<br>$$
+\begin{align}
+& E[g^2]_{t,i} = \gamma E[g^2]_{t-1,i} + (1 - \gamma)g^2_{t,i} \\
+& \theta_{t+1,i} = \theta_{t,i} - {\eta \over {\sqrt{\epsilon +E[g^2]_{t,i}}}} g_{t,i}
+\end{align}
+$$<br>参数$\gamma$一般取0.9，这样当前的梯度影响$(1 - \gamma)g^2_{t,i}$对分母部分改变的比较小，从而减缓分母增大的速度。</p>
+<h2 id="Adam"><a href="#Adam" class="headerlink" title="Adam"></a>Adam</h2><p>Adam类似于RMSprop法，区别在于：后者直接用<strong>当前时刻</strong>梯度在第$i$个参数上的取值$g_{t,i}$，而前者则对第$i$个参数在梯度上的历史值进行类似于$g^2_{t,i}$的加权求和，更新公式如下：<br>$$
+\begin{align}
+& m_{t,i} = \gamma_1 m_{t-1,i} + (1 - \gamma_1)g_{t,i} \\
+& v_{t,i} = \gamma_2 v_{t-1,i} + (1 - \gamma_2)g^2_{t,i} \\
+& \hat m_{t,i} = {m_{t,i} \over  1-\gamma^t_1} \\
+& \hat v_{t,i} = {v_{t,i} \over  1-\gamma^t_2} \\
+& \theta_{t+1,i} = \theta_{t,i} - {\eta \over {\sqrt{v_{t,i}} + \epsilon}}  m_{t,i} 
+\end{align}
+$$<br>因为$\epsilon$非常小（$10^{-8}$级别），因此上述更新步骤约等于：<br>$$
+\begin{align}
+& m_{t,i} = \gamma_1 m_{t-1,i} + (1 - \gamma_1)g_{t,i} \\
+& v_{t,i} = \gamma_2 v_{t-1,i} + (1 - \gamma_2)g^2_{t,i} \\
+& \eta' = {{\sqrt{1-\gamma_2^t}} \over {1- \gamma_1^t}} \eta  \\
+& \theta_{t+1,i} = \theta_{t,i} - {\eta' \over {\sqrt{v_{t,i}} + \epsilon}}  m_{t,i} 
+\end{align}
+$$<br>作者论文中[1]给的各个参数分别为$\epsilon=10^{-8}, \gamma_1 = 0.9, \gamma_2 = 0.999, \eta = 0.001$</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
+<li><a href="https://arxiv.org/pdf/1412.6980v8.pdf" target="_blank" rel="external">ADAM: A METHOD FOR STOCHASTIC OPTIMIZATION</a>;</li>
+<li><a href="https://github.com/fchollet/keras/blob/master/keras/optimizers.py#L376" target="_blank" rel="external">Adam implement from Keras</a>;</li>
 </ol>
-<h1 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h1><h2 id="样本初始化"><a href="#样本初始化" class="headerlink" title="样本初始化"></a>样本初始化</h2><p>如果训练样本的类标签是大致均匀的话，则一般采用算法中默认的初始化方法；但类别不平衡时，需要不同的初始化方法。例如：$A,B,C$类样本数量分别为1000,200,100,则可以采用如下方法：<br>
-$$
-sample \ weight = \left\{
-\begin{array}{rcl}
-A \ class & {{1 \over 3} \times {1 \over 1000} }\\
-B \ class & {{1 \over 3} \times {1 \over 200} }\\
-C \ class & {{1 \over 3} \times {1 \over 100} }
-\end{array} \right.
-$$
-</p>
-<h2 id="候选的切分点序列"><a href="#候选的切分点序列" class="headerlink" title="候选的切分点序列"></a>候选的切分点序列</h2><p>这里只考虑数值型特征的切分点选择，特征的值<strong>从小到大排序</strong>后将相邻值的平均值作为候选切分点；</p>
-<h2 id="基本弱分类器的构建"><a href="#基本弱分类器的构建" class="headerlink" title="基本弱分类器的构建"></a>基本弱分类器的构建</h2><p>对于每一个切分点，对应大于该切分点取正类和小于该切分点取正类存在相应的两种弱分类器，在R实现的时候通过“UP”和“DOWN”两个字符串来区分它们。后面从存储空间上考虑，用Python实现时只用了一个逻辑位来区分这两种情况；</p>
-<h2 id="最佳基本分类器的选择"><a href="#最佳基本分类器的选择" class="headerlink" title="最佳基本分类器的选择"></a>最佳基本分类器的选择</h2><ul>
-<li>在R语言实现的版本中，每个切分点的两种弱分类器的误分类率都存储在向量(vector)中，该向量的前后半部分分别存储两个弱分类器的error rate，通过最小误分类率所在的位置来判断应该选择哪种弱分类器。</li>
-<li>在Python的版本中，因为考虑到其实同一个切分点对应的两个弱分类器的误分类率之和必为1，因此只记录其中一个分类器的误分类率，那么如何选择最佳切分点以及正确的那个弱分类器呢？</li>
-<li>假设某个切分点对应的两个弱分类器的误差率分别为$x,1-x$，则$|x - (1-x)|  = |2x-1|$最大值对应的切分点是最佳切分点，而该最佳切分点上正确的弱分类器则通过与$1 \over 2$比较来确定；</li>
-</ul>
-<h1 id="代码链接"><a href="#代码链接" class="headerlink" title="代码链接"></a>代码链接</h1><p>具体的python和R代码放在<a href="https://github.com/zhoujunjun-apple/machine-learning" target="_blank" rel="external">我的github</a>，代码的注释比较详细，欢迎大家提出建议！</p>
 
       
     </div>
@@ -417,11 +440,9 @@ $$
       
         <div class="post-tags">
           
-            <a href="/标签/adaboost/" rel="tag"># adaboost</a>
+            <a href="/标签/梯度下降/" rel="tag"># 梯度下降</a>
           
-            <a href="/标签/python实现/" rel="tag"># python实现</a>
-          
-            <a href="/标签/R实现/" rel="tag"># R实现</a>
+            <a href="/标签/稀疏性/" rel="tag"># 稀疏性</a>
           
         </div>
       
@@ -434,14 +455,18 @@ $$
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/2017/04/18/逻辑斯蒂回归的前世/" rel="next" title="逻辑斯蒂回归的前世">
+                <i class="fa fa-chevron-left"></i> 逻辑斯蒂回归的前世
+              </a>
+            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/04/03/SVM模型的由来及SMO算法的python实现/" rel="prev" title="SVM模型的由来及SMO算法的python实现">
-                SVM模型的由来及SMO算法的python实现 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/05/03/树，Bagging树，提升树/" rel="prev" title="树，Bagging树，提升树">
+                树，Bagging树，提升树 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -582,7 +607,7 @@ $$
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#adaboost算法"><span class="nav-number">1.</span> <span class="nav-text">adaboost算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#算法实现"><span class="nav-number">2.</span> <span class="nav-text">算法实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#样本初始化"><span class="nav-number">2.1.</span> <span class="nav-text">样本初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#候选的切分点序列"><span class="nav-number">2.2.</span> <span class="nav-text">候选的切分点序列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基本弱分类器的构建"><span class="nav-number">2.3.</span> <span class="nav-text">基本弱分类器的构建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最佳基本分类器的选择"><span class="nav-number">2.4.</span> <span class="nav-text">最佳基本分类器的选择</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码链接"><span class="nav-number">3.</span> <span class="nav-text">代码链接</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#梯度下降法"><span class="nav-number">1.</span> <span class="nav-text">梯度下降法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#动量项"><span class="nav-number">2.</span> <span class="nav-text">动量项</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Nesterov加速"><span class="nav-number">3.</span> <span class="nav-text">Nesterov加速</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Adagrad"><span class="nav-number">4.</span> <span class="nav-text">Adagrad</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RMSprop法"><span class="nav-number">5.</span> <span class="nav-text">RMSprop法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Adam"><span class="nav-number">6.</span> <span class="nav-text">Adam</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文献"><span class="nav-number">7.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
             
 
           </div>
