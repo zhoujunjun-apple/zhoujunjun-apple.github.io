@@ -1,0 +1,849 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="RNN,LSTM," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="本篇博客主要介绍针对解决序列预测问题的LSTM模型以及常见的几种应用场景。首先简单介绍时间递归神经网络的结构以及它所具有的不足，然后介绍在长期记忆上更具有优势的LSTM模型的结构，然后通过几个toy question来了解LSTM几种常见的应用场景和Keras下具体的搭建方式以及为什么需要这样来搭建。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Long Short-term Memory PART 1">
+<meta property="og:url" content="http://yoursite.com/2017/05/21/深度学习(2)-Long Short-Term Memory PART 1/index.html">
+<meta property="og:site_name" content="二颗苹果">
+<meta property="og:description" content="本篇博客主要介绍针对解决序列预测问题的LSTM模型以及常见的几种应用场景。首先简单介绍时间递归神经网络的结构以及它所具有的不足，然后介绍在长期记忆上更具有优势的LSTM模型的结构，然后通过几个toy question来了解LSTM几种常见的应用场景和Keras下具体的搭建方式以及为什么需要这样来搭建。">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/rnn_structure.png.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/simple_rnn.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/lstm_memory_cell.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/valilla_lstm.bmp">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/valilla_lstm_training_output.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/damped_sine_wave.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/stacked_lstm.bmp">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/stacked_lstm_training_output.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/cnn_lstm_problem_graph.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/cnn_lstm.bmp">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/cnn_lstm_result.png">
+<meta property="og:updated_time" content="2017-08-07T18:09:42.399Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Long Short-term Memory PART 1">
+<meta name="twitter:description" content="本篇博客主要介绍针对解决序列预测问题的LSTM模型以及常见的几种应用场景。首先简单介绍时间递归神经网络的结构以及它所具有的不足，然后介绍在长期记忆上更具有优势的LSTM模型的结构，然后通过几个toy question来了解LSTM几种常见的应用场景和Keras下具体的搭建方式以及为什么需要这样来搭建。">
+<meta name="twitter:image" content="http://onvolufm1.bkt.clouddn.com/rnn_structure.png.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/05/21/深度学习(2)-Long Short-Term Memory PART 1/"/>
+
+
+
+
+
+  <title> Long Short-term Memory PART 1 | 二颗苹果 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">二颗苹果</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/21/深度学习(2)-Long Short-Term Memory PART 1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周君君">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://onvolufm1.bkt.clouddn.com/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="二颗苹果">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Long Short-term Memory PART 1
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-21T10:55:15+08:00">
+                2017-05-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/目录/深度学习/" itemprop="url" rel="index">
+                    <span itemprop="name">深度学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  本篇博客主要介绍针对解决序列预测问题的LSTM模型以及常见的几种应用场景。首先简单介绍时间递归神经网络的结构以及它所具有的不足，然后介绍在长期记忆上更具有优势的LSTM模型的结构，然后通过几个toy question来了解LSTM几种常见的应用场景和Keras下具体的搭建方式以及为什么需要这样来搭建。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="递归神经网络"><a href="#递归神经网络" class="headerlink" title="递归神经网络"></a>递归神经网络</h2><p>这里的RNN指的是时间递归层面的神经网络。它的出现是为了解决传统CNN、AE、RBM等网络在序列预测（sequence prediction）问题中表现不佳的状况。CNN善于从图片、视频中提取多层次的抽象特征，AE和RBM善于发现输入数据中隐藏的结构，但是它们的网络结构决定了其不具备信息记忆的能力，而在序列预测问题中，某一位置的信息往往与之前位置的信息有关，因此需要一个带信息存储功能的网络结构，RNN便是具备信息存储能力的网络结构，如下图所示[2]：</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/rnn_structure.png.png" alt=""></p>
+<p>注意这里的递归是时间上的递归，也就是说保持网络结构不变，当前时间步（time step）下的输入前向传播得到的输出信息会参与到后一时间步的计算，网络在$t$时刻的输出代表网络对前$t$个时间步的信息记忆，当它和当前时间步的输入$x_{t+1}$一同参与$t+1$时刻的前向传播时，代表了信息记忆的迭代和更新。可以看到，RNN的网络结构理论上是为了记忆前面所有的输入信息，当我们在$t+1$时刻进行预测输入时，前面$t$个时间步的信息参与了预测的过程。但是实际上RNN在长期信息的记忆能力很差，原因是梯度的消失和爆炸问题。</p>
+<h2 id="LSTM"><a href="#LSTM" class="headerlink" title="LSTM"></a>LSTM</h2><p>为了解决RNN在长期记忆能力上的短板，从网络结构上进行改进，得到了LSTM模型，RNN和LSTM在结构上的差异如下图[2]所示：</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/simple_rnn.png" alt=""></p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/lstm_memory_cell.png" alt=""></p>
+<p>LSTM由基本的记忆单元（memory cell）构成，记忆单元又由四部分组成：单元状态（cell state）、遗忘控制层（forget gate layer）、输入控制层（input gate layer）、输出控制层（output gate layer）。</p>
+<h3 id="valilla-LSTM"><a href="#valilla-LSTM" class="headerlink" title="valilla LSTM"></a>valilla LSTM</h3><p>这是最原始的LSTM网络结构：一个包含多个memory cell的LSTM层，接上一个全连阶层产生输出。我们通过求解一个简单序列预测问题来熟悉基本LSTM的用法。</p>
+<h4 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h4><p> 给定一个随机的固定长度的整数输入序列$[ x_1, x_2, \ldots, x_T ]$，我们希望LSTM通过学习能够记住输入序列中固定位置的值$x_i$。比如输入[3,5,7,9]，我们训练的LSTM是希望它能够输出第三个位置的元素值，则我们期待的输出结果为7.</p>
+<h4 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h4><p>上述问题<strong>本质上是一个多分类问题</strong>，我们期待的结果是输入序列中特定位置的某个值，因此考虑用one-hot编码对输入数据进行处理，输出的也是one-hot编码值。我们采用如下图所示的LSTM网络结构：一个LSTM层接上一个全连接层。<br><img src="http://onvolufm1.bkt.clouddn.com/valilla_lstm.bmp" alt=""></p>
+<p>输入序列中的元素代表不同时间步（time step）的输入，输入数据的特征数等于one-hot编码值的长度。全连接层对于每个输入序列只输出一个时间步的向量，这个向量就是近似one-hot值。</p>
+<h4 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h4><p>1、准备数据<br>首先需要随机生成多个固定长度的输入序列，这可以通过randint()函数完成：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">generate_sequence</span><span class="params">(length, n_features)</span>:</span></div><div class="line">    <span class="keyword">return</span> [randint(<span class="number">0</span>, n_features<span class="number">-1</span>) <span class="keyword">for</span> _ <span class="keyword">in</span> range(length)]</div></pre></td></tr></table></figure></p>
+<p>其中的length参数决定输入序列的长度，n_features参数决定序列中元素的取值范围$[0，\text{n_features} )$</p>
+<p>然后需要对输入序列中的所有元素值进行one-hot编码，编码后的one-hot长度为n_features值，元素值正好对应one-hot中“1”的索引值：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">one_hot_encoder</span><span class="params">(sequence, n_features)</span>:</span></div><div class="line">    encoding = list()</div><div class="line">    <span class="keyword">for</span> value <span class="keyword">in</span> sequence:</div><div class="line">        vector = [<span class="number">0</span> <span class="keyword">for</span> _ <span class="keyword">in</span> range(n_features)]</div><div class="line">        vector[value] = <span class="number">1</span></div><div class="line">        encoding.append(vector)</div><div class="line">    <span class="keyword">return</span> array(encoding)</div></pre></td></tr></table></figure></p>
+<p>我们还需要一个对one-hot编码值进行解码的函数，用于对全连接层的输出向量进行解码操作：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">one_hot_decoder</span><span class="params">(encoded_out)</span>:</span></div><div class="line">    <span class="keyword">return</span> [argmax(vector) <span class="keyword">for</span> vector <span class="keyword">in</span> encoded_out]</div></pre></td></tr></table></figure></p>
+<p>因为全连接层输出的向量是softmax输出的所有可能结果的概率分布，因此解码时不是寻找“1”所在的索引，而是寻找最大值所在的索引。</p>
+<p>输入序列的生成和编解码基本完成。不过因为我们用Keras来搭建LSTM模型，而Keras中LSTM层的输入要求是三维的数据：（batch_sizes, time steps, features），分别表示输入的样本数量、每个样本包含的时间步数、每个时间步所包含的特征数，因此需要对输入序列进行维度的转换：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">input_x = encoded_seq.reshape((<span class="number">1</span>, length, n_features))</div><div class="line">input_y = encoded_seq[out_index].reshape((<span class="number">1</span>, n_features))</div></pre></td></tr></table></figure></p>
+<p>其中时间步参数由序列的长度length指定，特征数由每个元素的one-hot编码长度n_features决定，参数out_index表示我们希望LSTM能够预测的元素位置。最后，通过一个统一的函数来产生直接可用的输入序列数据：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">generate_example</span><span class="params">(length, n_features, out_index)</span>:</span></div><div class="line">	sequence = generate_sequence(length, n_features)</div><div class="line">	encoded = one_hot_encode(sequence, n_features)</div><div class="line">	X = encoded.reshape((<span class="number">1</span>, length, n_features))</div><div class="line">	y = encoded[out_index].reshape(<span class="number">1</span>, n_features)</div><div class="line">	<span class="keyword">return</span> X, y</div></pre></td></tr></table></figure></p>
+<p>2、搭建和编译网络<br>我们只需要两个网络层：一个包含多个memory cell的LSTM层和全连接层，它们分别通过Keras中的LSTM()和Dense()实现：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">model = Sequential()</div><div class="line">model.add(LSTM(<span class="number">25</span>, input_shape(length, n_features)))</div><div class="line">model.add(Dense(n_features, activation=<span class="string">'softmax'</span>))</div></pre></td></tr></table></figure></p>
+<p>我们建立了一个包含25个memory cell的LSTM层，它包括length个时间步的输入，每个输入包含n_features个特征，再此基础上，增加一个包含n_features个神经元的全连接层，输出值通过softmax转换为概率分布。搭好基本网络结构之后，还需要对网络进行编译后才能用于训练和测试：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">model.compile(loss=<span class="string">'categorical_crossentropy'</span>, optimizer=<span class="string">'adam'</span>, metric=<span class="string">'acc'</span>)</div><div class="line">print(model.summary())</div></pre></td></tr></table></figure></p>
+<p>编译时指定损失函数为适用于多分类问题的交叉熵损失（这里如果是二分类问题的话，则应该指定’binary_crossentropy’为损失函数），优化方法选择了Adam算法，指定分类准确率作为模型的衡量标准。通过model.summary()输出查看网络的结构，检查和确认是否符合我们的要求。</p>
+<p>3、网络的训练和评估<br>根据model.summary()输出的网络结构信息，如果确认网络结构符合需求，则可以进行网络的训练了。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">2000</span>):</div><div class="line">    x, y = generate_example(length, n_features, out_index)</div><div class="line">    model.fit(x, y, epochs=<span class="number">1</span>)</div></pre></td></tr></table></figure></p>
+<p>我们循环训练模型2000次，每次的训练样本为1，需要<strong>注意</strong>的是：因为输入序列的顺序信息很重要，因此fit()函数中的参数shuffle不能设置为True。训练好之后，便可以进行模型评估：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">counter = <span class="number">0</span></div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">300</span>):</div><div class="line">    x_test, y_test = generate_example(length, n_features, out_index)</div><div class="line">    y_predict = model.predict(x_test)</div><div class="line">    <span class="keyword">if</span> one_hot_decoder(y_test) == one_hot_decoder(y_predict):</div><div class="line">        counter += <span class="number">1</span></div><div class="line">print(<span class="string">"accuracy: %f."</span>%((counter / <span class="number">300</span>)*<span class="number">100.0</span>))</div></pre></td></tr></table></figure></p>
+<p>这是模型的训练、评估和测试结果，可以看到该模型成功的学习到了如何去正确的预测：<br><img src="http://onvolufm1.bkt.clouddn.com/valilla_lstm_training_output.png" alt=""></p>
+<h3 id="Stacked-LSTM"><a href="#Stacked-LSTM" class="headerlink" title="Stacked LSTM"></a>Stacked LSTM</h3><p>Stacked LSTM也就是深层LSTM，结构上就是将多个LSTM层连接起来：前一LSTM层的输出输入到连接的后一LSTM层上，根据需要可以将多个LSTM层stack在一起。为什么需要将多个LSTM层连接在一起呢？Alex Graves在它的论文[1]中如是说：</p>
+<blockquote>
+<p>RNNs are inherently deep in time, since their hidden state is a function of all previous hidden states. The question that inspired this paper was whether RNNs could also benefit from depth in space; that is from stacking multiple recurrent hidden layers on top of each other, just as feedforward layers are stacked in conventional deep networks. </p>
+</blockquote>
+<p>因此Stacked LSTM是希望能够发现输入序列中更多更深入的隐含信息，我们可以通过一个回归类预测问题来了解它。</p>
+<h4 id="问题-1"><a href="#问题-1" class="headerlink" title="问题"></a>问题</h4><p>给定一组具特定模式的输入序列，预测后续的多个元素值。这里我们对阻尼正弦函数进行采样，输入前length个元素值，预测紧临的后续output个元素值，阻尼正弦函数的形式为：<br>$$
+f(i | period, decay) = a + b \cdot sin( {2 \pi i \over period} ) \cdot e^{-i \cdot decay} 
+$$<br>其中a,b表示特定的常数，需要保持不变，参数period表示正弦函数的振荡周期，参数decay表示曲线的衰减系数，函数对应的曲线示意图如下：<br><img src="http://onvolufm1.bkt.clouddn.com/damped_sine_wave.png" alt=""></p>
+<p>我们希望Stacked LSTM能够学习到输入序列隐藏的振荡信息和衰减信息，因此每个输入序列的period值和decay均是随机产生，常数值a和b固定不变（我们不希望模型学习到a和b的变化信息）。</p>
+<h4 id="思路-1"><a href="#思路-1" class="headerlink" title="思路"></a>思路</h4><p>首先是<strong>等间距</strong>的从随机选择的阻尼正弦曲线中<strong>有序</strong>采样总共 length + output 个元素值，前length个元素值作为模型的输入序列，后output个元素值作为模型待学习的输出序列。将产生的一组训练数据输入到Stacked LSTM模型中训练。</p>
+<h4 id="步骤-1"><a href="#步骤-1" class="headerlink" title="步骤"></a>步骤</h4><p>1、准备数据<br>因为这里的问题是一个<strong>回归问题</strong>，因此从阻尼正弦曲线上采样得到的序列不需要进行one-hot编码，但是作为LSTM层的输入，同样需要进行维度转换：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 从period和decay决定的阻尼正弦曲线是采样总共length个元素</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">generate_sequence</span><span class="params">(length, period, decay)</span>:</span></div><div class="line">	<span class="keyword">return</span> [<span class="number">0.5</span> + <span class="number">0.5</span> * sin(<span class="number">2</span> * pi * i / period) * exp(-decay * i) <span class="keyword">for</span> i <span class="keyword">in</span> range(length)]</div><div class="line"></div><div class="line"><span class="comment"># 生成n_patterns个训练序列</span></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">generate_examples</span><span class="params">(length, n_patterns, output)</span>:</span></div><div class="line">	X, y = list(), list()</div><div class="line">	<span class="keyword">for</span> _ <span class="keyword">in</span> range(n_patterns):</div><div class="line">		p = randint(<span class="number">15</span>, <span class="number">20</span>)</div><div class="line">		d = uniform(<span class="number">0.05</span>, <span class="number">0.1</span>)</div><div class="line">		sequence = generate_sequence(length + output, p, d)</div><div class="line">		<span class="comment"># 取前length个元素作为输入序列</span></div><div class="line">		X.append(sequence[:-output])</div><div class="line"></div><div class="line">		<span class="comment"># 取后output个元素作为输出序列</span></div><div class="line">		y.append(sequence[-output:])</div><div class="line">	</div><div class="line">	<span class="comment"># LSTM输入规范：样本数、时间步数、特征数</span></div><div class="line">	X = array(X).reshape(n_patterns, length, <span class="number">1</span>)</div><div class="line">	y = array(y).reshape(n_patterns, output)</div><div class="line">	<span class="keyword">return</span> X, y</div></pre></td></tr></table></figure></p>
+<p>2、搭建和编译网络<br>我们stack两个LSTM层，再加上一个由output个神经元组成的全连接层，结构示意图如下：</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/stacked_lstm.bmp" alt=""></p>
+<p>因为默认的LSTM对于多时间步的输入序列只产生一组输出（参见valilla LSTM的网络结构），而我们的网络结构前两层均为LSTM层，因此第二个LSTM层的输入同样必须为带时间步的输入序列，因此要求第一个LSTM层对于其每个时间步同时产生一组输出。为此，需要设置LSTM()函数中的参数return_sequences=True，代码如下：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">model = Sequential()</div><div class="line">model.add(LSTM(<span class="number">20</span>, return_sequences=<span class="keyword">True</span>, input_shape=(length, <span class="number">1</span>)))</div><div class="line">model.add(LSTM(<span class="number">20</span>))</div><div class="line">model.add(Dense(output))</div><div class="line">model.compile(loss=<span class="string">'mae'</span>, optimizer=<span class="string">'adam'</span>)</div><div class="line">print(model.summary())</div></pre></td></tr></table></figure></p>
+<p>第一，因为在一层指定了input_shape，因此后面的网络层不再需要指定输入数据的格式；第二，因为是回归问题，因此最后的全连接层采取默认的”激活函数”：线性函数$f(x) = x$。模型的损失函数选择了平均绝对误差$\text{Average} ( |y - \hat y|) $，同样采取Adam优化方法。</p>
+<p>3、训练和测试网络<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 模型训练</span></div><div class="line">x_train, y_train = generate_examples(length, <span class="number">10000</span>, output)</div><div class="line">history = model.fit(x_train, y_train, batch_size=<span class="number">10</span>, epochs=<span class="number">1</span>)</div><div class="line"></div><div class="line"><span class="comment"># 模型评估</span></div><div class="line">x_test, y_test = generate_examples(length, <span class="number">3000</span>, output)</div><div class="line">loss = model.evaluate(x_test, y_test, verbose=<span class="number">0</span>)</div><div class="line">print(<span class="string">'MAE: %f'</span> % loss)</div></pre></td></tr></table></figure></p>
+<p>模型训练时只迭代训练一次（epochs=1），每十个输入序列进行一次网络梯度更新（batch_size = 10）.  下图是模型的评估结果和测试结果，从整体MAE看，模型的拟合结果误差很小，从右图来看，预测结果的绝对值误差在$10^{-3}$级别：</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/stacked_lstm_training_output.png" alt=""></p>
+<h3 id="CNN-LSTM"><a href="#CNN-LSTM" class="headerlink" title="CNN-LSTM"></a>CNN-LSTM</h3><p>CNN的长处在于抽象特征的自动抽取，类似于一个编码器，面向的是<strong>空间型数据</strong>，比如图片。LSTM的长处在于发现序列中的隐藏信息，面向的是<strong>时间序列型</strong>数据，比如文本序列、音频序列。当我们处理的数据既包含空间型数据也包含时间型数据时，比如视频数据：它的每一帧是图片，整体是由多幅图片在时间轴上排列而成，则可以考虑是CNN-LSTM来处理，下面通过一个简单的问题来了解CNN-LSTM。</p>
+<h4 id="问题-2"><a href="#问题-2" class="headerlink" title="问题"></a>问题</h4><p>给定类似如下的一组图片，预测图片中黑色方块的移动方向(下图中为向右)：</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/cnn_lstm_problem_graph.png" alt=""></p>
+<h4 id="思路-2"><a href="#思路-2" class="headerlink" title="思路"></a>思路</h4><p>这是一个序列的<strong>二分类问题</strong>：将每一幅图片看作是对应时间步的输入，最后输出其中黑色方块的移动方向。因此需要用LSTM模型来处理输入数据，又因为原始输入数据是图片，其中关键的信息是黑色方块的位置信息，因此考虑用CNN来提取这一特征，作为图片的编码器，最后隐藏层的输出作为图片的特征信息输入到LSTM对应时间步上。</p>
+<h4 id="步骤-2"><a href="#步骤-2" class="headerlink" title="步骤"></a>步骤</h4><p>1、数据准备<br>数据准备时最重要的是输入数据的<strong>格式必须匹配</strong>：Keras中Conv2D()层要求输入数据的格式为（samples, rows, cols, channels），因为我们每一个样本有多个图片帧，需要为每个样本增加一个帧数维，因此对应的输入格式应该是（samples,  frame_num, height, width, channels）。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># (样本数，图片帧数，图片宽像素数，图片高像素数，颜色通道数)</span></div><div class="line">x = array(input_data_x).reshape(samples, frame_num, height, width, channels)</div><div class="line"><span class="comment"># (样本数，预测类别)</span></div><div class="line">y = array(input_data_y).reshape(samples, <span class="number">1</span>)</div></pre></td></tr></table></figure></p>
+<p>2、网络搭建</p>
+<blockquote>
+<p>CNN：一个卷积层 + 一个池化层；</p>
+</blockquote>
+<p>卷积层设置2个卷积核，每个卷积核的尺寸为（2,2），步长取默认的（1,1），卷积后的结果通过RELU激活函数。卷积层输出的2个特征图输入到最大池化层，池化的尺寸和步长均为（2,2），最后通过Flatten层将池化层的单条输出数据拉成一维格式，方便输入到后面的LSTM层memory cell中。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">cnn = Sequential()</div><div class="line">cnn.add(Conv2D(<span class="number">2</span>, (<span class="number">2</span>,<span class="number">2</span>), activation=<span class="string">'relu'</span>), input_shape=(<span class="keyword">None</span>,width,height,<span class="number">1</span>))</div><div class="line">cnn.add(MaxPooling2D(pool_size=(<span class="number">2</span>, <span class="number">2</span>)))</div><div class="line">cnn.add(Flatten())</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p>LSTM：一个LSTM层 + 一个全连接层</p>
+</blockquote>
+<p>LSTM层设置70个memory cell单元，因为是二分类问题，因此全连接层只需要设置一个sigmoid神经元。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">model = Sequential()</div><div class="line">model.add(LSTM(<span class="number">70</span>))</div><div class="line">model.add(Dense(<span class="number">1</span>, activation=<span class="string">'sigmoid'</span>))</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p>连接</p>
+</blockquote>
+<p>搭建好了CNN和LSTM后，最后还需要将CNN的输出输入到LSTM层各个时间步的memory cell上。<strong>不能够直接连接</strong> CNN的输出层到LSTM层，因为LSTM层需要的输入数据格式是（batch_sizes, timesteps, input_dimensions），它需要的是带时间步的输入序列，而CNN对于给定的一个图片帧输出相应的特征向量，<strong>CNN看不到输入图片帧序列中的”时间步”信息，输出的特征向量之间也不带有”时间步”信息</strong>。我们的目标是希望将CNN模型重复的作用到一个样本的多个图片帧上，产生带时间步维度的输出结果，keras中的TimeDistributed Wrapper正是为了解决这个问题：只需要将cnn放进TimeDistributed Wrapper中，对应的网络结构示意图如下：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">model = Sequential()</div><div class="line">model.add(TimeDistributed(cnn))</div><div class="line">model.add(LSTM(<span class="number">70</span>))</div><div class="line">model.add(Dense(<span class="number">1</span>, activation=<span class="string">'sigmoid'</span>))</div></pre></td></tr></table></figure></p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/cnn_lstm.bmp" alt=""></p>
+<p>假设CNN输出的特征向量维度为（cnn_out_dim），不加TimeDistributed Wrapper时，对于输入CNN的一个样本（frame_num, height, width, channels），CNN会输出 <strong>frame_num</strong> 个维度为（cnn_out_dim）的特征；加上 TimeDistributed Wrapper 后，对于输入CNN的一个样本（frame_num, height, width, channels），输出的特征维度为（frame_num, cnn_out_dim），这正好<strong>符合LSTM层中 input_shape 的格式</strong>。</p>
+<p>3、模型训练、评估<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 模型训练</span></div><div class="line"><span class="comment"># 二分类问题采用binary_crossentropy损失函数</span></div><div class="line">model.compile(loss=<span class="string">'binary_crossentropy'</span>, optimizer=<span class="string">'adam'</span>, metrics=[<span class="string">'acc'</span>])</div><div class="line">print(model.summary())</div><div class="line"></div><div class="line"><span class="comment"># 模型训练</span></div><div class="line">X, y = generate_examples(size, <span class="number">5000</span>)</div><div class="line">model.fit(X, y, batch_size=<span class="number">32</span>, epochs=<span class="number">1</span>)</div><div class="line"></div><div class="line"><span class="comment"># evaluate model</span></div><div class="line">X, y = generate_examples(size, <span class="number">100</span>)</div><div class="line">loss, acc = model.evaluate(X, y, verbose=<span class="number">0</span>)</div><div class="line">print(<span class="string">'loss: %f, acc: %f'</span> % (loss, acc*<span class="number">100</span>))</div></pre></td></tr></table></figure></p>
+<p>下面是输出结果，可以看到，在训练数据上的分类准确率接近94%，在随机生成的测试数据上分类率100%：</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/cnn_lstm_result.png" alt=""></p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
+<li><a href="http://arxiv.org/pdf/1303.5778v1" target="_blank" rel="external">Speech Recognition With Deep Recurrent Neural Networks</a>;</li>
+<li><a href="http://colah.github.io/posts/2015-08-Understanding-LSTMs/" target="_blank" rel="external">A great post for introduction of RNN and LSTM</a>;</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/标签/RNN/" rel="tag"># RNN</a>
+          
+            <a href="/标签/LSTM/" rel="tag"># LSTM</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/05/03/树，Bagging树，提升树/" rel="next" title="树，Bagging树，提升树">
+                <i class="fa fa-chevron-left"></i> 树，Bagging树，提升树
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/06/10/强化学习(1)：基础知识/" rel="prev" title="强化学习（一）：基础知识部分">
+                强化学习（一）：基础知识部分 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://onvolufm1.bkt.clouddn.com/avatar.jpg"
+               alt="周君君" />
+          <p class="site-author-name" itemprop="name">周君君</p>
+           
+              <p class="site-description motion-element" itemprop="description">越努力越幸运</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/zhoujunjun-apple" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#递归神经网络"><span class="nav-number">1.</span> <span class="nav-text">递归神经网络</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LSTM"><span class="nav-number">2.</span> <span class="nav-text">LSTM</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#valilla-LSTM"><span class="nav-number">2.1.</span> <span class="nav-text">valilla LSTM</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#问题"><span class="nav-number">2.1.1.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#思路"><span class="nav-number">2.1.2.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#步骤"><span class="nav-number">2.1.3.</span> <span class="nav-text">步骤</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Stacked-LSTM"><span class="nav-number">2.2.</span> <span class="nav-text">Stacked LSTM</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#问题-1"><span class="nav-number">2.2.1.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#思路-1"><span class="nav-number">2.2.2.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#步骤-1"><span class="nav-number">2.2.3.</span> <span class="nav-text">步骤</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CNN-LSTM"><span class="nav-number">2.3.</span> <span class="nav-text">CNN-LSTM</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#问题-2"><span class="nav-number">2.3.1.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#思路-2"><span class="nav-number">2.3.2.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#步骤-2"><span class="nav-number">2.3.3.</span> <span class="nav-text">步骤</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文献"><span class="nav-number">3.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">周君君</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="custom_mathjax_source">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+  
+
+
+  
+
+</body>
+</html>
