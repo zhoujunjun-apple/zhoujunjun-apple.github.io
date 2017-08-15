@@ -98,7 +98,7 @@
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/nesterov.bmp">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/momentum_vs_nesterov.bmp">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/adadelta_algorithm.png">
-<meta property="og:updated_time" content="2017-08-15T05:19:05.233Z">
+<meta property="og:updated_time" content="2017-08-15T05:29:09.347Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="常见优化算法 PART 1">
 <meta name="twitter:description" content="本篇博客是介绍机器学习和深度学习中常用优化算法的第一部分，包括梯度下降、动量项、Nesterov加速、AdaGrad、RMSProp、AdaDelta对于每种优化算法，简单介绍其出发点、解决问题的思路和原理，以及所具备的优缺点。">
@@ -404,7 +404,7 @@ $$<br>因此，实际上$v_t$是对所有历史梯度值$\nabla J(\theta_i), i =
 <blockquote>
 <p> The standard momentum method <strong>first</strong> computes the    gradient at the current location and    <strong>then</strong>    takes a    big jump in    the direction of the    updated accumulated    gradient;<br>Nesterov <strong>first</strong> make a big    jump in the    direction of    the previous accumulated gradient. <strong>Then</strong> measure    the gradient where    you end up and make a correction.    </p>
 </blockquote>
-<p>它在动量项的基础上，用$\theta_{t-1} - \gamma v_{t-1}$替代了原始动量项中的$\theta_{t-1}$，如果该估计点的梯度$\nabla<em>{\theta} J(\theta</em>{t-1} - \gamma v<em>{t-1}) $与之前的$v</em>{t-1}$方向相反，则当前步长$v_t$会被压缩，它的<strong>出发点</strong>依然是是希望函数在接近最小值时减小振荡，不同的地方在于Nesterov事先估计后一步的梯度方向，避免犯错后纠正：<br>$$
+<p>它在动量项的基础上，用$\theta_{t-1} - \gamma v_{t-1}$替代了原始动量项中的$\theta_{t-1}$，如果该估计点的梯度$\nabla_{\theta} J(\theta_{t-1} - \gamma v_{t-1}) $与之前的$v_{t-1}$方向相反，则当前步长$v_t$会被压缩，它的<strong>出发点</strong>依然是是希望函数在接近最小值时减小振荡，不同的地方在于Nesterov事先估计后一步的梯度方向，避免犯错后纠正：<br>$$
 \begin{align}
 & \theta_{t-1} = \theta_{t-2} - v_{t-1} \\
 & v_t = \gamma v_{t-1} + \eta \nabla_{\theta} J(\theta_{t-1} - \gamma v_{t-1}) \\
@@ -420,6 +420,7 @@ $$<br>其中$\theta_{t,i}$表示参数向量$\theta$中第$i$个参数分量在$
 <script type="math/tex; mode=display">
 g_{k} =  \nabla_{\theta} J(\theta_{k}), \; k = 1,2, \ldots, t</script>$\epsilon$是为了保证分母部分不为0，因此一般取一个很小的非零值即可。对于参数向量中每个参数分量$\theta_{t,i}$更新时，当前梯度在对应梯度分量上的取值$g_{t,i}$除了需要乘上一个学习率$\eta$之外，还需要除以**对应参数分量的历史梯度分量平方的累加值** $ \sum_{k=1}^t g_{k, i}^2$，以保证对不同出现频率的特征给予不同的学习率，作者在原论文中提到[4]：
 > Informally, our procedures give frequently occurring features very low learning rates and infrequent features high learning rates, where the intuition is that each time an infrequent feature is seen, the learner should “take notice.” Thus, the adaptation facilitates finding and identifying very predictive but comparatively rare features
+
 
 ## RMSprop法
 Adagrad中分母部分的$g_{k, i}^2$因为始终是非负数，随着迭代次数的增加，其累计和可能会越来越大，从而导致参数更新幅度很小，RMSprop法的**出发点**正是为了解决这个问题，它在对$g_{k, i}^2$进行累加时乘上了一个小于1的系数，更新公式如下：
