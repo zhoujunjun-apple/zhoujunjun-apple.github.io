@@ -1,0 +1,875 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="优化算法," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="本篇博客是介绍在机器学习和深度学习中常用优化算法的第二部分，继续介绍其他优化算法包括Adam、Nadam以及一些常用的梯度算法优化策略。同样，对于每种优化算法，简单介绍其出发点、解决的思路和原理，以及所具备的优缺点。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="常见优化算法 PART 2">
+<meta property="og:url" content="http://yoursite.com/2017/04/27/优化算法 part 2/index.html">
+<meta property="og:site_name" content="二颗苹果">
+<meta property="og:description" content="本篇博客是介绍在机器学习和深度学习中常用优化算法的第二部分，继续介绍其他优化算法包括Adam、Nadam以及一些常用的梯度算法优化策略。同样，对于每种优化算法，简单介绍其出发点、解决的思路和原理，以及所具备的优缺点。">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/adam_algorithm.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/Nadam_algorithm.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/second_order_algorithms_compare.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/batch_normalization.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/batch_normalization_network.png">
+<meta property="og:updated_time" content="2017-08-15T05:19:05.237Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="常见优化算法 PART 2">
+<meta name="twitter:description" content="本篇博客是介绍在机器学习和深度学习中常用优化算法的第二部分，继续介绍其他优化算法包括Adam、Nadam以及一些常用的梯度算法优化策略。同样，对于每种优化算法，简单介绍其出发点、解决的思路和原理，以及所具备的优缺点。">
+<meta name="twitter:image" content="http://onvolufm1.bkt.clouddn.com/adam_algorithm.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/04/27/优化算法 part 2/"/>
+
+
+
+
+
+  <title> 常见优化算法 PART 2 | 二颗苹果 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">二颗苹果</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/27/优化算法 part 2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周君君">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://onvolufm1.bkt.clouddn.com/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="二颗苹果">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                常见优化算法 PART 2
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-27T20:00:13+08:00">
+                2017-04-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/目录/机器学习/" itemprop="url" rel="index">
+                    <span itemprop="name">机器学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  本篇博客是介绍在机器学习和深度学习中常用优化算法的第二部分，继续介绍其他优化算法包括Adam、Nadam以及一些常用的梯度算法优化策略。同样，对于每种优化算法，简单介绍其出发点、解决的思路和原理，以及所具备的优缺点。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Adam"><a href="#Adam" class="headerlink" title="Adam"></a>Adam</h2><p>Adam[1]的<strong>出发点</strong>是希望优化高维参数空间下的目标函数，它<strong>结合了AdaGrad适合于稀疏梯度的优点和RMSProp适合于在线与非平稳情况下的优点</strong>，核心的更新公式如下：<br>$$
+\begin{align}
+& m_{t,i} = \gamma_1 m_{t-1,i} + (1 - \gamma_1)g_{t,i} \\
+& v_{t,i} = \gamma_2 v_{t-1,i} + (1 - \gamma_2)g^2_{t,i} \\
+& \hat m_{t,i} = {m_{t,i} \over  1-\gamma^t_1} \\
+& \hat v_{t,i} = {v_{t,i} \over  1-\gamma^t_2} \\
+& \theta_{t+1,i} = \theta_{t,i} - {\eta \over {\sqrt{v_{t,i}} + \epsilon}}  \hat m_{t,i} 
+\end{align}
+$$<br>因为$\epsilon$非常小（$10^{-8}$级别），因此上述更新步骤在实际代码实现[2]时可以按照下面的方式写：<br>$$
+\begin{align}
+& m_{t,i} = \gamma_1 m_{t-1,i} + (1 - \gamma_1)g_{t,i} \\
+& v_{t,i} = \gamma_2 v_{t-1,i} + (1 - \gamma_2)g^2_{t,i} \\
+& \eta' = {{\sqrt{1-\gamma_2^t}} \over {1- \gamma_1^t}} \eta  \\
+& \theta_{t+1,i} = \theta_{t,i} - {\eta' \over {\sqrt{v_{t,i}} + \epsilon}}  m_{t,i} 
+\end{align}
+$$<br>完整的Adam算法流程为：</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/adam_algorithm.png" alt=""></p>
+<p>Adam算法具备的优点包括：</p>
+<ol>
+<li>适用于稀疏梯度的情况；</li>
+<li>适合于在线和非平稳学习的情况；</li>
+<li>适合于高维参数空间的优化；</li>
+<li>也能够应用于部分的非凸优化问题</li>
+</ol>
+<h2 id="Nadam"><a href="#Nadam" class="headerlink" title="Nadam"></a>Nadam</h2><p>Nadam的<strong>出发点</strong>是进一步提升Adam算法的性能，它将Adam算法和Nestorev加速算法结合在了一起，下面是算法流程[10]：</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/Nadam_algorithm.png" alt=""></p>
+<p>其中用于计算$\hat m_t$的动态参数$u_t$由一个<strong>momentum schedule</strong>给出：</p>
+<script type="math/tex; mode=display">
+u_t = u (1 - 0.5 \times 0.96^{t \over 250})</script><p>一般而言，在想使用带动量的RMSprop，或者Adam的地方，大多可以使用Nadam取得更好的效果[10].</p>
+<h2 id="算法选择"><a href="#算法选择" class="headerlink" title="算法选择"></a>算法选择</h2><ol>
+<li>如果训练数据是稀疏的，则一般用自适应学习率方法（AdaGrad, RMSProp, AdaDelta, Adam, Nadam）的效果会比较好；</li>
+<li>如果是训练一个比较深层的或复杂的神经网络，并且希望收敛速度比较快，选择自适应学习率方法；</li>
+</ol>
+<h2 id="二阶方法"><a href="#二阶方法" class="headerlink" title="二阶方法"></a>二阶方法</h2><p>上面提到的所有优化算法均只用到目标函数的一阶梯度信息，而牛顿法则还考虑了目标函数的二阶信息（海塞矩阵）作为优化的方向，但是在神经网络等参数较多的模型中，因为计算和存储Hessian矩阵带来的开销很大，因此牛顿法很少用到参数较多的模型优化中。为了减少Hessian矩阵的计算量，拟牛顿法通过寻找另外一个矩阵来近似原始的Hessian矩阵，比如用的比较多的L-BFGS[17]，但是原始的L-BFGS算法同样在神经网络等模型的训练中很少用到，原因[15]是：</p>
+<blockquote>
+<p>…, even after we eliminate the memory concerns, a large downside of a naive application of L-BFGS is that <strong>it must be computed over the entire training set</strong>, which could contain millions of examples. Unlike mini-batch SGD, getting L-BFGS to work on mini-batches is more tricky …</p>
+</blockquote>
+<p>另外一种利用目标函数的二阶梯度信息并且不直接计算Hessian矩阵的方法是共轭梯度法[18]或者Hessian-Free类算法，下图[19]是部分二阶优化方法在速度和内存方面的对比：</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/second_order_algorithms_compare.png" alt=""></p>
+<p>根据上图，如果模型需要训练的参数量非常大，则选择左下角位置的算法；如果需要优化的参数量比较少，则考虑用右上角位置的优化算法。</p>
+<h2 id="SGD优化策略"><a href="#SGD优化策略" class="headerlink" title="SGD优化策略"></a>SGD优化策略</h2><h4 id="Shuffling-and-d-Curriculum-Learning"><a href="#Shuffling-and-d-Curriculum-Learning" class="headerlink" title="Shuffling and d Curriculum Learning"></a>Shuffling and d Curriculum Learning</h4><p>如果不希望模型学习到训练数据顺序中所隐含的信息，需要在训练时每个epoch结束后打乱（shuffling）训练数据；而如果输入的训练数据的顺序信息对于提高模型的性能有帮助，或者希望模型学习到隐藏在训练数据顺序中的信息，则不应该进行 shuffling 操作，而应该将数据按照某种特定的顺序输入到模型训练过程中，这种方法称为 curriculum learning。</p>
+<h4 id="Batch-normalization"><a href="#Batch-normalization" class="headerlink" title="Batch normalization"></a>Batch normalization</h4><p>Batch Normalization要解决的问题[12]是：</p>
+<blockquote>
+<p>…, the distribution of each layer’s inputs changes during training, as the parameters of the previous layers change.</p>
+</blockquote>
+<p>也就是说每一层参数的变动会影响该层输出的分布，即会影响后一层输入数据的分布，这个问题在神经网络中带来的影响是：</p>
+<blockquote>
+<p>… requiring <strong>lower learning rates</strong> and <strong>careful parameter initialization</strong>, and makes it notoriously hard to train models with <strong>saturating nonlinearities</strong>. We refer to this phenomenon as internal covariate shift. </p>
+</blockquote>
+<p>可见，它会限制学习率、参数初始化和激活函数的选择，否则当网络层数比较多时容易出现<strong>梯度消失或爆炸</strong>问题，为此，Sergey Ioffe 提出Batch Normalization的方法，它通过对每一层 mini-batch 个输入数据进行 normalization 处理，使得输入的 mini-batch 个数据的均值为0，方差为1，具体的计算公式为：</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/batch_normalization.png" alt=""></p>
+<p>但是，单纯的对输入数据进行 Batch Normalization 操作会限制激活函数的表达能力：</p>
+<blockquote>
+<p>… simply normalizing each input of a layer may change what the layer can represent. For instance, normalizing the inputs of a sigmoid would constrain them to the linear regime of the nonlinearity. </p>
+</blockquote>
+<p>为此，为每一层的增加一组可以学习的参数$\gamma, \beta$，用于保存每一层的表达能力。将Batch Normalization 应用到神经网络中，对应的算法流程如下：</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/batch_normalization_network.png" alt=""></p>
+<p>Batch Normalization 带来的好处包括：</p>
+<ol>
+<li>能够选择较大的学习率而不会造成梯度消失或爆炸的问题；</li>
+<li>能够规格化（regularize）模型，避免过拟合问题，具有跟dropout相同的作用；</li>
+<li>makes training more resilient to the parameter scale，也就是说各层权重的大小不会影响反向梯度值，带来的另一个好处是初始权重的选择对于模型的影响会比较小。</li>
+</ol>
+<h4 id="SELUs"><a href="#SELUs" class="headerlink" title="SELUs"></a>SELUs</h4><p>SELUS[13]是一种改进的具有 self-normalizing 性质的激活函数，它的<strong>出发点</strong>是让神经网络<strong>自动</strong>的收敛到均值为0、方差为1的分布，因此不需要像 Batch Normalization 一样进行手动的 Normalization 转换。SELUs的表达式为：<br>$$
+selu(x) = \lambda 
+\begin{cases}
+x, \;  &\text{if x > 0} \\
+\alpha (e^x - 1), \; &\text{else}
+\end{cases}
+$$<br>其中的两个常数是固定的，$\lambda$=1.0507009873554804934193349852946,  $\alpha$= 1.6732632423543772848170429916717，作者证明通过使用SELUs激活函数后激活值方差的上下界来说明梯度的消失或爆炸不可能发生。因此使用SELUs构建的神经网络（SNN）的层数能够更深，对输入数据中的噪声也更具有鲁棒性。下面的代码是作者对SELUs的实现[14]，非常的简单，其中的tf.nn.elu(x)表示$e^x - 1$：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">selu</span><span class="params">(x)</span>:</span></div><div class="line">    <span class="keyword">with</span> ops.name_scope(<span class="string">'elu'</span>) <span class="keyword">as</span> scope:</div><div class="line">        alpha = <span class="number">1.6732632423543772848170429916717</span></div><div class="line">        scale = <span class="number">1.0507009873554804934193349852946</span></div><div class="line">        <span class="keyword">return</span> scale*tf.where(x&gt;=<span class="number">0.0</span>, x, alpha*tf.nn.elu(x))</div></pre></td></tr></table></figure></p>
+<h4 id="early-stopping"><a href="#early-stopping" class="headerlink" title="early stopping"></a>early stopping</h4><p>early stopping用来解决模型的过拟合问题，它的思路是：跟踪模型在<strong>验证集</strong>上的性能指数值$\tau$（正确率、MAE等），如果$\tau$的值连续没有提升的次数超过某一个预设的阈值时，我们便停止训练，避免模型过拟合。</p>
+<h4 id="Gradient-noise"><a href="#Gradient-noise" class="headerlink" title="Gradient noise"></a>Gradient noise</h4><p>Gradient noise 解决的问题是深层网络的过拟合问题以及差初始化权重（poor initialization）的鲁棒性问题，它的方法是向每一次迭代更新后的参数中加入服从某一个随时间变化的高斯噪声，如下：</p>
+<script type="math/tex; mode=display">
+g_{t,i} = g_{t,i} + N(0, \sigma_t^2)</script><p>其中噪声的方差所遵循的退火规律（anneal schedule）为：<br>$$
+\sigma_t^2 = { \eta \over (1+t)^{\gamma}}
+$$</p>
+<h4 id="Annealing-the-learning-rate"><a href="#Annealing-the-learning-rate" class="headerlink" title="Annealing the learning rate"></a>Annealing the learning rate</h4><p>除了上面提到的自适应优化算法，对于一般的优化算法，往往在开始时设定一个比较大的学习率，然后在训练时再慢慢减小学习率，这样带来的效果是“ quickly learning good weights early and fine tuning them later[16] ”，下面是三种常见的学习率decay的方法[15]：</p>
+<ol>
+<li>step decay：每训练一定量的epoch就将学习率减小一定的比例，一般可以通过观察固定学习率下模型在验证集上的误差率等曲线的变化来确定大概需要多少epoch进行一次学习率decay；</li>
+<li>Exponential decay：$\alpha = \alpha_0 e^{-k t}$，其中$\alpha_0, k$是超参数，$t$是迭代次数或者epoch次数；</li>
+<li>1/t decay：类似于上一种方法，具体形式不同$\alpha = \alpha_0 / (1 + k t )$，参数意义与上一种类似。</li>
+</ol>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
+<li><a href="https://arxiv.org/pdf/1412.6980v8.pdf" target="_blank" rel="external">ADAM: A METHOD FOR STOCHASTIC OPTIMIZATION</a>;</li>
+<li><a href="https://github.com/fchollet/keras/blob/master/keras/optimizers.py#L376" target="_blank" rel="external">Adam implement from Keras</a>;</li>
+<li><a href="http://www.cs.toronto.edu/~tijmen/csc321/slides/lecture_slides_lec6.pdf" target="_blank" rel="external">Geoffrey    Hinton. Neural networks for machine learning</a>;</li>
+<li><a href="http://www.jmlr.org/papers/volume12/duchi11a/duchi11a.pdf" target="_blank" rel="external">Adaptive Subgradient Methods for Online Learning and Stochastic Optimization</a>;</li>
+<li><a href="http://int8.io/comparison-of-optimization-techniques-stochastic-gradient-descent-momentum-adagrad-and-adadelta/" target="_blank" rel="external">A post about comparison of optimization techniques</a>;</li>
+<li><a href="https://arxiv.org/pdf/1212.5701.pdf" target="_blank" rel="external">Matthew D. Zeiler. ADADELTA: AN ADAPTIVE LEARNING RATE METHOD</a>;</li>
+<li><a href="https://www.quora.com/Where-is-a-good-resource-to-learn-about-non-stationary-settings-in-deep-learning-optimization" target="_blank" rel="external">Alexander Ororbia’s answer from Quora about non-stationary setting</a>;</li>
+<li><a href="https://www.quora.com/What-does-it-mean-that-RMPSprop-optimization-algorithms-works-well-on-the-non-stationary-setting" target="_blank" rel="external">Matthew Lai’s answer from Quora about non-stationary setting</a>;</li>
+<li><a href="http://mind.dgist.ac.kr/classes/ic605/lectures/optimization.pdf" target="_blank" rel="external">Taesup Moon. optimization </a>;</li>
+<li><a href="http://cs229.stanford.edu/proj2015/054_report.pdf" target="_blank" rel="external">Timothy Dozat. Incorporating Nesterov Momentum into Adam</a>;</li>
+<li><a href="https://arxiv.org/pdf/1609.04747.pdf" target="_blank" rel="external"> Sebastian Ruder. An overview of gradient descent optimization algorithms</a>;</li>
+<li><a href="https://arxiv.org/pdf/1502.03167v3.pdf" target="_blank" rel="external">Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift</a>;</li>
+<li><a href="https://arxiv.org/pdf/1706.02515.pdf" target="_blank" rel="external">Self-Normalizing Neural Networks </a>;</li>
+<li><a href="https://github.com/bioinf-jku/SNNs/blob/master/selu.py" target="_blank" rel="external">Implementation of SELUs by author</a>;</li>
+<li><a href="http://cs231n.github.io/neural-networks-3/" target="_blank" rel="external">CS231n Convolutional Neural Networks for Visual Recognition</a>;</li>
+<li><a href="http://machinelearningmastery.com/using-learning-rate-schedules-deep-learning-models-python-keras/" target="_blank" rel="external">Using Learning Rate Schedules for Deep Learning Models in Python with Keras</a>;</li>
+<li><a href="http://aria42.com/blog/2014/12/understanding-lbfgs" target="_blank" rel="external">Numerical Optimization: Understanding L-BFGS</a>;</li>
+<li><a href="http://andrew.gibiansky.com/blog/machine-learning/hessian-free-optimization/" target="_blank" rel="external">Hessian Free Optimization</a>;</li>
+<li><a href="https://www.neuraldesigner.com/blog/5_algorithms_to_train_a_neural_network" target="_blank" rel="external">5 algorithms to train a neural network</a>;</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/标签/优化算法/" rel="tag"># 优化算法</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/23/优化算法 part 1/" rel="next" title="常见优化算法 PART 1">
+                <i class="fa fa-chevron-left"></i> 常见优化算法 PART 1
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/05/03/树，Bagging树，提升树/" rel="prev" title="树，Bagging树，提升树">
+                树，Bagging树，提升树 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://onvolufm1.bkt.clouddn.com/avatar.jpg"
+               alt="周君君" />
+          <p class="site-author-name" itemprop="name">周君君</p>
+           
+              <p class="site-description motion-element" itemprop="description">越努力越幸运</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/zhoujunjun-apple" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Adam"><span class="nav-number">1.</span> <span class="nav-text">Adam</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Nadam"><span class="nav-number">2.</span> <span class="nav-text">Nadam</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#算法选择"><span class="nav-number">3.</span> <span class="nav-text">算法选择</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二阶方法"><span class="nav-number">4.</span> <span class="nav-text">二阶方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SGD优化策略"><span class="nav-number">5.</span> <span class="nav-text">SGD优化策略</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Shuffling-and-d-Curriculum-Learning"><span class="nav-number">5.0.1.</span> <span class="nav-text">Shuffling and d Curriculum Learning</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Batch-normalization"><span class="nav-number">5.0.2.</span> <span class="nav-text">Batch normalization</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SELUs"><span class="nav-number">5.0.3.</span> <span class="nav-text">SELUs</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#early-stopping"><span class="nav-number">5.0.4.</span> <span class="nav-text">early stopping</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Gradient-noise"><span class="nav-number">5.0.5.</span> <span class="nav-text">Gradient noise</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Annealing-the-learning-rate"><span class="nav-number">5.0.6.</span> <span class="nav-text">Annealing the learning rate</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文献"><span class="nav-number">6.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">周君君</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="custom_mathjax_source">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+  
+
+
+  
+
+</body>
+</html>

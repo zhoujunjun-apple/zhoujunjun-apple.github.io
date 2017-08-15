@@ -1,0 +1,882 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="优化算法," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="本篇博客是介绍机器学习和深度学习中常用优化算法的第一部分，包括梯度下降、动量项、Nesterov加速、AdaGrad、RMSProp、AdaDelta对于每种优化算法，简单介绍其出发点、解决问题的思路和原理，以及所具备的优缺点。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="常见优化算法 PART 1">
+<meta property="og:url" content="http://yoursite.com/2017/04/23/优化算法 part 1/index.html">
+<meta property="og:site_name" content="二颗苹果">
+<meta property="og:description" content="本篇博客是介绍机器学习和深度学习中常用优化算法的第一部分，包括梯度下降、动量项、Nesterov加速、AdaGrad、RMSProp、AdaDelta对于每种优化算法，简单介绍其出发点、解决问题的思路和原理，以及所具备的优缺点。">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/SGD_slow_converge.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/momentum_improved_converge.png">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/nesterov.bmp">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/momentum_vs_nesterov.bmp">
+<meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/adadelta_algorithm.png">
+<meta property="og:updated_time" content="2017-08-15T05:19:05.233Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="常见优化算法 PART 1">
+<meta name="twitter:description" content="本篇博客是介绍机器学习和深度学习中常用优化算法的第一部分，包括梯度下降、动量项、Nesterov加速、AdaGrad、RMSProp、AdaDelta对于每种优化算法，简单介绍其出发点、解决问题的思路和原理，以及所具备的优缺点。">
+<meta name="twitter:image" content="http://onvolufm1.bkt.clouddn.com/SGD_slow_converge.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/04/23/优化算法 part 1/"/>
+
+
+
+
+
+  <title> 常见优化算法 PART 1 | 二颗苹果 </title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">二颗苹果</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/23/优化算法 part 1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="周君君">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://onvolufm1.bkt.clouddn.com/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="二颗苹果">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                常见优化算法 PART 1
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-23T23:26:33+08:00">
+                2017-04-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/目录/机器学习/" itemprop="url" rel="index">
+                    <span itemprop="name">机器学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  本篇博客是介绍机器学习和深度学习中常用优化算法的第一部分，包括梯度下降、动量项、Nesterov加速、AdaGrad、RMSProp、AdaDelta对于每种优化算法，简单介绍其出发点、解决问题的思路和原理，以及所具备的优缺点。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="梯度下降法"><a href="#梯度下降法" class="headerlink" title="梯度下降法"></a>梯度下降法</h2><p>根据泰勒级数的定义：<br>$$
+f(x + \Delta x) = f(x) + f'(x) \Delta x + {f^{(2)}(x) \over 2} \Delta x^2 + O(\Delta x^3)
+$$<br>如果将自变量x沿着方向D移动步长$\eta$后变为$x+\eta D$，由一阶泰勒公式展开式可得：<br>$$
+f(x + \eta D) = f(x) + f'(x) \eta D
+$$<br>为了找到函数$f(x)$的最小值，我们希望x的本次移动能够使得目标函数$f(x)$减小的尽可能多，也即在给定步长$\eta$后我们希望：<br>$$
+max_D\{  f(x) - f(x + \eta D)  = -f'(x) \eta D\}
+$$<br>等式右边的$ -f'(x)  D$表示函数在x处的负梯度与移动方向D的乘积，为了使得这两个向量的乘积最大，需要让D等于负梯度$ -f'(x)  D$方向，加上步长$\eta$，x需要沿着负梯度的方向前进：<br>$$
+x^{(t+1)} = x^{(t)} - \eta f'(x^{(t)})
+$$<br>这便是最原始的梯度下降法的更新公式，它存在如下几处劣势[10]：</p>
+<ol>
+<li>其中步长$\eta$的选择十分关键，步长太短，收敛速度十分慢；步长太大，则收敛到极小值附近时容易出现振荡甚至无法收敛(diverge)；</li>
+<li>第一个缺点的一种解决方案是应用退火算法等 learning rate schedule 来调整训练过程中的学习率，但是这种方法需要事先确定特定的learning rate schedule，无法自适应不同的数据集特性（比如稀疏性数据等）；</li>
+<li>它对所有的参数设置相同的学习率，而我们希望对于出现频次比较低的特征每次更新的幅度大一些；</li>
+<li>对于非凸函数容易陷入局部极小值或者鞍点（该点处任何维度上的梯度均接近0）处。</li>
+</ol>
+<p><img src="http://onvolufm1.bkt.clouddn.com/SGD_slow_converge.png" alt=""></p>
+<p>上图表示的是SGD算法在靠近最优值附近时所产生的振荡现象。其中椭圆线表示目标函数在参数空间的等高线，中心位置是最优值位置，蓝色折线为SGD优化时参数的变化路径，因为<strong>任何一点的负梯度方向必垂直于经过该点等高线在此处的切线方向</strong>，导致这里的负梯度方向在红色轴上的分量几乎为0，因此导致往最优值处的移动速度非常缓慢。</p>
+<p>梯度下降算法一般不直接用在机器学习或深度学习的模型优化上，因为它首先是求出每个训练样本给目标函数带来的负梯度值，然后求出梯度平均值用于模型参数的更新，这带来的问题是模型更新的速度很缓慢，为了解决这个问题，出现了在 mini-batch 的SGD算法，它每次取全部训练数据集中的一个mini-batch的平均梯度值用于模型参数更新。</p>
+<h2 id="动量项"><a href="#动量项" class="headerlink" title="动量项"></a>动量项</h2><p>对于优化问题$min J(\theta)$原始的梯度下降法迭代更新的公式为：<br>$$
+v_t = \eta \nabla_{\theta} J(\theta) \\
+\theta = \theta - v_t
+$$<br>动量项从<strong>步伐</strong> $v_t$上下手，它的思想是：如果当前的梯度方向$v_t$与上一次的梯度方向$v_{t-1}$相同，则加大步伐；如果相反，则缩小步伐。它的<strong>出发点</strong>是期望减小SGD收敛过程的振荡现象从而加快收敛：<br>$$
+\begin{align}
+& v_1 = \eta \nabla_{\theta} J(\theta_0) \\
+& v_t = \gamma v_{t-1} + \eta \nabla_{\theta} J(\theta_{t-1}) \\
+& \theta = \theta - v_t
+\end{align}
+$$<br>如果我们将上面的$v_t$全部展开，则为：<br>$$
+\begin{align} 
+v_{t} &=  \eta \sum_{i=0}^{t-1} \gamma^{i} \nabla J(\theta_{k-1-i})  \\ 
+& = \eta (\gamma^{0} \nabla J(\theta_{t-1}) + \gamma^{1} \nabla J(\theta_{t-2}) + \dots + \gamma^{t-2} \nabla J(\theta_1) + \gamma^{t-1} \nabla J(\theta_0)) 
+\end{align}
+$$<br>因此，实际上$v_t$是对所有历史梯度值$\nabla J(\theta_i), i = t-1, t-2, \ldots, 1, 0$的线性组合，组合权重为:</p>
+<script type="math/tex; mode=display">
+\eta (\gamma^{0}, \gamma^{1}, \dots, \gamma^{t-1})</script><p>因为因子$\gamma \in (0, 1)$，因此随着更新次数$t$的增加，过去的梯度值$\nabla J(\theta_i)$对$v_t$的影响以指数级的方式递减。</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/momentum_improved_converge.png" alt=""></p>
+<p>对比上图[3]中momentum下和上一节SGD下参数的更新路径可以发现，由于$v_{t-1}$的作用，使跟SGD相比，更新幅度$v_t$减小，且更新方向与最优目标方向逐渐接近（参见下一节中momentum的作用示意图），减小了振荡现象，加快了收敛速度。</p>
+<h2 id="Nesterov加速"><a href="#Nesterov加速" class="headerlink" title="Nesterov加速"></a>Nesterov加速</h2><p>Nesterov是动量项方法的变体，它们的区别[3]在于：</p>
+<blockquote>
+<p> The standard momentum method <strong>first</strong> computes the    gradient at the current location and    <strong>then</strong>    takes a    big jump in    the direction of the    updated accumulated    gradient;<br>Nesterov <strong>first</strong> make a big    jump in the    direction of    the previous accumulated gradient. <strong>Then</strong> measure    the gradient where    you end up and make a correction.    </p>
+</blockquote>
+<p>它在动量项的基础上，用$\theta_{t-1} - \gamma v_{t-1}$替代了原始动量项中的$\theta_{t-1}$，如果该估计点的梯度$\nabla<em>{\theta} J(\theta</em>{t-1} - \gamma v<em>{t-1}) $与之前的$v</em>{t-1}$方向相反，则当前步长$v_t$会被压缩，它的<strong>出发点</strong>依然是是希望函数在接近最小值时减小振荡，不同的地方在于Nesterov事先估计后一步的梯度方向，避免犯错后纠正：<br>$$
+\begin{align}
+& \theta_{t-1} = \theta_{t-2} - v_{t-1} \\
+& v_t = \gamma v_{t-1} + \eta \nabla_{\theta} J(\theta_{t-1} - \gamma v_{t-1}) \\
+& \theta_t = \theta_{t-1} - v_t
+\end{align}
+$$<br>结合下图来理解上面的更新公式：我们现在站在$\theta_1$这个位置，在动量项方法中，我们综合考虑之前的更新方向$v_{t-1}$和当前位置的梯度方向$ \nabla_{\theta} J(\theta_1)$，然后决定本次更新的幅度$v_t$，而Nesterov加速法则按照之前的更新方向$v_{t-1}$再往前探一探，如果探测的结果$\nabla_{\theta} J(\theta_1 - \gamma v_{t-1})$与上一次的更新方向相反，则减小当前的更新力度。</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/nesterov.bmp" alt=""></p>
+<p>两种更新方式的对比如下图所示：</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/momentum_vs_nesterov.bmp" alt=""></p>
+<h2 id="Adagrad"><a href="#Adagrad" class="headerlink" title="Adagrad"></a>Adagrad</h2><p>Adagrad的<strong>出发点</strong>是：它为每个参数自动计算不同的学习率，使得频繁出现的参数的每次更新幅度小一些，而不频繁出现的参数的每次更新幅度大一些，它<strong>适合用在稀疏数据</strong>的模型优化上，更新公式为：<br>$$
+\theta_{t+1,i} = \theta_{t,i} - {\eta \over {\sqrt{\epsilon + \sum_{k=1}^t g_{k, i}^2}}} g_{t,i}
+$$<br>其中$\theta_{t,i}$表示参数向量$\theta$中第$i$个参数分量在$t$时刻的值，$g_{k,i}$记录的是第$k$次迭代时梯度在第$i$个参数分量上的取值：</p>
+<script type="math/tex; mode=display">
+g_{k} =  \nabla_{\theta} J(\theta_{k}), \; k = 1,2, \ldots, t</script>$\epsilon$是为了保证分母部分不为0，因此一般取一个很小的非零值即可。对于参数向量中每个参数分量$\theta_{t,i}$更新时，当前梯度在对应梯度分量上的取值$g_{t,i}$除了需要乘上一个学习率$\eta$之外，还需要除以**对应参数分量的历史梯度分量平方的累加值** $ \sum_{k=1}^t g_{k, i}^2$，以保证对不同出现频率的特征给予不同的学习率，作者在原论文中提到[4]：
+> Informally, our procedures give frequently occurring features very low learning rates and infrequent features high learning rates, where the intuition is that each time an infrequent feature is seen, the learner should “take notice.” Thus, the adaptation facilitates finding and identifying very predictive but comparatively rare features
+
+## RMSprop法
+Adagrad中分母部分的$g_{k, i}^2$因为始终是非负数，随着迭代次数的增加，其累计和可能会越来越大，从而导致参数更新幅度很小，RMSprop法的**出发点**正是为了解决这个问题，它在对$g_{k, i}^2$进行累加时乘上了一个小于1的系数，更新公式如下：
+$$
+\begin{align}
+& E[g^2]_{t,i} = \gamma E[g^2]_{t-1,i} + (1 - \gamma)g^2_{t,i} \\
+& \theta_{t+1,i} = \theta_{t,i} - {\eta \over {\sqrt{\epsilon +E[g^2]_{t,i}}}} g_{t,i}
+\end{align}
+$$
+<p>参数$\gamma$一般取0.9，这样当前的梯度影响$(1 - \gamma)g^2_{t,i}$对分母部分改变的比较小，从而减缓分母增大的速度，但是初始学习率$\eta$的选择仍然很关键。RMSprop算法适合于优化<strong>在线和非平稳目标</strong> （指目标分布随时间而变化的分布[7][8]），比如RNN类网络结构的训练。</p>
+<h2 id="AdaDelta"><a href="#AdaDelta" class="headerlink" title="AdaDelta"></a>AdaDelta</h2><p>AdaDelta的<strong>出发点</strong>是希望改善AdaGrad方法存在的两个缺点[6]：</p>
+<blockquote>
+<p>…  ADAGRAD, this method can be <strong>sensitive to initial conditions of the parameters and the corresponding gradients</strong>. If the initial gradients are large, the learning rates will be low for the remainder of training. This can be combated by increasing the global learning rate, making the ADAGRAD method sensitive to the choice of learning rate. Also, due to the continual accumulation of squared gradients in the denominator, the learning rate will continue to decrease throughout training, eventually decreasing to zero and stopping training completely. </p>
+</blockquote>
+<p>总结来看就是：初始全局学习率$\eta$的选择问题和随着更新次数的增加，分母部分累加项会越来越大，从而整体学习率接近于0，造成参数更新缓慢。</p>
+<p>为了改善这两点，AdaDelta分别引入了两个思路[6]：</p>
+<p> 1、Accumulate Over Window<br> 不像AdaGrad中对<strong>所有</strong>历史（包括当前的）梯度值累加，AdaDelta只考虑过去$w$大小窗口内的历史梯度值，从而避免累加梯度值递增。又考虑到存储前$w$个历史梯度值的效率问题，因此用 <strong>exponentially decaying average of the squared gradients</strong>方法来实现，具体为对当前的梯度值平方$g^2_t$和过去的梯度值平方$ \mathrm{E}[g^2]_{t-1}$进行一个加权求和：<br>$$
+\mathrm{E}[g^2]_t  = \rho \mathrm{E}[g^2]_{t-1} + (1 – \rho) g^2_t
+$$</p>
+<p>2、Correct Units with Hessian Approximation<br>$$
+ \Delta x_t = -\frac{\sqrt{\mathrm{E}[\Delta x^2]_{t-1} + \epsilon}}{\sqrt{\mathrm{E}[g^2]_{t} + \epsilon}} g_t
+$$<br>其中$ \mathrm{E}[\Delta x^2]_t  = \rho \mathrm{E}[\Delta x^2]_{t-1} + (1 – \rho) \Delta x^2_t$。</p>
+<p>完整的AdaDelta算法流程为[6]：</p>
+<p><img src="http://onvolufm1.bkt.clouddn.com/adadelta_algorithm.png" alt=""></p>
+<p>相比于之前的算法，AdaDelta算法具有如下优点[6]：</p>
+<ol>
+<li>不需要手动设置全局学习率$\eta$;</li>
+<li>每个参数分量独立的计算动态的自适应学习率；</li>
+<li>对于大梯度值、数据噪声、模型结构的选择具有较好的鲁棒性；</li>
+<li>对于模型超参数的选择不敏感；</li>
+<li>能够同时应用于本机或分布式计算；</li>
+</ol>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ol>
+<li><a href="https://arxiv.org/pdf/1412.6980v8.pdf" target="_blank" rel="external">ADAM: A METHOD FOR STOCHASTIC OPTIMIZATION</a>;</li>
+<li><a href="https://github.com/fchollet/keras/blob/master/keras/optimizers.py#L376" target="_blank" rel="external">Adam implement from Keras</a>;</li>
+<li><a href="http://www.cs.toronto.edu/~tijmen/csc321/slides/lecture_slides_lec6.pdf" target="_blank" rel="external">Geoffrey    Hinton. Neural networks for machine learning</a>;</li>
+<li><a href="http://www.jmlr.org/papers/volume12/duchi11a/duchi11a.pdf" target="_blank" rel="external">Adaptive Subgradient Methods for Online Learning and Stochastic Optimization</a>;</li>
+<li><a href="http://int8.io/comparison-of-optimization-techniques-stochastic-gradient-descent-momentum-adagrad-and-adadelta/" target="_blank" rel="external">A post about comparison of optimization techniques</a>;</li>
+<li><a href="https://arxiv.org/pdf/1212.5701.pdf" target="_blank" rel="external">Matthew D. Zeiler. ADADELTA: AN ADAPTIVE LEARNING RATE METHOD</a>;</li>
+<li><a href="https://www.quora.com/Where-is-a-good-resource-to-learn-about-non-stationary-settings-in-deep-learning-optimization" target="_blank" rel="external">Alexander Ororbia’s answer from Quora about non-stationary setting</a>;</li>
+<li><a href="https://www.quora.com/What-does-it-mean-that-RMPSprop-optimization-algorithms-works-well-on-the-non-stationary-setting" target="_blank" rel="external">Matthew Lai’s answer from Quora about non-stationary setting</a>;</li>
+<li><a href="http://mind.dgist.ac.kr/classes/ic605/lectures/optimization.pdf" target="_blank" rel="external">Taesup Moon. optimization </a>;</li>
+<li><a href="http://cs229.stanford.edu/proj2015/054_report.pdf" target="_blank" rel="external">Timothy Dozat. Incorporating Nesterov Momentum into Adam</a>;</li>
+<li><a href="https://arxiv.org/pdf/1609.04747.pdf" target="_blank" rel="external"> Sebastian Ruder. An overview of gradient descent optimization algorithms</a>;</li>
+<li><a href="https://arxiv.org/pdf/1502.03167v3.pdf" target="_blank" rel="external">Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift</a>;</li>
+<li><a href="https://arxiv.org/pdf/1706.02515.pdf" target="_blank" rel="external">Self-Normalizing Neural Networks </a>;</li>
+<li><a href="https://github.com/bioinf-jku/SNNs/blob/master/selu.py" target="_blank" rel="external">Implementation of SELUs by author</a>;</li>
+<li><a href="http://cs231n.github.io/neural-networks-3/" target="_blank" rel="external">CS231n Convolutional Neural Networks for Visual Recognition</a>;</li>
+<li><a href="http://machinelearningmastery.com/using-learning-rate-schedules-deep-learning-models-python-keras/" target="_blank" rel="external">Using Learning Rate Schedules for Deep Learning Models in Python with Keras</a>;</li>
+<li><a href="http://aria42.com/blog/2014/12/understanding-lbfgs" target="_blank" rel="external">Numerical Optimization: Understanding L-BFGS</a>;</li>
+<li><a href="http://andrew.gibiansky.com/blog/machine-learning/hessian-free-optimization/" target="_blank" rel="external">Hessian Free Optimization</a>;</li>
+<li><a href="https://www.neuraldesigner.com/blog/5_algorithms_to_train_a_neural_network" target="_blank" rel="external">5 algorithms to train a neural network</a>;</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/标签/优化算法/" rel="tag"># 优化算法</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/18/逻辑斯蒂回归的前世/" rel="next" title="逻辑斯蒂回归的前世">
+                <i class="fa fa-chevron-left"></i> 逻辑斯蒂回归的前世
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/04/27/优化算法 part 2/" rel="prev" title="常见优化算法 PART 2">
+                常见优化算法 PART 2 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="http://onvolufm1.bkt.clouddn.com/avatar.jpg"
+               alt="周君君" />
+          <p class="site-author-name" itemprop="name">周君君</p>
+           
+              <p class="site-description motion-element" itemprop="description">越努力越幸运</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/zhoujunjun-apple" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#梯度下降法"><span class="nav-number">1.</span> <span class="nav-text">梯度下降法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#动量项"><span class="nav-number">2.</span> <span class="nav-text">动量项</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Nesterov加速"><span class="nav-number">3.</span> <span class="nav-text">Nesterov加速</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Adagrad"><span class="nav-number">4.</span> <span class="nav-text">Adagrad</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AdaDelta"><span class="nav-number">5.</span> <span class="nav-text">AdaDelta</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考文献"><span class="nav-number">6.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">周君君</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="custom_mathjax_source">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+  
+
+
+  
+
+</body>
+</html>
