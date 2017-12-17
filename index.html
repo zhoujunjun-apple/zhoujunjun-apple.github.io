@@ -260,7 +260,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/07/22/强化学习(6)：策略梯度/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/11/14/自我认知（五）：焦虑分子/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="周君君">
@@ -282,8 +282,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/07/22/强化学习(6)：策略梯度/" itemprop="url">
-                  强化学习（六）：策略梯度算法
+                <a class="post-title-link" href="/2017/11/14/自我认知（五）：焦虑分子/" itemprop="url">
+                  自我认知（五）：焦虑分子
                 </a>
               
             
@@ -299,8 +299,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-22T20:04:09+08:00">
-                2017-07-22
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-14T22:20:14+08:00">
+                2017-11-14
               </time>
             
 
@@ -322,8 +322,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/目录/强化学习/" itemprop="url" rel="index">
-                    <span itemprop="name">强化学习</span>
+                  <a href="/目录/自我认知/" itemprop="url" rel="index">
+                    <span itemprop="name">自我认知</span>
                   </a>
                 </span>
 
@@ -358,10 +358,10 @@
 
       
         
-          在状态集和动作集均比较小的情况下，可以通过直接估计表格式的(Tabular)动作值函数来寻找最优策略，但是在状态集和动作集数量很大的情况下，Tabular方式在存储和效率上会变得很差。本篇博文介绍另一种求解最优策略的思路：直接对策略进行参数化建模，然后通过常见的梯度算法进行策略参数更新，这里关键的地方在于对参数化的策略下的目标函数的梯度计算，这也是所有策略梯度类算法的基础部分。所以首先详细的推导处策略梯度的计算方法，以及介绍建立在在此基础上的Vanilla策略梯度算法，然后通过分析普通策略梯度算法中步长的问题，介绍最新的两种策略梯度算法原理：TRPO和PPO。
+          焦虑是我们这个时代的底色，大家为自己的未来焦虑，为没有男女朋友焦虑，为买不起房而焦虑，这几年刚出现的知识焦虑[2]，以及网络上年轻人称自己是需要靠枸杞养生的老年人这一现象背后所体现的对自己健康的焦虑。群体的情绪会下意识的影响到群体中的个体，焦虑不可避免，但是过分焦虑是不必要的。三联书店知心书系列[3]中的这本《你好，焦虑分子》[1]集中关注焦虑，详细的分析了焦虑产生的原因、焦虑本身的作用、几种主要的焦虑类型以及如何调节不正常的焦虑情绪。
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017/07/22/强化学习(6)：策略梯度/">
+            <a class="btn" href="/2017/11/14/自我认知（五）：焦虑分子/">
               阅读全文 &raquo;
             </a>
           </div>
@@ -407,7 +407,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/07/07/强化学习(5)：DQN及实现/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/11/01/自我认知（四）：俘虏完美主义/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="周君君">
@@ -429,8 +429,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/07/07/强化学习(5)：DQN及实现/" itemprop="url">
-                  强化学习（五）：DQN与实现
+                <a class="post-title-link" href="/2017/11/01/自我认知（四）：俘虏完美主义/" itemprop="url">
+                  自我认知（四）：俘虏完美主义
                 </a>
               
             
@@ -446,8 +446,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-07T23:56:14+08:00">
-                2017-07-07
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-01T20:39:14+08:00">
+                2017-11-01
               </time>
             
 
@@ -469,8 +469,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/目录/深度强化学习/" itemprop="url" rel="index">
-                    <span itemprop="name">深度强化学习</span>
+                  <a href="/目录/自我认知/" itemprop="url" rel="index">
+                    <span itemprop="name">自我认知</span>
                   </a>
                 </span>
 
@@ -505,10 +505,10 @@
 
       
         
-          表格式的动作值函数无法有效的应用到连续MDP或者高维状态的情况下，因此考虑用一个函数来代替Q函数，替代函数的选择十分关键。Deepmind团队成功的将深度学习和RL结合，提出了DQN模型，十分巧妙的利用了深度神经网络强大的非线性函数表达能力，对Q函数进行近似，本文对DQN模型原理进行介绍，最后附上MorvanZhou对DQN的实现算法，以及我对其的理解。
+          标题中的“俘虏”做了动词来用，之所以取这样一个有点怪的名字是因为控制权的问题：我无法彻底消除自身的完美主义倾向，但是我可以控制它。我以前是完美主义者，也深受完美主义的苦，但是苦于找不到问题出在哪里。就像很多人面对黑暗会心生恐惧，我面对不完美也是这种感觉，这种感觉下意识的控制着我的行为，让我深陷于各种细节之中而无法看清大局：一本书必须从头到尾看完才能放心、一部美剧必须以每一季为单位观看、任何一件小事没有做好都会让我自责不已.......我意识到问题的严重性之后，一直在寻找解脱的办法，最终，这本只有180页的《从自我苛求中解放出来》让我找到了问题的根源并最终让我具备控制自身完美主义倾向的能力。另外，三联书店的知心书系列又更新了，专门有一本讲强迫症的心理学著作《走出强迫症》。
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017/07/07/强化学习(5)：DQN及实现/">
+            <a class="btn" href="/2017/11/01/自我认知（四）：俘虏完美主义/">
               阅读全文 &raquo;
             </a>
           </div>
@@ -554,7 +554,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/06/27/强化学习(4)：基本算法实现/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/20/自我认知（三）：逻辑谬误/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="周君君">
@@ -576,8 +576,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/06/27/强化学习(4)：基本算法实现/" itemprop="url">
-                  强化学习（四）：基本算法实现
+                <a class="post-title-link" href="/2017/10/20/自我认知（三）：逻辑谬误/" itemprop="url">
+                  自我认知（三）：逻辑谬误
                 </a>
               
             
@@ -593,8 +593,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-06-27T23:14:33+08:00">
-                2017-06-27
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-20T10:10:33+08:00">
+                2017-10-20
               </time>
             
 
@@ -616,8 +616,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/目录/强化学习/" itemprop="url" rel="index">
-                    <span itemprop="name">强化学习</span>
+                  <a href="/目录/自我认知/" itemprop="url" rel="index">
+                    <span itemprop="name">自我认知</span>
                   </a>
                 </span>
 
@@ -652,10 +652,10 @@
 
       
         
-          前面的两篇基本算法博文介绍了强化学习领域最基本算法的原理和适用情况，在这篇博文中，选择时间差分中的四类算法：Q-学习、Sarsa学习、Sarsa(lambda)学习、Q(lambda)学习进行实现，重点关注每类算法在更新和改进Q函数时的不同方式，以及不同算法中资格迹的实现方式。
+          情绪会影响我们的决策过程，除了做好情绪管理之外，是否还有其他办法来优化我们的决策呢？逻辑可以做到。大家经常听到的批判性思维，它要达到的目标就是“对于信什么，做什么，有合理的决定”[2]，这里面的“合理的决定”便是逻辑大展拳脚的地方。《好好讲道理-反击谬误的逻辑学训练》整本书语言干净利落，没有口水类废话，是一本干货纯度100%的书，这本书的核心内容是日常生活中常出现的60种逻辑谬误，被作者分为五大类。对于每一种谬误，作者给出了谬误的定义、谬误的问题所在、实例以及如何回击谬误四个部分，我选择了我自己平时容易犯的谬误进行了整理。墙裂建议大家去看原书，虽然在日常对话中不需要如此严肃的逻辑推理，但是在生活中许多需要做决策和选择的时候，拥有良好的逻辑推理能够帮助我们做出更合理的选择。
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017/06/27/强化学习(4)：基本算法实现/">
+            <a class="btn" href="/2017/10/20/自我认知（三）：逻辑谬误/">
               阅读全文 &raquo;
             </a>
           </div>
@@ -701,7 +701,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/06/22/强化学习(3)：基本算法 PART 2/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/01/自我认知（二）：基本情绪和情绪管理/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="周君君">
@@ -723,8 +723,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/06/22/强化学习(3)：基本算法 PART 2/" itemprop="url">
-                  强化学习（三）：基本算法 PART 2
+                <a class="post-title-link" href="/2017/10/01/自我认知（二）：基本情绪和情绪管理/" itemprop="url">
+                  自我认知（二）：基本情绪和情绪管理
                 </a>
               
             
@@ -740,8 +740,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-06-22T20:21:17+08:00">
-                2017-06-22
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-01T19:33:38+08:00">
+                2017-10-01
               </time>
             
 
@@ -763,8 +763,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/目录/强化学习/" itemprop="url" rel="index">
-                    <span itemprop="name">强化学习</span>
+                  <a href="/目录/自我认知/" itemprop="url" rel="index">
+                    <span itemprop="name">自我认知</span>
                   </a>
                 </span>
 
@@ -799,10 +799,10 @@
 
       
         
-          本文介绍求解最优策略的基本算法第二部分：时间差分类算法。时间差分(Temporal Difference)控制算法是在实际场景中应用的最广泛的算法，这得益于它具有的二个特点：时间步上的灵活性、支持在线增量式学习。在基本算法的第一部分中介绍的马尔科夫控制算法最大的两个应用困难在于：它评估和改进算法的周期是episode-by-episode的，而且只适用于episode(场景式)任务，这带来的问题便是策略迭代速度太慢，不能够很好满足大部分实际场景的在线增量式更新需求而且对任务要求有限制。时间差分算法很好的解决了这个问题，它对于Q函数的改进周期是step-by-step的，不限制任务为场景式。其中最简单的Q学习和Sarsa学习均只需要知道后一个状态的Q值便能够更新和改进Q函数，而资格迹的引入使得时间差分更加灵活。
+          《与生俱来的七情》这本书讲的是我们的基本情绪。如果把我们个体看作一个小黑盒，这个黑盒的输入端就是我们的信息接收器官，包括眼睛、耳朵、皮肤、鼻子等，这个黑盒的输出端就是我们的行为，包括表情、眼神、语速、音高、肢体动作等，这个黑盒的功能简单来说就是根据输入信息来调整输出信息，谁来调呢？怎么调呢？《思考，快与慢》的作者认为，这个黑盒包括两个部分：系统1和系统2，系统1根据输入信息产生情绪、直觉、意向等初步决策，系统2根据系统1产生的初步决策利用逻辑推理、怀疑和反思、自我控制等理性思维做出最终决策，即输出我们的行为。情绪的重要性体现在：它会影响系统2的理性思维过程。因此，了解基本情绪以及管理好自己的情绪的重要性也就不言而喻。
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017/06/22/强化学习(3)：基本算法 PART 2/">
+            <a class="btn" href="/2017/10/01/自我认知（二）：基本情绪和情绪管理/">
               阅读全文 &raquo;
             </a>
           </div>
@@ -848,7 +848,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/06/15/强化学习(2)：基本算法 PART 1/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/11/自我认知（一）：几种常见的人格/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="周君君">
@@ -870,8 +870,8 @@
             
               
                 
-                <a class="post-title-link" href="/2017/06/15/强化学习(2)：基本算法 PART 1/" itemprop="url">
-                  强化学习（二）：基本算法 PART 1
+                <a class="post-title-link" href="/2017/09/11/自我认知（一）：几种常见的人格/" itemprop="url">
+                  自我认知（一）：几种常见的人格
                 </a>
               
             
@@ -887,8 +887,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-06-15T20:21:17+08:00">
-                2017-06-15
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-11T17:51:08+08:00">
+                2017-09-11
               </time>
             
 
@@ -910,8 +910,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/目录/强化学习/" itemprop="url" rel="index">
-                    <span itemprop="name">强化学习</span>
+                  <a href="/目录/自我认知/" itemprop="url" rel="index">
+                    <span itemprop="name">自我认知</span>
                   </a>
                 </span>
 
@@ -946,10 +946,10 @@
 
       
         
-          本文介绍求解最优策略的基本算法第一部分。当环境能够通过离散的马尔科夫决策过程进行描述时，根据Bellman最优方程，遵循策略评估和策略改进的基本步骤，能够计算或估算出最优策略。动态规划算法是一个理论上完美的模型，它假设环境的状态转移概率分布和回报值函数是已知的，我们通过对其的分析熟悉策略评估和策略改进的基本步骤，然后将这个步骤扩展到无模型情况下的算法，比如马尔科夫控制算法，但是因为其不支持在线的增量式学习，因此限制了它的应用范围。本文分析动态规划和马尔科夫控制算法的前提假设和应用场景，以及各自的优缺点。
+          自我认知是件很重要的事情，《孙子兵法》里面也讲到“知己知彼，百战不殆”，但是我意识到它的重要性是开始于看了大将军郭的一本书《对于自己，你还是个陌生人》，毫不夸张的说，我当时候看完这本书的感觉就像重生了一样，毫无犹豫的发了条朋友圈表达我对这本书的喜爱，因为它的确让我对自己有了更深的认识，让我发现了自己身上一直存在的许多问题，也勾起了我对于心理学的热爱，于是从网上买了一堆关于自我认知的书，本篇博客的内容和我的理解便是来自于其中一本：《无处不在的人格》，它的核心内容是详细的分析了十一种基本的人格类型的特点以及我们如何与其相处，最大的特点是以例子来具体分析，读起来十分易懂。希望大家看完能够有所收获。
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2017/06/15/强化学习(2)：基本算法 PART 1/">
+            <a class="btn" href="/2017/09/11/自我认知（一）：几种常见的人格/">
               阅读全文 &raquo;
             </a>
           </div>
@@ -990,7 +990,7 @@
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1035,7 +1035,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">15</span>
+                <span class="site-state-item-count">20</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
