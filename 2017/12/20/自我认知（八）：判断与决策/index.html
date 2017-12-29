@@ -95,7 +95,7 @@
 <meta property="og:description" content="判断与决策这一个主题整理自两本书：《不确定世界的理性选择 - 判断和决策心理学》[1]和《思考，快与慢》[2]，这两本书的主题都是我们的大脑是如何进行判断和决策的，但是整体风格迥异，前者语言比较轻松，偏口语化叙述，整体内容更有系统性，而后者的语言更为严肃和偏学术，整体内容也相对零散，不知道是不是因为其作者是诺贝尔奖得主，所以后者阅读起来很晦涩，时刻感觉自己的智商受到了碾压，非常挑战阅读的耐心，不过">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/imagine_medical_decision.bmp">
 <meta property="og:image" content="http://onvolufm1.bkt.clouddn.com/brain_system_1_and_2.png">
-<meta property="og:updated_time" content="2017-12-29T04:45:20.004Z">
+<meta property="og:updated_time" content="2017-12-29T04:48:20.026Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="自我认知（八）判断与决策">
 <meta name="twitter:description" content="判断与决策这一个主题整理自两本书：《不确定世界的理性选择 - 判断和决策心理学》[1]和《思考，快与慢》[2]，这两本书的主题都是我们的大脑是如何进行判断和决策的，但是整体风格迥异，前者语言比较轻松，偏口语化叙述，整体内容更有系统性，而后者的语言更为严肃和偏学术，整体内容也相对零散，不知道是不是因为其作者是诺贝尔奖得主，所以后者阅读起来很晦涩，时刻感觉自己的智商受到了碾压，非常挑战阅读的耐心，不过">
@@ -438,15 +438,15 @@ P(B|A) =  {\frac{P(A|B)P(B)}{P(A)} } \propto P(A|B)P(B)
 $$<br>这里的A代表上面描述小源的那段话，B代表小源可能的主修专业，$P(B|A)$表示根据对小源的描述，她的主修专业为B的概率，因为这里小源的描述是确定的，因此$P(A)$是固定的，且只需要比较属于两个专业的概率大小关系，所以分母部分不用管，根据提供的两个选项，有：<br>$$
 P(心理学|A)  \propto P(A|\text{心理学})P(\text{心理学})  \\
 P(艺术史|A)  \propto P(A|\text{艺术史})P(\text{艺术史})  \\
-\Rightarrow  { {P(心理学|A)} \over {P(艺术史|A)} }  = {{P(A|心理学)} \over {P(A|艺术史)} } \times {{P(心理学) } \over {P(艺术史)}  } \quad (*)
+\Rightarrow  { {P(心理学|A)} \over {P(艺术史|A)} }  = {{P(A|心理学)} \over {P(A|艺术史)} } \quad \times {{P(心理学) } \over {P(艺术史)}  } \quad (*)
 $$<br>这里面的$P(A|心理学), P(A|艺术史)$就是大部分人所遵循的相似性判断依据，很明显，根据前面对小源的描述，他跟艺术史这个类别会比较接近，即：艺术史专业中出现小源这样特征的女生的概率会比较大，因此有：<br>$$
-P(A|艺术史) \gt P(A|心理学) \Rightarrow  {{P(A|心理学)} \over {P(A|艺术史)} } \lt 1
+P(A|艺术史) \gt P(A|心理学) \Rightarrow  {{P(A|心理学)} \over {P(A|艺术史)} } \quad \lt 1
 $$<br>前面我们说，这里实际上还需要比较两个可能专业的基准概率，从(<em>)表达式可以得知，基准概率就是这里的$P(心理学), P(艺术史)$，也就是在一所公立大学中随机的抽取一个女生样本，她属于心理学专业的概率和属于艺术史专业的概率。这两个概率可以通过对公立大学中两个专业的经验频率来估计，作者在书[1]中给出的比例是：<br>$$
-{ {P(\text{心理学}) } \over {P(\text{艺术史})} }=  {\frac{140}{1} }
+{ {P(\text{心理学}) } \over {P(\text{艺术史})} } \quad =  {\frac{140}{1} }
 $$<br>所以，根据表达式(</em>)，除非有下列表达式满足：<br>$$
-{ {P(A|心理学)} \over {P(A|艺术史)} } \lt  {\frac{1}{140} }
+{ {P(A|心理学)} \over {P(A|艺术史)} } \quad \lt  {\frac{1}{140} }
 $$<br>否则，会有下式成立：<br>$$
-{ {P(心理学|A)} \over {P(艺术史|A)} } \ge 1
+{ {P(心理学|A)} \over {P(艺术史|A)} } \quad \ge 1
 $$<br>即小源属于心理学专业的概率不会小于她属于艺术史的概率，这个结果与基于相似性比较得到的结果是不一样的。总结一下：贝叶斯公式是解决这类问题的良方。</p>
 <p>再看另一个问题：</p>
 <blockquote>
